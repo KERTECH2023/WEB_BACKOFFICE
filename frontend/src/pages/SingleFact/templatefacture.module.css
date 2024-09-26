@@ -1,0 +1,108 @@
+.container {
+    max-width: xl;
+    height: 40em;
+    margin: 50px auto;
+    padding: 2.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    flex-direction: row-reverse; 
+    
+  }
+  .infoschauff{
+    margin-top: 40px;
+  }
+  
+  .logo img {
+    height: 5rem;
+    width: 170px;
+    margin-top: -20px;
+    margin-bottom: 20px;
+    object-fit: contain;
+  }
+  
+  .invoiceInfo {
+    margin-bottom: 1.5rem;
+    margin-top: 20px;
+  }
+  .invoiceInfoF {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.invoiceInfoD{
+    color :rgb(92, 92, 92);
+    font-size: 16px;
+    font-weight: 500;
+}
+ 
+ 
+  .invoiceTable {
+    min-width: 100%;
+    border-collapse: collapse;
+    border: 1px solid black;
+    
+  }
+  
+  .tableHeader {
+    background-color: #f3f4f6;
+  }
+  
+  .tableHeader th {
+    padding: 0.5rem;
+    border: 1px solid #ffae18;
+    letter-spacing: 1px;
+  }
+  
+  .tableBody td {
+    padding: 0.5rem;
+    border: 1px solid #ffae18;
+    text-align: center;
+    letter-spacing: 1px;
+    font-size: 18px;
+  }
+  .AdresseF{
+    color:gray;
+    margin-left: -40px;
+  }
+  .NomChauff{
+    font-weight: bold;
+    text-transform: capitalize;
+    margin-left: -40px;
+  }
+  
+  .total {
+    text-align: right;
+    margin-top: 1.5rem;
+    font-size: 1.125rem;
+    font-weight: bold;
+  }
+
+  .footer {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .separator {
+    border: 0;
+    border-top: 1px solid #ffae18; 
+    margin-bottom: 1rem;
+  }
+  
+  .politesse {
+    font-size: 18px;
+    font-weight: 500;
+    color: #292828; 
+    width: 500px;
+    margin: 0 auto;
+    letter-spacing: 1px;
+  }
+  
+  
