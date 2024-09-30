@@ -25,7 +25,7 @@ const Passwordforget = () => {
 	
 		// Handle validations
 		axios
-		  .post("http://localhost:3001/agent/reset", {email})
+		  .post(process.env.NEXT_PUBLIC_BASE_URL + "/agent/reset", {email})
 		
 		 
 		  .then(response => {

@@ -38,7 +38,7 @@ const UpdChauf = () => {
   console.log("user", id);
   
   const getSingleUser = async (id)  => {
-    const response = await axios.get(`http://localhost:3001/Chauff/searchchauf/${id}`);
+    const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/searchchauf/${id}`);
     if(response.status===200){
    setform({ ...response.data })
    console.log("data" , response.data)
@@ -96,7 +96,7 @@ const onChangeHandler = (e)=>{
   
       // Handle validations
       axios
-        .put(`http://localhost:3001/Chauff/updatechauf/${id}`,data
+        .put(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/updatechauf/${id}`,data
         ,{ headers: {
           'Content-Type': 'multipart/form-data',
         },})

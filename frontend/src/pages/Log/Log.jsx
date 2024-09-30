@@ -27,7 +27,7 @@ const Log = () => {
 
     // Handle validations
     axios
-      .post("http://localhost:3001/agent/loginAg", { email, password })
+      .post(process.env.NEXT_PUBLIC_BASE_URL + "/agent/loginAg", { email, password })
       .then(response => {
         const user = response.data
         setRole(user.role);

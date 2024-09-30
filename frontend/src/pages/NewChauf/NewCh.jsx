@@ -81,7 +81,7 @@ const NewCh = () => {
 
         // Handle validations
         axios
-          .post("http://localhost:3001/Chauff/AjoutChauf", { Nom, Prenom, email, phone,photoAvatar,photoCin, photoPermisRec,photoPermisVer,photoVtc,gender , role ,DateNaissance ,Nationalite ,licenseNo , cnicNo ,address,postalCode}
+          .post(process.env.NEXT_PUBLIC_BASE_URL + "/Chauff/AjoutChauf", { Nom, Prenom, email, phone,photoAvatar,photoCin, photoPermisRec,photoPermisVer,photoVtc,gender , role ,DateNaissance ,Nationalite ,licenseNo , cnicNo ,address,postalCode}
           ,{ headers: {
             'Content-Type': 'multipart/form-data',
           },})

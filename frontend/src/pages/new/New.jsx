@@ -60,7 +60,7 @@ const phoneRegex = /^[0-9]{8}$/;
 
   // Handle validations
   axios
-    .post("http://localhost:3001/agent/AjoutAg", { Nom, Prenom, email, phone,photoAvatar,gender , role ,DateNaissance ,Nationalite}
+    .post(process.env.NEXT_PUBLIC_BASE_URL + "/agent/AjoutAg", { Nom, Prenom, email, phone,photoAvatar,gender , role ,DateNaissance ,Nationalite}
     ,{ headers: {
       'Content-Type': 'multipart/form-data',
     },})

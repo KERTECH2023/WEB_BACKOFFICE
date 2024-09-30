@@ -25,14 +25,14 @@ const SingleF = () => {
 
   const getChauffeurById = async (id) => {
     const response = await fetch(
-      `http://localhost:3001/Chauff/searchchauf/${id}`
+      process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/searchchauf/${id}`
     );
     const data = await response.json();
     return data;
   };
 
   const getFactureById = async (id) => {
-    const response = await fetch(`http://localhost:3001/Chauff/factures/${id}`);
+    const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/factures/${id}`);
     const data = await response.json();
     return data;
   };
@@ -161,7 +161,7 @@ const SingleF = () => {
     formData.append("id", id);
 
     try {
-      await axios.post("http://localhost:3001/Chauff/sendFacture", formData, {
+      await axios.post(process.env.NEXT_PUBLIC_BASE_URL + "/Chauff/sendFacture", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -175,7 +175,7 @@ const SingleF = () => {
 
   const handleSubmite = () => {
     axios
-      .put(`http://localhost:3001/Chauff/updatefacture/${id}`, {
+      .put(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/updatefacture/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
