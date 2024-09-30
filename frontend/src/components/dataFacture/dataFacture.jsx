@@ -57,7 +57,7 @@ const DataFact = () => {
   const getUsers = async () => {
     try {
       console.log("Fetching factures...");
-      const response = await axios.get("http://localhost:3001/Chauff/factures");
+      const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/Chauff/factures");
       if (response.status === 200) {
         const factures = response.data;
         console.log("Factures fetched:", factures);
@@ -74,7 +74,7 @@ const DataFact = () => {
                 `Fetching chauffeur data for ${facture.chauffeur}...`
               );
               const chauffeurResponse = await axios.get(
-                `http://localhost:3001/Chauff/searchchauf/${facture.chauffeur}`
+                process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/searchchauf/${facture.chauffeur}`
               );
               if (chauffeurResponse.status === 200) {
                 const chauffeurData = chauffeurResponse.data;
@@ -84,7 +84,7 @@ const DataFact = () => {
                   `Fetching ride counts for ${chauffeurData.phone}...`
                 );
                 const rideRequestsResponse = await axios.get(
-                  `http://localhost:3001/Chauff/rideCounts?driverPhone=${chauffeurData.phone}`
+                  process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/rideCounts?driverPhone=${chauffeurData.phone}`
                 );
                 if (rideRequestsResponse.status === 200) {
                   const rideCounts = rideRequestsResponse.data;

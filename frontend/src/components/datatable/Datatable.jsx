@@ -22,7 +22,7 @@ const Datatable = () => {
     getUsers();
   },[]);
   const getUsers = async () =>{
-    const response = await axios.get("http://localhost:3001/agent/getAg");
+    const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/agent/getAg");
     if(response.status===200){
       setData(response.data)
     }
@@ -31,7 +31,7 @@ const Datatable = () => {
   // const handleDelete = async (id) => {
   //   if(window.confirm("Are you sure that you wanted to delete this client")
   //   ){
-  //     const response = await axios.delete(`http://localhost:3001/agent/destroyAg/${id}`);
+  //     const response = await axios.delete(`process.env.NEXT_PUBLIC_BASE_URL + /agent/destroyAg/${id}`);
   //     if(response.status===200){
   //       toast.success('Agent Deleted with Success !', {
   //         position: toast.POSITION.TOP_RIGHT

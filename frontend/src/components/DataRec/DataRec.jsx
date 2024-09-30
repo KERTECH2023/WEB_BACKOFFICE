@@ -30,14 +30,14 @@ const Datatable = () => {
   }, [role]);
   
   const getrec = async () =>{
-    const response = await axios.get("http://localhost:3001/Rec/show");
+    const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/Rec/show");
     if(response.status===200){
       setData(response.data)
       console.log("dataaa",response.data)
     }
   };
   const getrecid = async (id)  => {
-    const response = await axios.get(`http://localhost:3001/Rec/getrec/${userid}`);
+    const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `/Rec/getrec/${userid}`);
     if(response.status===200){
         setData(response.data)
    console.log("data" , response.data)
