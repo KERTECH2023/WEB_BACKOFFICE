@@ -20,7 +20,7 @@ const config = {
 
 const firestoreApp = admin.initializeApp(
   {
-    credential: credential: admin.credential.cert(config),
+    credential:  admin.credential.cert(config),
     databaseURL: "https://transport-app-36443-default-rtdb.firebaseio.com",
   },
   "firestoreApp"
