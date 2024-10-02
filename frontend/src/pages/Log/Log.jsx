@@ -26,10 +26,10 @@ const Log = () => {
     e.preventDefault()
 
     // Handle validations
-	  console.log(process.env.NEXT_PUBLIC_BASE_URL);
-	  console.log(process.env.NEXT_PUBLIC_BASE_URL + "/agent/loginAg");
+	  console.log(process.env.REACT_APP_BASE_URL);
+	  console.log(process.env.REACT_APP_BASE_URL + "/agent/loginAg");
     axios
-      .post(process.env.NEXT_PUBLIC_BASE_URL + "/agent/loginAg", { email, password })
+      .post(process.env.REACT_APP_BASE_URL + "/agent/loginAg", { email, password })
       .then(response => {
         const user = response.data
         setRole(user.role);
