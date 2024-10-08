@@ -19,7 +19,7 @@ const DataNewChauf = () => {
       getUsers();
     },[]);
     const getUsers = async () =>{
-      const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/Chauff/newchauf");
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/newchauf");
       if(response.status===200){
         setData(response.data)
       }
