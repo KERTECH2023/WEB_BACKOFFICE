@@ -4,6 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
+require('dotenv').config()
 
 const { synchronizeData } = require("./Controllers/ChauffContro");
 
@@ -29,7 +30,7 @@ const {
   generateDriverStatistics,
 } = require("./Controllers/FactureController");
 
-mongoose.connect(config.database, {
+mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
