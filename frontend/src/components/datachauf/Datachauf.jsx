@@ -20,7 +20,7 @@ const Datachauf = () => {
       getUsers();
     },[]);
     const getUsers = async () =>{
-      const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/Chauff/affiche");
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if(response.status===200){
         setData(response.data)
       }
