@@ -25,14 +25,14 @@ const SingleF = () => {
 
   const getChauffeurById = async (id) => {
     const response = await fetch(
-      process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/searchchauf/${id}`
+      process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`
     );
     const data = await response.json();
     return data;
   };
 
   const getFactureById = async (id) => {
-    const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/factures/${id}`);
+    const response = await fetch(process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`);
     const data = await response.json();
     return data;
   };
@@ -161,7 +161,7 @@ const SingleF = () => {
     formData.append("id", id);
 
     try {
-      await axios.post(process.env.NEXT_PUBLIC_BASE_URL + "/Chauff/sendFacture", formData, {
+      await axios.post(process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
