@@ -57,7 +57,7 @@ const DataFact = () => {
   const getUsers = async () => {
     try {
       console.log("Fetching factures...");
-      const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/Chauff/factures");
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/factures");
       if (response.status === 200) {
         const factures = response.data;
         console.log("Factures fetched:", factures);
@@ -74,7 +74,7 @@ const DataFact = () => {
                 `Fetching chauffeur data for ${facture.chauffeur}...`
               );
               const chauffeurResponse = await axios.get(
-                process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/searchchauf/${facture.chauffeur}`
+                process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${facture.chauffeur}`
               );
               if (chauffeurResponse.status === 200) {
                 const chauffeurData = chauffeurResponse.data;
