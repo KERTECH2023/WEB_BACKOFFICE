@@ -175,7 +175,7 @@ const SingleF = () => {
 
   const handleSubmite = () => {
     axios
-      .put(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/updatefacture/${id}`, {
+      .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatefacture/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
