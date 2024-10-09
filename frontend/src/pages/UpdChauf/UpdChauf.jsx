@@ -38,7 +38,7 @@ const UpdChauf = () => {
   console.log("user", id);
   
   const getSingleUser = async (id)  => {
-    const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/searchchauf/${id}`);
+    const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`);
     if(response.status===200){
    setform({ ...response.data })
    console.log("data" , response.data)
