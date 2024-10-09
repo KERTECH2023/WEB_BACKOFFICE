@@ -25,7 +25,7 @@ const DataContact = () => {
     }, [role]);
     
     const getcontact = async () =>{
-      const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/Con/show");
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Con/show");
       if(response.status===200){
         setData(response.data)
         console.log("dataaa",response.data)
