@@ -96,7 +96,7 @@ const onChangeHandler = (e)=>{
   
       // Handle validations
       axios
-        .put(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/updatechauf/${id}`,data
+        .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatechauf/${id}`,data
         ,{ headers: {
           'Content-Type': 'multipart/form-data',
         },})
