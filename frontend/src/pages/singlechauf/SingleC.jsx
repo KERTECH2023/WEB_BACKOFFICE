@@ -29,7 +29,7 @@ const SingleC = () => {
 
   const getSingleUser = async (id) => {
     const response = await axios.get(
-      process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/searchchauf/${id}`
+      process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`
     );
     if (response.status === 200) {
       setUser({ ...response.data });
@@ -43,7 +43,7 @@ const SingleC = () => {
 
     // Handle validations
     axios
-      .put(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/updatestatus/${id}`, {
+      .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatestatus/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -73,7 +73,7 @@ const SingleC = () => {
     // Prevent the default submit and page reload
     // Handle validations
     axios
-      .put(process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/updatestatuss/${id}`, {
+      .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatestatuss/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
