@@ -17,7 +17,7 @@ const DataTarif = () => {
   }, []);
 
   const getUsers = async () => {
-    const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + "/Tar/show");
+    const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Tar/show");
     if (response.status === 200) {
       setData(response.data);
     }
@@ -36,7 +36,7 @@ const DataTarif = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(process.env.NEXT_PUBLIC_BASE_URL + `/Tar/update`, {
+      const response = await axios.put(process.env.REACT_APP_BASE_URL + `/Tar/update`, {
         tarifId: selectedTarif.id,
         newTarif,
         newTarifMaj,
