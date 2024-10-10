@@ -712,61 +712,17 @@ const updateFact = async (req, res, next) => {
     return res.status(500).send({ error: error.message });
   }
 };
-
-const sendActivatedEmail = async (Email, Nom, password) => {
-  // create reusable transporter object using the default SMTP transport
-  let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'testrapide45@gmail.com',
-      pass: 'vtvtceruhzparthg'
-    }
-  });
-
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.log(error);
-      console.log("Server not ready");
-    } else {
-      console.log("Server is ready to take our messages");
-    }
-  });
-
-  const mailOptions = {
-    from: 'TunisieUber<testrapide45@gmail.com>',
-    to: Email,
-    subject: 'TunisieUber Compte Activé',
-    text: `
-    email: ${Email}
-    mot de passe: ${password}
-    `
-  };
-
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  });
-};
-
 const updatestatus = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // Generate a new password and hash it using bcrypt
-    const newpassword = Math.random().toString(36).slice(-8); // Generates a random 8-character password
-    const hashedPassword = await bcrypt.hash(newpassword, 10);
-
-    // Update the chauffeur's status and password
+    // Update the chauffeur's status
     const chauffeurUpdated = await Chauffeur.findByIdAndUpdate(id, {
       $set: {
         isActive: false,
         Cstatus: "Désactivé",
-        password: hashedPassword
       },
-    }, { new: true });
+    });
 
     // Check if the chauffeur was found and updated
     if (!chauffeurUpdated) {
@@ -776,7 +732,6 @@ const updatestatus = async (req, res, next) => {
     }
 
     const chauffeurEmail = chauffeurUpdated.email;
-    sendActivatedEmail(chauffeurEmail, chauffeurUpdated.Nom, newpassword);
 
     try {
       // Attempt to fetch the user record by email
@@ -798,14 +753,15 @@ const updatestatus = async (req, res, next) => {
 
     // Send a success response
     return res.status(200).send({
-      message: "Chauffeur was Disabled and a new password was set successfully!",
+      message: "Chauffeur was Disabled successfully!",
     });
   } catch (error) {
     // Log the error and send a 500 response
-    console.log("Error:", error);
+    console.log("erreur:", error);
     return res.status(500).send({ error: error.message });
   }
 };
+
 const Comptevald = async (req, res, next) => {
   const { id } = req.params;
 
