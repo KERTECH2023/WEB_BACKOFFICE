@@ -37,7 +37,7 @@ console.log("cin",CiN)
         }
         // Handle validations
         axios
-          .post(process.env.NEXT_PUBLIC_BASE_URL + "/Rec/add", { titre,objectrec,daterec,CiN,agent })
+          .post(process.env.NEXT_PUBLIC_BASE_URL_BASE_URL + "/Rec/add", { titre,objectrec,daterec,CiN,agent })
           .then(response => {
         
             console.log(response)
