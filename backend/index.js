@@ -53,12 +53,12 @@ app.use(logger("dev"));
 const corsOptions = {
   // origin:'https://front-admin-vert.vercel.app',
 
-  origin: "http://localhost:3002",
+  origin: "*",
 
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
