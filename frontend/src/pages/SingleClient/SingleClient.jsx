@@ -30,7 +30,7 @@ const SingleClient = () => {
 
 
     const getSingleUser = async (id)  => {
-        const response = await axios.get(process.env.NEXT_PUBLIC_BASE_URL + `/Client/searchCl/${id}`);
+        const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Client/searchCl/${id}`);
         if(response.status===200){
        setUser({ ...response.data })
        console.log("data" , response.data)
@@ -46,7 +46,7 @@ const SingleClient = () => {
   
       // Handle validations
       axios
-        .put(process.env.NEXT_PUBLIC_BASE_URL + `/Client/updatestatus/${id}`
+        .put(process.env.REACT_APP_BASE_URL + `/Client/updatestatus/${id}`
         ,{ headers: {
           'Content-Type': 'multipart/form-data',
         },})
