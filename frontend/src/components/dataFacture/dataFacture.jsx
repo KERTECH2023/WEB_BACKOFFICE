@@ -84,7 +84,7 @@ const DataFact = () => {
                   `Fetching ride counts for ${chauffeurData.phone}...`
                 );
                 const rideRequestsResponse = await axios.get(
-                  process.env.NEXT_PUBLIC_BASE_URL + `/Chauff/rideCounts?driverPhone=${chauffeurData.phone}`
+                  process.env.REACT_APP_BASE_URL + `/Chauff/rideCounts?driverPhone=${chauffeurData.phone}`
                 );
                 if (rideRequestsResponse.status === 200) {
                   const rideCounts = rideRequestsResponse.data;
