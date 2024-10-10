@@ -65,7 +65,7 @@ const NewClient = () => {
       
         // Handle validations
         axios
-          .post(process.env.NEXT_PUBLIC_BASE_URL + "/Client/AjoutCl", { Nom, Prenom, email, phone,photoAvatar,gender ,DateNaissance ,Nationalite  , cnicNo ,address}
+          .post(process.env.REACT_APP_BASE_URL + "/Client/AjoutCl", { Nom, Prenom, email, phone,photoAvatar,gender ,DateNaissance ,Nationalite  , cnicNo ,address}
           ,{ headers: {
             'Content-Type': 'multipart/form-data',
           },})
