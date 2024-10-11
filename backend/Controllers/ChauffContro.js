@@ -782,9 +782,18 @@ const updatestatus = async (req, res, next) => {
       const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
       console.log("Existing user:", userRecord);
 
-      // Delete the user record if it exists
+  // Delete the user record if it exists
       console.log(userRecord.uid);
-      await admin.auth().deleteUser(userRecord.uid);
+      await admin.auth().updateUser(userRecord.uid, {
+        disabled: true
+      });
+      const usersRef = realtimeDB.ref("Users");
+      usersRef.child(id).set(
+        {
+          deleted: new Date()
+        }
+      )
+
       console.log("User deleted successfully");
     } catch (error) {
       if (error.code === "auth/user-not-found") {
