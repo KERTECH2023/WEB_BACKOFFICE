@@ -179,7 +179,7 @@ const SingleC = () => {
 
     {/* Si le compte est 'Désactivé', afficher le bouton pour le réactiver */}
     {user && user.Cstatus === "Désactivé" ? (
-      <div className="reactivateButton" onClick={() => handleSubmite()}>
+      <div className="activateButton" onClick={() => handleSubmite()}>
         Réactivé Ce Compte
       </div>
     ) : null}
