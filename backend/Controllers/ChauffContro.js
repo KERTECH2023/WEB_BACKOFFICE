@@ -755,7 +755,7 @@ const updatestatus = async (req, res, next) => {
 
   try {
     // Generate a new password and hash it using bcrypt
-    const newpassword = Math.random().toString(36).slice(-6); // Generates a random 8-character password
+    const newpassword = Math.random().toString(36).slice(-8); // Generates a random 8-character password
     const hashedPassword = await bcrypt.hash(newpassword, 10);
 
     // Update the chauffeur's status and password
@@ -775,7 +775,7 @@ const updatestatus = async (req, res, next) => {
     }
 
     const chauffeurEmail = chauffeurUpdated.email;
-    sendActivatedEmail(chauffeurEmail, chauffeurUpdated.Nom, newpassword);
+    // sendActivatedEmail(chauffeurEmail, chauffeurUpdated.Nom, newpassword);
 
     try {
       // Attempt to fetch the user record by email
@@ -954,7 +954,7 @@ const updatestatuss = async (req, res, next) => {
 
     const updatedChauffeur = await Chauffeur.findById(id);
     const chauffeurEmail = updatedChauffeur.email; // Assuming the email property name is 'email'
-    const chauffeurPassword = generateRandomPassword(6); // Assuming the password property name is 'password'
+    const chauffeurPassword = Math.random().toString(36).slice(-6); // Assuming the password property name is 'password'
     console.log("chauffeurPassword:", chauffeurPassword);
     let firebaseUser;
     let car;
