@@ -737,6 +737,7 @@ const updatestatus = async (req, res, next) => {
       // Attempt to fetch the user record by email
       const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
       console.log("Existing user:", userRecord);
+            console.log(userRecord.uid);
 
       // Delete the user record if it exists
       await admin.auth().deleteUser(userRecord.uid);
