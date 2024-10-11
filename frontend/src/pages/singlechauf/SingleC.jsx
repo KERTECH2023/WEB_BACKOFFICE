@@ -167,7 +167,9 @@ const SingleC = () => {
                   <span className="itemKey">N° CIN:</span>
                   <span className="itemValue">{user && user.cnicNo}</span>
                 </div>
-
+<pre>
+  {JSON.stringify(user)}
+</pre>
 {role === "Admin" || role === "Agentad" ? (
   <div>
     {/* Si le compte est 'En_cours', afficher le bouton pour l'activer */}
