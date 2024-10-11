@@ -253,7 +253,7 @@ const SingleC = () => {
           className="deleteButton"
           onClick={() => handleSubmite()}
         >
-          Activé Ce Compte
+          Réactivé Ce Compte
         </div>
       )}
     </div>
@@ -263,7 +263,7 @@ const SingleC = () => {
           className="deleteButton"
           onClick={() => handleSubmiteC()}
         >
-          Activé Ce Compte
+          Réactivé Ce Compte
         </div>
       )}
     </div>
