@@ -167,32 +167,22 @@ const SingleC = () => {
                   <span className="itemKey">N° CIN:</span>
                   <span className="itemValue">{user && user.cnicNo}</span>
                 </div>
-<pre>
-  {JSON.stringify(user)}
-</pre>
-{role === "Admin" || role === "Agentad" ? (
-  <div>
-    {/* Si le compte est 'En_cours', afficher le bouton pour l'activer */}
-    {user && user.Cstatus === "En_cours" ? (
-      <div className="activateButton" onClick={() => handleSubmite()}>
-        Activé Ce Compte
-      </div>
-    ) : null}
+  {role === "Admin" || role === "Agentad" ? (
+                  <div>
+                    <div className="DesaButton" onClick={() => handleSubmit()}>
+                      Desactivé Ce Compte
+                    </div>
 
-    {/* Si le compte est 'Désactivé', afficher le bouton pour le réactiver */}
-    {user && user.Cstatus === "Désactivé" ? (
-      <div className="activateButton" onClick={() => handleSubmite()}>
-        Réactivé Ce Compte
-      </div>
-    ) : null}
-
-    {/* Bouton pour désactiver le compte */}
-    <div className="DesaButton" onClick={() => handleSubmit()}>
-      Désactivé Ce Compte
-    </div>
-  </div>
-) : null}
-
+                    {user && user.Cstatus !== "Validé" ? (
+                      <div
+                        className="activateButton"
+                        onClick={() => handleSubmite()}
+                      >
+                        Activé Ce Compte
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
