@@ -18,6 +18,28 @@ const PDFDocument = require("pdfkit");
 
 const fs = require("fs");
 
+const createDriversNodeIfNotExists = async () => {
+  const driversRef = realtimeDB.ref("Drivers");
+
+  try {
+    const snapshot = await driversRef.once("value");
+    
+    if (!snapshot.exists()) {
+      // La référence "Drivers" n'existe pas, on la crée
+      await driversRef.set({
+        message: "Drivers node created successfully!"
+      });
+      console.log("Drivers node created.");
+    } else {
+      console.log("Drivers node already exists.");
+    }
+  } catch (error) {
+    console.error("Error checking or creating Drivers node:", error);
+  }
+};
+
+
+
 /**--------------------Ajouter un agnet------------------------  */
 
 const generateRandomPassword = () => {
@@ -974,7 +996,7 @@ const updatestatuss = async (req, res, next) => {
         console.error("Error sending email:", error);
       }
     }
-
+    createDriversNodeIfNotExists();
     const activedriversRef = realtimeDB.ref("Drivers");
     const activeDriver = {
       name: chauffeurUpdated.Nom,
