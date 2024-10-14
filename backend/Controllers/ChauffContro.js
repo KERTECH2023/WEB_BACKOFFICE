@@ -938,6 +938,18 @@ const updatestatuss = async (req, res, next) => {
 
       firebaseUser = userRecord;
       console.log("User updated:", userRecord);
+      try {
+        const reponse = await sendConfirmationEmail(
+          chauffeurEmail,
+          ""
+        );
+        return res.status(200).send({
+          message: "Chauffeur was Disabled successfully!",
+          chauffeurEmail: chauffeurEmail, // Sending the email in the response
+        });
+      } catch (error) {
+        console.error("Error sending email:", error);
+      }
     } catch (error) {
       console.error("Error getting existing user:", error);
 
@@ -949,7 +961,18 @@ const updatestatuss = async (req, res, next) => {
 
       console.log("New user created:", firebaseUser);
 
-      // Send email verification for new users
+      try {
+        const reponse = await sendConfirmationEmail(
+          chauffeurEmail,
+          chauffeurPassword
+        );
+        return res.status(200).send({
+          message: "Chauffeur was Disabled successfully!",
+          chauffeurEmail: chauffeurEmail, // Sending the email in the response
+        });
+      } catch (error) {
+        console.error("Error sending email:", error);
+      }
     }
 
     const activedriversRef = realtimeDB.ref("Drivers");
@@ -975,18 +998,7 @@ const updatestatuss = async (req, res, next) => {
       console.log("Successfully updated data in Firebase Firestore");
     }
 
-    try {
-      const reponse = await sendConfirmationEmail(
-        chauffeurEmail,
-        chauffeurPassword
-      );
-      return res.status(200).send({
-        message: "Chauffeur was Disabled successfully!",
-        chauffeurEmail: chauffeurEmail, // Sending the email in the response
-      });
-    } catch (error) {
-      console.error("Error sending email:", error);
-    }
+
   } catch (error) {
     console.error(error);
     return res.status(500).send({ error: error });
@@ -1130,7 +1142,13 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
         <td align="center" style="padding:0;Margin:0;padding-top:40px;padding-bottom:40px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D">Merci de nous avoir rejoint.</h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p></td>
         </tr>
         <tr>
+        ${
+          Password === "" ? "" : `
         <td align="center" style="padding:0;Margin:0;padding-top:40px;padding-bottom:40px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D">votre mot de passe: ${chauffeurPassword}</h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p></td>
+          
+          `
+        }
+
         </tr>
         </table></td>
         </tr>
