@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { TarifColumns } from "../../datatarif";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+
 const DataTarif = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
@@ -11,6 +12,8 @@ const DataTarif = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTarif, setNewTarif] = useState("");
   const [newTarifMaj, setNewTarifMaj] = useState("");
+  const [isAddingTarif, setIsAddingTarif] = useState(false);
+  const [newTarifName, setNewTarifName] = useState("");
 
   useEffect(() => {
     getUsers();
@@ -41,14 +44,33 @@ const DataTarif = () => {
         newTarif,
         newTarifMaj,
       });
-      console.log(data.id);
       if (response.status === 200) {
         toast.success("Tarif updated successfully!");
         setIsModalOpen(false);
-        getUsers(); // Refresh data
+        getUsers();
       }
     } catch (error) {
       toast.error("Failed to update tarif.");
+    }
+  };
+
+  const handleAddTarif = async () => {
+    if (isAddingTarif) {
+      try {
+        const response = await axios.put(process.env.REACT_APP_BASE_URL + `/Tar/tarif`, {
+          tarifName: newTarifName,
+        });
+        if (response.status === 200) {
+          toast.success("New tarif added successfully!");
+          setIsAddingTarif(false);
+          setNewTarifName("");
+          getUsers();
+        }
+      } catch (error) {
+        toast.error("Failed to add new tarif.");
+      }
+    } else {
+      setIsAddingTarif(true);
     }
   };
 
@@ -63,6 +85,20 @@ const DataTarif = () => {
           id="Search"
           className="form-control"
         />
+      </div>
+      <div className="mb-3 d-flex">
+        {isAddingTarif && (
+          <input
+            type="text"
+            placeholder="Enter new tarif name"
+            value={newTarifName}
+            onChange={(e) => setNewTarifName(e.target.value)}
+            className="form-control me-2"
+          />
+        )}
+        <button className="btn btn-primary" onClick={handleAddTarif}>
+          {isAddingTarif ? "Submit" : "Add Tarif"}
+        </button>
       </div>
       <DataGrid
         className="datagrid"
