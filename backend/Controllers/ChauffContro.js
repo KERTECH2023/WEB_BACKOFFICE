@@ -1015,7 +1015,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
     from: "Tunisie Uber <noreplytunisieuber@gmail.com>",
     to: Email,
     subject: "TunisieUber Compte Validé ",
-    html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
         <head>
         <meta charset="UTF-8">
@@ -1158,7 +1158,6 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
         </body>
         </html>`,
   };
-
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
