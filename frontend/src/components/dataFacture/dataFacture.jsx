@@ -2,19 +2,35 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { InvoiceColumns } from "../../DataTableInvoice";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./dataFacture.css";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
+import Button from "@mui/material/Button";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 const DataFact = () => {
   const [data, setData] = useState([]);
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
+  
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setSearch(params.get("search") || "");
+    setSelectedMonth(params.get("month") || "");
+    setSelectedYear(params.get("year") || "");
+  }, [location]);
+
   useEffect(() => {
     getUsers();
   }, []);
@@ -22,14 +38,29 @@ const DataFact = () => {
   const handleSearchTerm = (e) => {
     const value = e.target.value.toLowerCase();
     setSearch(value);
+    updateURL({ search: value });
   };
 
   const handleMonthFilter = (e) => {
     setSelectedMonth(e.target.value);
+    updateURL({ month: e.target.value });
   };
 
   const handleYearFilter = (e) => {
     setSelectedYear(e.target.value);
+    updateURL({ year: e.target.value });
+  };
+
+  const updateURL = (params) => {
+    const searchParams = new URLSearchParams(location.search);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) {
+        searchParams.set(key, value);
+      } else {
+        searchParams.delete(key);
+      }
+    });
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
 
   useEffect(() => {
@@ -56,71 +87,40 @@ const DataFact = () => {
 
   const getUsers = async () => {
     try {
+      setLoading(true);
+      setError(null);
       console.log("Fetching factures...");
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/factures");
       if (response.status === 200) {
         const factures = response.data;
         console.log("Factures fetched:", factures);
 
-        const filteredFactures = factures.filter(
-          (facture) => facture.chauffeur
-        );
-        console.log("Filtered Factures:", filteredFactures);
-
         const enhancedFactures = await Promise.all(
-          filteredFactures.map(async (facture) => {
+          factures.map(async (facture) => {
+            if (!facture.chauffeur) {
+              return { ...facture, chauffeurName: "N/A", chauffeurPrenom: "N/A" };
+            }
             try {
-              console.log(
-                `Fetching chauffeur data for ${facture.chauffeur}...`
-              );
-              const chauffeurResponse = await axios.get(
-                process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${facture.chauffeur}`
-              );
-              if (chauffeurResponse.status === 200) {
-                const chauffeurData = chauffeurResponse.data;
-                console.log("Chauffeur data:", chauffeurData);
+              const [chauffeurResponse, rideRequestsResponse] = await Promise.all([
+                axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${facture.chauffeur}`),
+                axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/rideCounts?driverPhone=${facture.chauffeur}`)
+              ]);
 
-                console.log(
-                  `Fetching ride counts for ${chauffeurData.phone}...`
-                );
-                const rideRequestsResponse = await axios.get(
-                  process.env.REACT_APP_BASE_URL + `/Chauff/rideCounts?driverPhone=${chauffeurData.phone}`
-                );
-                if (rideRequestsResponse.status === 200) {
-                  const rideCounts = rideRequestsResponse.data;
-                  console.log("Ride counts:", rideCounts);
+              const chauffeurData = chauffeurResponse.data;
+              const rideCounts = rideRequestsResponse.data;
 
-                  const acceptedCount = rideCounts.accepted;
-                  const cancelledCount = rideCounts.cancelled;
-
-                  return {
-                    ...facture,
-                    chauffeurName: chauffeurData.Nom,
-                    chauffeurPrenom: chauffeurData.Prenom,
-                    chauffeurEmail: chauffeurData.email,
-                    chauffeurPhone: chauffeurData.phone,
-                    photoAvatar: chauffeurData.photoAvatar,
-                    acceptedRides: acceptedCount,
-                    cancelledRides: cancelledCount,
-                  };
-                }
-                return {
-                  ...facture,
-                  chauffeurName: chauffeurData.Nom,
-                  chauffeurPrenom: chauffeurData.Prenom,
-                  chauffeurEmail: chauffeurData.email,
-                  chauffeurPhone: chauffeurData.phone,
-                  photoAvatar: chauffeurData.photoAvatar,
-                  acceptedRides: 0,
-                  cancelledRides: 0,
-                };
-              }
-              return facture;
+              return {
+                ...facture,
+                chauffeurName: chauffeurData.Nom,
+                chauffeurPrenom: chauffeurData.Prenom,
+                chauffeurEmail: chauffeurData.email,
+                chauffeurPhone: chauffeurData.phone,
+                photoAvatar: chauffeurData.photoAvatar,
+                acceptedRides: rideCounts.accepted,
+                cancelledRides: rideCounts.cancelled,
+              };
             } catch (error) {
-              console.error(
-                `Error fetching chauffeur data for ${facture.chauffeur}:`,
-                error
-              );
+              console.error(`Error fetching data for ${facture.chauffeur}:`, error);
               return facture;
             }
           })
@@ -130,7 +130,20 @@ const DataFact = () => {
       }
     } catch (error) {
       console.error("Error fetching factures:", error);
+      setError("Une erreur est survenue lors de la récupération des factures.");
+      toast.error("Erreur lors du chargement des données");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    getUsers();
+  };
+
+  const handleExport = () => {
+    // Implement export functionality here
+    toast.info("Fonctionnalité d'exportation à implémenter");
   };
 
   const actionColumn = [
@@ -148,7 +161,7 @@ const DataFact = () => {
                   to={`/consultF/${params.row._id}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <div className="viewButton">Consulté</div>
+                  <div className="viewButton">Consulter</div>
                 </Link>
               </>
             )}
@@ -158,20 +171,34 @@ const DataFact = () => {
     },
   ];
 
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <div>Erreur : {error}</div>;
+  }
+
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Listes Des Facture
-        <Link to="/Chauffeur/new" className="link"></Link>
+        Liste des Factures
+        <div>
+          <Button startIcon={<RefreshIcon />} onClick={handleRefresh}>
+            Rafraîchir
+          </Button>
+          <Button startIcon={<FileDownloadIcon />} onClick={handleExport}>
+            Exporter
+          </Button>
+        </div>
       </div>
       <div className="filters">
         <div className="search">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Rechercher..."
             onChange={handleSearchTerm}
-            name="Search"
-            id="Search"
+            value={search}
             className="find"
           />
           <SearchOutlinedIcon />
@@ -182,18 +209,11 @@ const DataFact = () => {
           className="filterSelect"
         >
           <option value="">Tous les mois</option>
-          <option value="1">Janvier</option>
-          <option value="2">Février</option>
-          <option value="3">Mars</option>
-          <option value="4">Avril</option>
-          <option value="5">Mai</option>
-          <option value="6">Juin</option>
-          <option value="7">Juillet</option>
-          <option value="8">Août</option>
-          <option value="9">Septembre</option>
-          <option value="10">Octobre</option>
-          <option value="11">Novembre</option>
-          <option value="12">Décembre</option>
+          {[...Array(12)].map((_, i) => (
+            <option key={i} value={i + 1}>
+              {new Date(0, i).toLocaleString('default', { month: 'long' })}
+            </option>
+          ))}
         </select>
         <select
           onChange={handleYearFilter}
@@ -201,11 +221,14 @@ const DataFact = () => {
           className="filterSelect"
         >
           <option value="">Toutes les années</option>
-          <option value="2023">2023</option>
-          <option value="2024">2024</option>
-          <option value="2025">2025</option>
-          <option value="2026">2026</option>
-          <option value="2027">2027</option>
+          {[...Array(5)].map((_, i) => {
+            const year = new Date().getFullYear() + i;
+            return (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            );
+          })}
         </select>
       </div>
 
