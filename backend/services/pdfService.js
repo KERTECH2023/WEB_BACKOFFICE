@@ -1,7 +1,7 @@
 // services/pdfService.js
 const fs = require('fs');
 const path = require('path');
-const pdfGenerator = require('../utils/pdfGenerator');
+const pdfGenerator = require('./pdfGenerator');
 
 // Génère un PDF s'il n'existe pas déjà
 exports.getOrGenerateFacturePDF = async (facture) => {
