@@ -44,12 +44,12 @@ const DataTarif = () => {
         newTarifMaj,
       });
       if (response.status === 200) {
-        toast.success("Tarif updated successfully!");
+        toast.success("Tarif mis à jour avec succès !");
         setIsModalOpen(false);
         getUsers();
       }
     } catch (error) {
-      toast.error("Failed to update tarif.");
+      toast.error("Échec de la mise à jour du tarif.");
     }
   };
 
@@ -61,14 +61,14 @@ const DataTarif = () => {
           tarifMaj: newTarifMaj,
         });
         if (response.status === 200) {
-          toast.success("New tarif added successfully!");
+          toast.success("Nouveau tarif ajouté avec succès !");
           setIsAddingTarif(false);
           setNewTarif("");
           setNewTarifMaj("");
           getUsers();
         }
       } catch (error) {
-        toast.error("Failed to add new tarif.");
+        toast.error("Échec de l'ajout du nouveau tarif.");
       }
     } else {
       setIsAddingTarif(true);
@@ -80,7 +80,7 @@ const DataTarif = () => {
       <div className="search mb-3">
         <input
           type="text"
-          placeholder="Search..."
+          placeholder="Rechercher..."
           onChange={handleSearchTerm}
           name="Search"
           id="Search"
@@ -92,14 +92,14 @@ const DataTarif = () => {
           <>
             <input
               type="text"
-              placeholder="Enter Tarif du jour"
+              placeholder="Entrer le tarif du jour"
               value={newTarif}
               onChange={(e) => setNewTarif(e.target.value)}
               className="form-control me-2"
             />
             <input
               type="text"
-              placeholder="Enter Tarif après majoration"
+              placeholder="Entrer le tarif après majoration"
               value={newTarifMaj}
               onChange={(e) => setNewTarifMaj(e.target.value)}
               className="form-control me-2"
@@ -107,7 +107,7 @@ const DataTarif = () => {
           </>
         )}
         <button className="btn btn-primary" onClick={handleAddTarif}>
-          {isAddingTarif ? "Submit" : "Add Tarif"}
+          {isAddingTarif ? "Soumettre" : "Ajouter un tarif"}
         </button>
       </div>
       <DataGrid
@@ -124,7 +124,7 @@ const DataTarif = () => {
                 className="btn btn-primary btn-sm"
                 onClick={() => handleEdit(params.row)}
               >
-                Modify
+                Modifier
               </button>
             ),
           },
@@ -139,7 +139,7 @@ const DataTarif = () => {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Edit Tarif</h5>
+                <h5 className="modal-title">Modifier le tarif</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -150,7 +150,7 @@ const DataTarif = () => {
               <div className="modal-body">
                 <div className="mb-3">
                   <label htmlFor="tarif" className="form-label">
-                    Tarif du jour:
+                    Tarif du jour :
                   </label>
                   <input
                     type="text"
@@ -162,7 +162,7 @@ const DataTarif = () => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="tarifMaj" className="form-label">
-                    Tarif après majoration:
+                    Tarif après majoration :
                   </label>
                   <input
                     type="text"
@@ -179,14 +179,14 @@ const DataTarif = () => {
                   className="btn btn-secondary"
                   onClick={() => setIsModalOpen(false)}
                 >
-                  Cancel
+                  Annuler
                 </button>
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={handleUpdate}
                 >
-                  Update
+                  Mettre à jour
                 </button>
               </div>
             </div>
