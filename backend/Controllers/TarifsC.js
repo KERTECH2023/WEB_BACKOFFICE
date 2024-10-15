@@ -4,36 +4,29 @@ const cron = require('node-cron');
 const moment = require('moment-timezone');
 
 exports.addTarifAndUpdateChauffeurs = async (req, res, next) => {
-    const { tarifName } = req.body;
-  
+    const { tarif, tarifMaj } = req.body;
+
     try {
       const existingTarif = await Tarifs.findOne();
-  
-      // Vérification si un tarif existe déjà
+
       if (existingTarif) {
-        existingTarif.tarif = tarifName;
+        existingTarif.tarif = tarif;
+        existingTarif.tarifmaj = tarifMaj;
         const updatedTarif = await existingTarif.save();
+
         const tariffId = updatedTarif._id;
-
-        // Mise à jour des chauffeurs avec le nouvel ID de tarif
         const updateResult = await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
-
-        console.log(`Updated ${updateResult.nModified} chauffeurs`);
 
         return res.status(200).send({
           message: "Existing tariff updated and chauffeurs updated!"
         });
       }
 
-      // Création d'un nouveau tarif si aucun n'existe
-      const newTarif = new Tarifs({ tarif: tarifName });
+      const newTarif = new Tarifs({ tarif, tarifmaj });
       const savedTarif = await newTarif.save();
+
       const tariffId = savedTarif._id;
-
-      // Mise à jour des chauffeurs avec le nouvel ID de tarif
       const updateResult = await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
-
-      console.log(`Updated ${updateResult.nModified} chauffeurs`);
 
       return res.status(200).send({
         message: "Tarif added and chauffeurs updated!"
@@ -43,6 +36,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res, next) => {
       return res.status(500).send({ error: error.message });
     }
 };
+
 
 function updateTariff() {
   const tunisiaTime = moment().tz('Africa/Tunis');
