@@ -1,7 +1,7 @@
 // services/factureService.js
-const Facture = require('../models/Facture');
-const Chauffeur = require('../models/Chauffeur');
-const RideRequest = require('../models/RideRequest');
+const Facture = require('../Models/Facture');
+const Chauffeur = require('../Models/Chauffeur');
+const RideRequest = require('../Models/AllRideRequest');
 const moment = require('moment');
 
 // Récupérer toutes les factures du mois en cours
