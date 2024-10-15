@@ -57,13 +57,17 @@ const DataTarif = () => {
   const handleAddTarif = async () => {
     if (isAddingTarif) {
       try {
-        const response = await axios.put(process.env.REACT_APP_BASE_URL + `/Tar/tarif`, {
+        const response = await axios.post(process.env.REACT_APP_BASE_URL + `/Tar/tarif`, {
           tarifName: newTarifName,
+          tarif: newTarif,
+          tarifMaj: newTarifMaj,
         });
         if (response.status === 200) {
           toast.success("New tarif added successfully!");
           setIsAddingTarif(false);
           setNewTarifName("");
+          setNewTarif("");
+          setNewTarifMaj("");
           getUsers();
         }
       } catch (error) {
@@ -88,13 +92,29 @@ const DataTarif = () => {
       </div>
       <div className="mb-3 d-flex">
         {isAddingTarif && (
-          <input
-            type="text"
-            placeholder="Enter new tarif name"
-            value={newTarifName}
-            onChange={(e) => setNewTarifName(e.target.value)}
-            className="form-control me-2"
-          />
+          <>
+            <input
+              type="text"
+              placeholder="Enter new tarif name"
+              value={newTarifName}
+              onChange={(e) => setNewTarifName(e.target.value)}
+              className="form-control me-2"
+            />
+            <input
+              type="text"
+              placeholder="Enter Tarif du jour"
+              value={newTarif}
+              onChange={(e) => setNewTarif(e.target.value)}
+              className="form-control me-2"
+            />
+            <input
+              type="text"
+              placeholder="Enter Tarif après majoration"
+              value={newTarifMaj}
+              onChange={(e) => setNewTarifMaj(e.target.value)}
+              className="form-control me-2"
+            />
+          </>
         )}
         <button className="btn btn-primary" onClick={handleAddTarif}>
           {isAddingTarif ? "Submit" : "Add Tarif"}
