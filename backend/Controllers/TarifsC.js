@@ -7,42 +7,41 @@ exports.addTarifAndUpdateChauffeurs = async (req, res, next) => {
     const { tarif, tarifMaj } = req.body;
 
     try {
-      const existingTarif = await Tarifs.findOne();
+        const existingTarif = await Tarifs.findOne();
 
-      if (existingTarif) {
-        existingTarif.tarif = tarif;
-        existingTarif.tarifmaj = tarifMaj;
-        const updatedTarif = await existingTarif.save();
+        if (existingTarif) {
+            existingTarif.tarif = tarif;
+            existingTarif.tarifmaj = tarifMaj;
+            const updatedTarif = await existingTarif.save();
 
-        const tariffId = updatedTarif._id;
-        const updateResult = await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
+            const tariffId = updatedTarif._id;
+            await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
+
+            return res.status(200).send({
+                message: "Tarif existant mis à jour et chauffeurs mis à jour !"
+            });
+        }
+
+        const newTarif = new Tarifs({ tarif, tarifmaj });
+        const savedTarif = await newTarif.save();
+
+        const tariffId = savedTarif._id;
+        await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
 
         return res.status(200).send({
-          message: "Existing tariff updated and chauffeurs updated!"
+            message: "Nouveau tarif ajouté et chauffeurs mis à jour !"
         });
-      }
-
-      const newTarif = new Tarifs({ tarif, tarifmaj });
-      const savedTarif = await newTarif.save();
-
-      const tariffId = savedTarif._id;
-      const updateResult = await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
-
-      return res.status(200).send({
-        message: "Tarif added and chauffeurs updated!"
-      });
 
     } catch (error) {
-      return res.status(500).send({ error: error.message });
+        return res.status(500).send({ error: error.message });
     }
 };
-
 
 function updateTariff() {
   const tunisiaTime = moment().tz('Africa/Tunis');
   const currentHour = tunisiaTime.hour();
   const currentMinute = tunisiaTime.minute();
-  console.log('Time:', currentHour + ':' + currentMinute);
+  console.log('Heure:', currentHour + ':' + currentMinute);
 
   if (currentHour === 20 && currentMinute === 44) {
     Tarifs.findOne({}, (err, tariff) => {
@@ -51,14 +50,13 @@ function updateTariff() {
         return;
       }
       
-      // Vérification si `tariff` existe avant d'accéder à ses propriétés
       if (!tariff) {
-        console.error('No tariff found');
+        console.error('Aucun tarif trouvé');
         return;
       }
 
       const oldTariff = parseFloat(tariff.tarif);
-      console.log('Old Tariff:', oldTariff);
+      console.log('Ancien Tarif:', oldTariff);
       const newTariff = oldTariff + (oldTariff * 0.5);
       const roundedNewTariff = Number(newTariff.toFixed(2));
 
@@ -68,13 +66,12 @@ function updateTariff() {
           console.error(err);
           return;
         }
-        console.log("Tarif Majoration updated to:", newTariff);
+        console.log("Tarif après majoration mis à jour :", newTariff);
       });
     });
   }
 }
 
-// Planification de la mise à jour automatique du tarif
 cron.schedule('44 20 * * *', () => {
   updateTariff();
 }, {
@@ -95,21 +92,19 @@ exports.updateTarifAndMajoration = async (req, res, next) => {
   const { tarifId, newTarif, newTarifMaj } = req.body;
 
   try {
-    // Vérification si un tarif existe avec l'ID fourni
     const existingTarif = await Tarifs.findById(tarifId);
 
     if (!existingTarif) {
-      return res.status(404).send({ message: "Tarif not found" });
+      return res.status(404).send({ message: "Tarif non trouvé" });
     }
 
-    // Mise à jour des champs tarif et tarifmaj
     existingTarif.tarif = newTarif;
     existingTarif.tarifmaj = newTarifMaj;
 
     const updatedTarif = await existingTarif.save();
 
     return res.status(200).send({
-      message: "Tarif and Tarif Majoration updated!",
+      message: "Tarif et tarif après majoration mis à jour !",
       updatedTarif
     });
 
