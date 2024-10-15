@@ -22,7 +22,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res, next) => {
             });
         }
 
-        const newTarif = new Tarifs({ tarif, tarifMaj });
+        const newTarif = new Tarifs({ tarif, tarifmaj:tarifMaj });
         const savedTarif = await newTarif.save();
 
         const tariffId = savedTarif._id;
