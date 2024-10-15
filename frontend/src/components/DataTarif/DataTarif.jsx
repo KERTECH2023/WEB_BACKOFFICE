@@ -13,7 +13,6 @@ const DataTarif = () => {
   const [newTarif, setNewTarif] = useState("");
   const [newTarifMaj, setNewTarifMaj] = useState("");
   const [isAddingTarif, setIsAddingTarif] = useState(false);
-  const [newTarifName, setNewTarifName] = useState("");
 
   useEffect(() => {
     getUsers();
@@ -58,14 +57,12 @@ const DataTarif = () => {
     if (isAddingTarif) {
       try {
         const response = await axios.post(process.env.REACT_APP_BASE_URL + `/Tar/tarif`, {
-          tarifName: newTarifName,
           tarif: newTarif,
           tarifMaj: newTarifMaj,
         });
         if (response.status === 200) {
           toast.success("New tarif added successfully!");
           setIsAddingTarif(false);
-          setNewTarifName("");
           setNewTarif("");
           setNewTarifMaj("");
           getUsers();
@@ -93,13 +90,6 @@ const DataTarif = () => {
       <div className="mb-3 d-flex">
         {isAddingTarif && (
           <>
-            <input
-              type="text"
-              placeholder="Enter new tarif name"
-              value={newTarifName}
-              onChange={(e) => setNewTarifName(e.target.value)}
-              className="form-control me-2"
-            />
             <input
               type="text"
               placeholder="Enter Tarif du jour"
@@ -160,7 +150,7 @@ const DataTarif = () => {
               <div className="modal-body">
                 <div className="mb-3">
                   <label htmlFor="tarif" className="form-label">
-                    Tarif:
+                    Tarif du jour:
                   </label>
                   <input
                     type="text"
@@ -172,7 +162,7 @@ const DataTarif = () => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="tarifMaj" className="form-label">
-                    Tarif Majoration:
+                    Tarif après majoration:
                   </label>
                   <input
                     type="text"
