@@ -1,7 +1,7 @@
 // routes/factureRoutes.js
 const express = require('express');
 const router = express.Router();
-const factureController = require('../Controllers/factureController');
+const factureController = require('../Controllers/FactureController');
 
 // Récupérer toutes les factures pour tous les chauffeurs ce mois-ci
 router.get('/mois', factureController.getAllFacturesThisMonth);
