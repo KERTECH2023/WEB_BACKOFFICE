@@ -21,7 +21,7 @@ const Voi = require("./routes/VoitureRoutes");
 const tar = require("./routes/TarifRoute");
 const con = require("./routes/ContactRoute");
 const rides = require("./routes/RideRoute");
-
+const factureRoute = require("./routes/factureRoutes.js")
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 const { runAggregation } = require("./Controllers/RideController"); // Export runAggregation function
@@ -76,6 +76,7 @@ app.use("/Rec", Rec);
 app.use("/Voi", Voi);
 app.use("/Tar", tar);
 app.use("/Con", con);
+app.use("/facture",factureRoute);
 
 app.use("/Ride", rides);
 
