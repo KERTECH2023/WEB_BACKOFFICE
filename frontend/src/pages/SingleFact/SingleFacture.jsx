@@ -1,5 +1,4 @@
-// SingleF.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -9,7 +8,6 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import Chart from "../../components/chart/Chart";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -17,12 +15,13 @@ import { useNavigate } from "react-router-dom";
 import imageCompression from "browser-image-compression";
 
 const SingleF = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const role = window.localStorage.getItem("userRole");
-  const [facture, setFacture] = useState(null);
-  const [chauffeur, setChauffeur] = useState(null);
+  const navigate = useNavigate(); // Permet de naviguer vers d'autres pages
+  const { id } = useParams(); // Récupère l'ID depuis l'URL
+  const role = window.localStorage.getItem("userRole"); // Récupère le rôle de l'utilisateur depuis le stockage local
+  const [facture, setFacture] = useState(null); // État pour stocker la facture
+  const [chauffeur, setChauffeur] = useState(null); // État pour stocker le chauffeur
 
+  // Fonction pour récupérer les données d'un chauffeur par son ID
   const getChauffeurById = async (id) => {
     const response = await fetch(
       process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`
@@ -31,30 +30,38 @@ const SingleF = () => {
     return data;
   };
 
+  // Fonction pour récupérer les données d'une facture par son ID
   const getFactureById = async (id) => {
-    const response = await fetch(process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`);
+    const response = await fetch(
+      process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`
+    );
     const data = await response.json();
     return data;
   };
 
+  // Utilisation de useEffect pour récupérer les données au chargement du composant
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const factureData = await getFactureById(id);
-        setFacture(factureData);
+        const factureData = await getFactureById(id); // Récupère les données de la facture
+        console.log("Facture Data:", factureData); // Pour vérifier les données de la facture
+        setFacture(factureData); // Met à jour l'état de la facture
 
+        // Si la facture contient un chauffeur, récupère ses informations
         if (factureData.chauffeur) {
           const chauffeurData = await getChauffeurById(factureData.chauffeur);
-          setChauffeur(chauffeurData);
+          console.log("Chauffeur Data:", chauffeurData); // Pour vérifier les données du chauffeur
+          setChauffeur(chauffeurData); // Met à jour l'état du chauffeur
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Erreur lors de la récupération des données:", error);
       }
     };
 
     fetchData();
-  }, [id]);
+  }, [id]); // Dépendance à l'ID pour relancer la requête si l'ID change
 
+  // Fonction pour compresser une image
   const compressImage = async (imageBlob) => {
     const options = {
       maxSizeMB: 1,
@@ -62,14 +69,10 @@ const SingleF = () => {
     };
 
     try {
-      // Convertir DataURL en Blob
       const response = await fetch(imageBlob);
       const imageFile = await response.blob();
-
-      // Compresser l'image
       const compressedImage = await imageCompression(imageFile, options);
 
-      // Convertir le Blob compressé en DataURL
       const compressedImageDataURL = await new Promise((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
@@ -82,11 +85,11 @@ const SingleF = () => {
     }
   };
 
+  // Fonction pour générer un PDF et éventuellement l'envoyer par email
   const handlePrint = async (sendByEmail = false) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
 
-    // Rendre le composant React dans un conteneur temporaire
     ReactDOM.render(
       <TemplateFacture chauffeur={chauffeur} facture={facture} />,
       container
@@ -109,7 +112,6 @@ const SingleF = () => {
       const imgData = canvas.toDataURL("image/png");
 
       const compressedImgData = await compressImage(imgData);
-      // Ajouter l'image au PDF
       pdf.addImage(
         imgData,
         "PNG",
@@ -127,16 +129,13 @@ const SingleF = () => {
         pdf.internal.pageSize.height
       );
 
-      // Générer le PDF en tant que blob
       const pdfBlob = pdf.output("blob");
 
       const pdfb = pdfsend.output("blob");
-      // Supprimer le conteneur après génération
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
       if (sendByEmail) {
-        // Si on souhaite envoyer le PDF par email
         await sendEmailWithFacture(
           pdfb,
           chauffeur.email,
@@ -144,15 +143,15 @@ const SingleF = () => {
           facture._id
         );
       } else {
-        // Créer une URL blob pour le PDF et l'ouvrir dans un nouvel onglet
         const pdfURL = URL.createObjectURL(pdfBlob);
         window.open(pdfURL, "_blank");
       }
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      console.error("Erreur lors de la génération du PDF:", error);
     }
   };
 
+  // Fonction pour envoyer la facture par email
   const sendEmailWithFacture = async (pdfBlob, email, Month, id) => {
     const formData = new FormData();
     formData.append("file", pdfBlob, "facture.pdf");
@@ -161,11 +160,15 @@ const SingleF = () => {
     formData.append("id", id);
 
     try {
-      await axios.post(process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post(
+        process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       toast.success("Facture envoyée avec succès par e-mail");
     } catch (error) {
       toast.error("Erreur lors de l'envoi de la facture par e-mail");
@@ -173,6 +176,7 @@ const SingleF = () => {
     }
   };
 
+  // Fonction pour mettre à jour une facture comme payée
   const handleSubmite = () => {
     axios
       .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatefacture/${id}`, {
@@ -189,7 +193,7 @@ const SingleF = () => {
       })
       .catch((err) => {
         console.warn(err);
-        toast.error("Email exist Already !", {
+        toast.error("Erreur lors de la mise à jour de la facture", {
           position: toast.POSITION.TOP_RIGHT,
         });
       });
@@ -198,7 +202,6 @@ const SingleF = () => {
   return (
     <div className="single">
       <Sidebar />
-
       <div className="singleContainer">
         <Navbar />
         <div className="top">
@@ -214,11 +217,10 @@ const SingleF = () => {
                 <h1 className="itemTitle">
                   {chauffeur && chauffeur.Nom} {chauffeur && chauffeur.Prenom}
                 </h1>
+                {/* Rendu des informations du chauffeur */}
                 <div className="detailItem">
                   <span className="itemKey">Nom:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.Nom}
-                  </span>
+                  <span className="itemValue">{chauffeur && chauffeur.Nom}</span>
                 </div>
                 <div className="detailItem">
                   <span className="itemKey">Nom D'utilisateur:</span>
@@ -233,21 +235,9 @@ const SingleF = () => {
                   </span>
                 </div>
                 <div className="detailItem">
-                  <span className="itemKey">email:</span>
+                  <span className="itemKey">Email:</span>
                   <span className="itemValue">
                     {chauffeur && chauffeur.email}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">DateNaissance:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.DateNaissance}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Genre:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.gender}
                   </span>
                 </div>
                 <div className="detailItem">
@@ -263,75 +253,31 @@ const SingleF = () => {
                   </span>
                 </div>
                 <div className="detailItem">
-                  <span className="itemKey">N° Permis:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.cnicNo}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Mois:</span>
-                  <span className="itemValue">{facture && facture.Month}</span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">Montant Accumulé</span>
+                  <span className="itemKey">Montant Accumulé:</span>
                   <span className="itemValue">
                     {facture && facture.totalFareAmount}
                   </span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">Nombre Trajet:</span>
-                  <span className="itemValue">
-                    {facture && facture.nbretrajet}
-                  </span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">Montant Facture</span>
-                  <span className="itemValue">
-                    {facture && facture.montantTva}
-                  </span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">N° Permis:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.cnicNo}
-                  </span>
                 </div>
-                {role === "Admin" || role === "Agentad" ? (
-                  <div>
-                    <div
-                      className="activateButton"
-                      onClick={() => handlePrint(false)}
-                    >
-                      Consulter
-                    </div>
-                    {facture && !facture.envoieFacture && (
-                      <div
-                        className="activateButton"
-                        onClick={() => handlePrint(true)}
-                      >
-                        Envoyer Facture par Email
-                      </div>
-                    )}
-
-                    {facture && facture.isPaid === false ? (
-                      <div
-                        className="activateButton"
-                        onClick={() => handleSubmite()}
-                      >
-                        Payer La Facture
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
               </div>
             </div>
-          </div>
-          <div className="right">
-            <Chart aspect={3 / 1} title="User Spending ( Last 6 Months)" />
+            <button
+              className="btn-payer"
+              onClick={() => {
+                handleSubmite();
+              }}
+            >
+              Payer
+            </button>
+            <button
+              className="btn-envoyer"
+              onClick={() => handlePrint(true)}
+            >
+              Envoyer la Facture
+            </button>
           </div>
         </div>
-        <ToastContainer />
       </div>
+      <ToastContainer />
     </div>
   );
 };
