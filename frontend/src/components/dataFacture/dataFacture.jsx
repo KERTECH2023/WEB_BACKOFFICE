@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
-import { InvoiceColumns } from "../../DataTableInvoice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -18,8 +17,8 @@ const DataFact = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,13 +26,13 @@ const DataFact = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSearch(params.get("search") || "");
-    setSelectedMonth(params.get("month") || "");
-    setSelectedYear(params.get("year") || "");
+    setSelectedMonth(params.get("month") || new Date().getMonth() + 1);
+    setSelectedYear(params.get("year") || new Date().getFullYear());
   }, [location]);
 
   useEffect(() => {
-    getUsers();
-  }, []);
+    getFactures();
+  }, [selectedMonth, selectedYear]);
 
   const handleSearchTerm = (e) => {
     const value = e.target.value.toLowerCase();
@@ -66,67 +65,24 @@ const DataFact = () => {
   useEffect(() => {
     const filtered = data.filter((row) => {
       const matchesSearch =
-        (row.chauffeurName &&
-          row.chauffeurName.toLowerCase().includes(search)) ||
-        (row.chauffeurPrenom &&
-          row.chauffeurPrenom.toLowerCase().includes(search));
+        (row.nomChauffeur && row.nomChauffeur.toLowerCase().includes(search));
 
-      const matchesMonth = selectedMonth
-        ? row.Month === parseInt(selectedMonth, 10)
-        : true;
-
-      const matchesYear = selectedYear
-        ? row.Year === parseInt(selectedYear, 10)
-        : true;
-
-      return matchesSearch && matchesMonth && matchesYear;
+      return matchesSearch;
     });
 
     setFilteredData(filtered);
-  }, [search, selectedMonth, selectedYear, data]);
+  }, [search, data]);
 
-  const getUsers = async () => {
+  const getFactures = async () => {
     try {
       setLoading(true);
       setError(null);
       console.log("Fetching factures...");
-      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/factures");
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures?month=${selectedMonth}&year=${selectedYear}`);
       if (response.status === 200) {
         const factures = response.data;
         console.log("Factures fetched:", factures);
-
-        const enhancedFactures = await Promise.all(
-          factures.map(async (facture) => {
-            if (!facture.chauffeur) {
-              return { ...facture, chauffeurName: "N/A", chauffeurPrenom: "N/A" };
-            }
-            try {
-              const [chauffeurResponse, rideRequestsResponse] = await Promise.all([
-                axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${facture.chauffeur}`),
-                axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/rideCounts?driverPhone=${facture.chauffeur}`)
-              ]);
-
-              const chauffeurData = chauffeurResponse.data;
-              const rideCounts = rideRequestsResponse.data;
-
-              return {
-                ...facture,
-                chauffeurName: chauffeurData.Nom,
-                chauffeurPrenom: chauffeurData.Prenom,
-                chauffeurEmail: chauffeurData.email,
-                chauffeurPhone: chauffeurData.phone,
-                photoAvatar: chauffeurData.photoAvatar,
-                acceptedRides: rideCounts.accepted,
-                cancelledRides: rideCounts.cancelled,
-              };
-            } catch (error) {
-              console.error(`Error fetching data for ${facture.chauffeur}:`, error);
-              return facture;
-            }
-          })
-        );
-
-        setData(enhancedFactures);
+        setData(factures);
       }
     } catch (error) {
       console.error("Error fetching factures:", error);
@@ -138,15 +94,63 @@ const DataFact = () => {
   };
 
   const handleRefresh = () => {
-    getUsers();
+    getFactures();
   };
 
-  const handleExport = () => {
-    // Implement export functionality here
-    toast.info("Fonctionnalité d'exportation à implémenter");
+  const handleExport = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/export-factures?month=${selectedMonth}&year=${selectedYear}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `factures_${selectedMonth}_${selectedYear}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error exporting factures:", error);
+      toast.error("Erreur lors de l'exportation des factures");
+    }
   };
 
-  const actionColumn = [
+  const handleGenerateFacture = async (driverId) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/Chauff/generate-facture/${driverId}`);
+      if (response.status === 200) {
+        toast.success("Facture générée avec succès");
+        getFactures();
+      }
+    } catch (error) {
+      console.error("Error generating facture:", error);
+      toast.error("Erreur lors de la génération de la facture");
+    }
+  };
+
+  const handleDownloadPDF = async (driverId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/facture-pdf/${driverId}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `facture_${driverId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast.error("Erreur lors du téléchargement du PDF");
+    }
+  };
+
+  const columns = [
+    { field: "numero", headerName: "Numéro", width: 150 },
+    { field: "nomChauffeur", headerName: "Nom du chauffeur", width: 200 },
+    { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
+    { field: "montantTTC", headerName: "Montant TTC", width: 150 },
+    { field: "fraisDeService", headerName: "Frais de service", width: 150 },
+    { field: "dateEcheance", headerName: "Date d'échéance", width: 150 },
     {
       field: "action",
       headerName: "Action",
@@ -157,12 +161,12 @@ const DataFact = () => {
           <div className="cellAction">
             {(role === "Admin" || role === "Agentad") && (
               <>
-                <Link
-                  to={`/consultF/${params.row._id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div className="viewButton">Consulter</div>
-                </Link>
+                <Button onClick={() => handleDownloadPDF(params.row.chauffeurId)}>
+                  Télécharger PDF
+                </Button>
+                <Button onClick={() => handleGenerateFacture(params.row.chauffeurId)}>
+                  Générer Facture
+                </Button>
               </>
             )}
           </div>
@@ -208,7 +212,6 @@ const DataFact = () => {
           value={selectedMonth}
           className="filterSelect"
         >
-          <option value="">Tous les mois</option>
           {[...Array(12)].map((_, i) => (
             <option key={i} value={i + 1}>
               {new Date(0, i).toLocaleString('default', { month: 'long' })}
@@ -220,7 +223,6 @@ const DataFact = () => {
           value={selectedYear}
           className="filterSelect"
         >
-          <option value="">Toutes les années</option>
           {[...Array(5)].map((_, i) => {
             const year = new Date().getFullYear() + i;
             return (
@@ -235,7 +237,7 @@ const DataFact = () => {
       <DataGrid
         className="datagrid"
         rows={filteredData}
-        columns={InvoiceColumns.concat(actionColumn)}
+        columns={columns}
         pageSize={9}
         rowsPerPageOptions={[9]}
         checkboxSelection
