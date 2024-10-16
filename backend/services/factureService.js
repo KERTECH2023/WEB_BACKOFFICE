@@ -1,7 +1,7 @@
 const Facture = require('../Models/Facture');
 const Chauffeur = require('../Models/Chauffeur');
 const moment = require('moment');
-
+const RideRequest = require('../Models/AllRideRequest');
 // Récupérer toutes les factures du mois en cours
 exports.getAllFacturesForThisMonth = async () => {
   const month = moment().month() + 1;  // Mois actuel
@@ -28,7 +28,7 @@ exports.getFactureForDriverThisMonth = async (driverId) => {
 };
 
 // Fonction pour vérifier l'existence d'une facture et la générer
-exports.generateFactures = async (chauffeurId, mois, annee, nbTrajet, montantTTC) => {
+exports.generateFactures = async (chauffeurId, mois, annee) => {
   try {
     // Vérifier si la facture existe déjà pour ce chauffeur et ce mois
     const factureExistante = await Facture.findOne({ chauffeurId, mois, annee });
@@ -36,22 +36,47 @@ exports.generateFactures = async (chauffeurId, mois, annee, nbTrajet, montantTTC
       throw new Error(`Facture déjà générée pour ce chauffeur (${chauffeurId}) au mois ${mois} de l'année ${annee}.`);
     }
 
-    console.log("params:",chauffeurId, mois, annee, nbTrajet, montantTTC);
+    // Calculer le nombre de trajets et le montant TTC à partir de la collection RideRequest
+    const nbTrajet = await RideRequest.countDocuments({
+      chauffeurId,
+      status: 'completed',  // Assuming 'completed' status for completed rides
+      time: {
+        $gte: moment([annee, mois - 1]).startOf('month').toDate(),
+        $lt: moment([annee, mois - 1]).endOf('month').toDate(),
+      }
+    });
+
+    const montantTTC = await RideRequest.aggregate([
+      {
+        $match: {
+          chauffeurId,
+          status: 'completed',
+          time: {
+            $gte: moment([annee, mois - 1]).startOf('month').toDate(),
+            $lt: moment([annee, mois - 1]).endOf('month').toDate(),
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalFare: { $sum: "$fareAmount" }
+        }
+      }
+    ]);
+
+    const totalAmount = montantTTC.length > 0 ? montantTTC[0].totalFare : 0;  // Sum of all fares for the month
 
     // Générer un nouveau numéro de facture
     const chauffeur = await Chauffeur.findById(chauffeurId);
-    console.log(chauffeur);
-    const fraisDeService = montantTTC * 0.15;  // 15% de frais de service
-    const montantNet = montantTTC - fraisDeService;
+    const fraisDeService = totalAmount * 0.15;  // 15% de frais de service
+    const montantNet = totalAmount - fraisDeService;
     const chauffeurIdStr = chauffeur._id.toString().substr(0, 4);
     const nomPrenom = `${chauffeur.Nom.substr(0, 2)}${chauffeur.Prenom.substr(0, 2)}`.toUpperCase();
     const numeroFacture = `${chauffeurIdStr}_${nomPrenom}_${mois.toString().padStart(2, '0')}_${annee}`;
 
-    console.log("generating basic info",fraisDeService,montantNet,chauffeurIdStr,nomPrenom,numeroFacture);
-
     // Générer la date d'échéance
     const dateEcheance = moment([annee, mois - 1]).add(1, 'month').date(15).toDate(); // 15e jour du mois suivant
-    console.log("dateEcheance",dateEcheance)
 
     // Créer une nouvelle facture
     const nouvelleFacture = new Facture({
@@ -59,7 +84,7 @@ exports.generateFactures = async (chauffeurId, mois, annee, nbTrajet, montantTTC
       mois: mois,
       annee: annee,
       nbTrajet: nbTrajet,
-      montantTTC: montantTTC,
+      montantTTC: totalAmount,
       fraisDeService: fraisDeService,
       chauffeurId: chauffeur._id,
       nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
@@ -67,14 +92,11 @@ exports.generateFactures = async (chauffeurId, mois, annee, nbTrajet, montantTTC
       notes: `Montant net à payer: ${montantNet.toFixed(2)} €`
     });
 
-    console.log("facture", nouvelleFacture);
-
     // Sauvegarder la facture
     await nouvelleFacture.save();
     console.log(`Facture créée pour ${nouvelleFacture.nomChauffeur}: ${nouvelleFacture.numero}`);
-    
-    return nouvelleFacture;
 
+    return nouvelleFacture;
   } catch (error) {
     throw new Error(`Erreur lors de la génération de la facture: ${error.message}`);
   }
