@@ -16,7 +16,7 @@ const Multer = multer({
 });
 
 router.get("/affiche", ChauffContro.recupereruse);
-
+router.get('/Chauff/factures/:id', ChauffContro.getFactureById);
 router.get("/getchdes", ChauffContro.chauffdes);
 
 router.delete("/destroychauff/:id", ChauffContro.destroy);
