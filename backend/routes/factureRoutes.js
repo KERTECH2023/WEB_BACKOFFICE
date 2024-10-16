@@ -6,7 +6,7 @@ const factureController = require('../Controllers/FactureController');
 // Récupérer toutes les factures pour tous les chauffeurs ce mois-ci
 router.get('/mois', factureController.getAllFacturesThisMonth);
 
-router.get('/factures/generate', factureController.generateFactures); 
+router.get('/generate/all', factureController.generateFactures);  
 
 // Récupérer toutes les factures pour un chauffeur spécifique ce mois-ci
 router.get('/chauffeur/:driverId/mois', factureController.getFacturesForDriverThisMonth);
