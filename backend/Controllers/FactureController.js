@@ -1,4 +1,3 @@
-// controllers/factureController.js
 const factureService = require('../services/factureService');
 const pdfService = require('../services/pdfService');
 const path = require('path');
@@ -40,3 +39,14 @@ exports.getFacturePDF = async (req, res) => {
     res.status(500).send(error.message);
   }
 };
+
+// Générer les factures pour le mois précédent
+exports.generateFactures = async (req, res) => {
+  try {
+    await factureService.generateFactures();  // Call the generateFactures method from factureService
+    res.status(200).send('Factures générées avec succès.');
+  } catch (error) {
+    res.status(500).send(`Erreur lors de la génération des factures: ${error.message}`);
+  }
+};
+
