@@ -65,8 +65,11 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
       }
     ]);
 
-    const totalAmount = montantTTC.length > 0 ? montantTTC[0].totalFare : 0;  // Sum of all fares for the month
+    console.log("montantTTC",montantTTC);
 
+    const totalAmount = montantTTC.length > 0 ? montantTTC[0].totalFare : 0;  // Sum of all fares for the month
+ console.log("totalAmoun",totalAmount);
+    
     // Générer un nouveau numéro de facture
     const chauffeur = await Chauffeur.findById(chauffeurId);
     const fraisDeService = totalAmount * 0.15;  // 15% de frais de service
