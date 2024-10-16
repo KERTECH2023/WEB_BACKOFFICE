@@ -18,7 +18,6 @@ const SingleF = () => {
   const navigate = useNavigate(); // Permet de naviguer vers d'autres pages
   const { id } = useParams(); // Récupère l'ID depuis l'URL
   const role = window.localStorage.getItem("userRole"); // Récupère le rôle de l'utilisateur depuis le stockage local
-  const [facture, setFacture] = useState(null); // État pour stocker la facture
   const [chauffeur, setChauffeur] = useState(null); // État pour stocker le chauffeur
 
   // Fonction pour récupérer les données d'un chauffeur par son ID
@@ -30,29 +29,13 @@ const SingleF = () => {
     return data;
   };
 
-  // Fonction pour récupérer les données d'une facture par son ID
-  const getFactureById = async (id) => {
-    const response = await fetch(
-      process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`
-    );
-    const data = await response.json();
-    return data;
-  };
-
   // Utilisation de useEffect pour récupérer les données au chargement du composant
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const factureData = await getFactureById(id); // Récupère les données de la facture
-        console.log("Facture Data:", factureData); // Pour vérifier les données de la facture
-        setFacture(factureData); // Met à jour l'état de la facture
-
-        // Si la facture contient un chauffeur, récupère ses informations
-        if (factureData.chauffeur) {
-          const chauffeurData = await getChauffeurById(factureData.chauffeur);
-          console.log("Chauffeur Data:", chauffeurData); // Pour vérifier les données du chauffeur
-          setChauffeur(chauffeurData); // Met à jour l'état du chauffeur
-        }
+        const chauffeurData = await getChauffeurById(id); // Récupère les données du chauffeur
+        console.log("Chauffeur Data:", chauffeurData); // Pour vérifier les données du chauffeur
+        setChauffeur(chauffeurData); // Met à jour l'état du chauffeur
       } catch (error) {
         console.error("Erreur lors de la récupération des données:", error);
       }
@@ -91,7 +74,7 @@ const SingleF = () => {
     document.body.appendChild(container);
 
     ReactDOM.render(
-      <TemplateFacture chauffeur={chauffeur} facture={facture} />,
+      <TemplateFacture chauffeur={chauffeur} />, // On ne passe que le chauffeur ici
       container
     );
 
@@ -139,8 +122,8 @@ const SingleF = () => {
         await sendEmailWithFacture(
           pdfb,
           chauffeur.email,
-          facture.Month,
-          facture._id
+          chauffeur.Month, // Ici, on prend les infos directement du chauffeur
+          chauffeur._id
         );
       } else {
         const pdfURL = URL.createObjectURL(pdfBlob);
@@ -255,7 +238,7 @@ const SingleF = () => {
                 <div className="detailItem">
                   <span className="itemKey">Montant Accumulé:</span>
                   <span className="itemValue">
-                    {facture && facture.totalFareAmount}
+                    {chauffeur && chauffeur.totalFareAmount}
                   </span>
                 </div>
               </div>
