@@ -44,7 +44,7 @@ exports.getFacturePDF = async (req, res) => {
 exports.generateFacturesForChauffeur = async (req, res) => {
   try {
     const { driverId } = req.params;
-    const mois = moment().month();  // Mois en cours
+    const mois = moment().month() +1;  // Mois en cours
     const annee = moment().year();      // Année en cours
 
     // Appel à la fonction pour générer la facture sans passer nbTrajet et montantTTC
