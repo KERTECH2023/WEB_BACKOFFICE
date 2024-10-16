@@ -40,22 +40,12 @@ exports.getFacturePDF = async (req, res) => {
   }
 };
 
-// Générer des factures pour un chauffeur spécifique ce mois-ci
-exports.generateFacturesForChauffeur = async (req, res) => {
+// Générer les factures pour le mois précédent
+exports.generateFactures = async (req, res) => {
   try {
-    const { driverId } = req.params;
-    const mois = moment().month() + 1;  // Mois en cours
-    const annee = moment().year();      // Année en cours
-    const nbTrajet = req.body.nbTrajet; // Récupéré depuis la requête
-    const montantTTC = req.body.montantTTC;
-
-    // Appel à la fonction pour générer la facture
-    const nouvelleFacture = await factureService.generateFactures(driverId, mois, annee, nbTrajet, montantTTC);
-
-    res.json(nouvelleFacture);
+    await factureService.generateFactures();  // Appelle la méthode generateFactures depuis factureService
+    res.status(200).send('Factures générées avec succès.');
   } catch (error) {
     res.status(500).send(`Erreur lors de la génération des factures: ${error.message}`);
   }
 };
-
-
