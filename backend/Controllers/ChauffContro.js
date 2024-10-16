@@ -15,7 +15,7 @@ const Facture = require("../Models/Facture"); // Assuming the Car schema is defi
 const RideRequest = require("../Models/AllRideRequest"); // Import the RideRequest Mongoose model
 const Chauffeur = require("../Models/Chauffeur");
 const PDFDocument = require("pdfkit");
-const Facture = require("../Models/Facture");
+
 const fs = require("fs");
 
 /**--------------------Ajouter un agnet------------------------  */
