@@ -57,13 +57,13 @@
   
   .tableHeader th {
     padding: 0.5rem;
-    border: 1px solid #ffae18;
+    border: 1px solid #000000;
     letter-spacing: 1px;
   }
   
   .tableBody td {
     padding: 0.5rem;
-    border: 1px solid #ffae18;
+    border: 1px solid #000000;
     text-align: center;
     letter-spacing: 1px;
     font-size: 18px;
@@ -92,7 +92,7 @@
   
   .separator {
     border: 0;
-    border-top: 1px solid #ffae18; 
+    border-top: 1px solid #000000; 
     margin-bottom: 1rem;
   }
   
