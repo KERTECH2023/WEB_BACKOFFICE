@@ -36,35 +36,21 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
       throw new Error(`Facture déjà générée pour ce chauffeur (${chauffeurId}) au mois ${mois} de l'année ${annee}.`);
     }
 
-    // Calculer le nombre de trajets et le montant TTC à partir de la collection RideRequest
-    const nbTrajet = await RideRequest.countDocuments({
+     // Récupérer toutes les courses complétées pour le chauffeur ce mois
+    const rideRequests = await RideRequest.find({
       chauffeurId,
-      status: 'completed',  // Assuming 'completed' status for completed rides
+      status: 'completed',
       time: {
         $gte: moment([annee, mois - 1]).startOf('month').toDate(),
         $lt: moment([annee, mois - 1]).endOf('month').toDate(),
       }
     });
 
-    const montantTTC = await RideRequest.aggregate([
-      {
-        $match: {
-          chauffeurId,
-          status: 'completed',
-          time: {
-            $gte: moment([annee, mois - 1]).startOf('month').toDate(),
-            $lt: moment([annee, mois - 1]).endOf('month').toDate(),
-          }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalFare: { $sum: "$fareAmount" }
-        }
-      }
-    ]);
+    // Calculer le nombre de trajets
+    const nbTrajet = rideRequests.length;
 
+    // Calculer le montant total TTC en réduisant le fareAmount
+    const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
     console.log("montantTTC",montantTTC);
 
     const totalAmount = montantTTC.length > 0 ? montantTTC[0].totalFare : 0;  // Sum of all fares for the month
