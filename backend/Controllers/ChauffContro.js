@@ -15,10 +15,36 @@ const Facture = require("../Models/Facture"); // Assuming the Car schema is defi
 const RideRequest = require("../Models/AllRideRequest"); // Import the RideRequest Mongoose model
 const Chauffeur = require("../Models/Chauffeur");
 const PDFDocument = require("pdfkit");
-
+const Facture = require("../Models/Facture");
 const fs = require("fs");
 
 /**--------------------Ajouter un agnet------------------------  */
+const getFactureById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Récupérer la facture par ID
+        const facture = await Facture.findById(id);
+
+        // Vérifier si la facture existe
+        if (!facture) {
+            return res.status(404).json({ message: "Facture non trouvée" });
+        }
+
+        // Vérifier si l'ID du chauffeur correspond
+        const chauffeurId = facture.chauffeurId.toString();
+        if (chauffeurId !== req.user.chauffeurId) {
+            return res.status(403).json({ message: "Accès refusé, vous ne pouvez pas accéder à cette facture." });
+        }
+
+        // Retourner la facture
+        res.status(200).json(facture);
+    } catch (error) {
+        console.error("Erreur lors de la récupération de la facture:", error);
+        res.status(500).json({ message: "Erreur serveur" });
+    }
+};
+
 
 const generateRandomPassword = () => {
   return crypto.randomBytes(8).toString("hex");
@@ -1229,6 +1255,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 }
 
 module.exports = {
+  getFactureById,
   register,
   login,
   recupereruse,
