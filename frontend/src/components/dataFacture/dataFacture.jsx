@@ -126,7 +126,7 @@ const DataFact = () => {
         if (params.value == null) {
           return '';
         }
-        return `${params.value.toFixed(2)} €`;
+        return `${params.value.toFixed(2)} DT`;
       },
     },
     { field: "fraisDeService", headerName: "Frais de service", width: 130,
@@ -134,7 +134,7 @@ const DataFact = () => {
         if (params.value == null) {
           return '';
         }
-        return `${params.value.toFixed(2)} €`;
+        return `${params.value.toFixed(2)} DT`;
       },
     },
     { 
