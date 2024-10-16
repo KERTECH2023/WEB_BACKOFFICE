@@ -67,7 +67,8 @@ const DataFact = () => {
       const searchTerm = search.toLowerCase();
       return (
         (row.nomChauffeur && row.nomChauffeur.toLowerCase().includes(searchTerm)) ||
-        (row.numero && row.numero.toLowerCase().includes(searchTerm))
+        (row.numero && row.numero.toLowerCase().includes(searchTerm)) ||
+        (row.chauffeur && row.chauffeur.toLowerCase().includes(searchTerm))
       );
     });
 
@@ -117,9 +118,18 @@ const DataFact = () => {
 
   const columns = [
     { field: "numero", headerName: "Numéro", width: 150 },
-    { field: "nomChauffeur", headerName: "Nom du chauffeur", width: 200 },
+    { field: "nomChauffeur", headerName: "Nom du chauffeur", width: 200,
+      valueGetter: (params) => `${params.row.chauffeurName || ''} ${params.row.chauffeurPrenom || ''}` },
     { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
     { field: "montantTTC", headerName: "Montant TTC", width: 130,
+      valueFormatter: (params) => {
+        if (params.value == null) {
+          return '';
+        }
+        return `${params.value.toFixed(2)} €`;
+      },
+    },
+    { field: "fraisDeService", headerName: "Frais de service", width: 130,
       valueFormatter: (params) => {
         if (params.value == null) {
           return '';
