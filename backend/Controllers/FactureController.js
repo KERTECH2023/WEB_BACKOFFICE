@@ -44,13 +44,11 @@ exports.getFacturePDF = async (req, res) => {
 exports.generateFacturesForChauffeur = async (req, res) => {
   try {
     const { driverId } = req.params;
-    const mois = moment().month() + 1;  // Mois en cours
+    const mois = moment().month();  // Mois en cours
     const annee = moment().year();      // Année en cours
-    const nbTrajet = req.body.nbTrajet; // Récupéré depuis la requête
-    const montantTTC = req.body.montantTTC;
 
-    // Appel à la fonction pour générer la facture
-    const nouvelleFacture = await factureService.generateFactures(driverId, mois, annee, nbTrajet, montantTTC);
+    // Appel à la fonction pour générer la facture sans passer nbTrajet et montantTTC
+    const nouvelleFacture = await factureService.generateFactures(driverId, mois, annee);
 
     res.json(nouvelleFacture);
   } catch (error) {
