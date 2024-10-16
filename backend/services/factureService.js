@@ -53,7 +53,7 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
     const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
     console.log("montantTTC",montantTTC);
 
-    const totalAmount = montantTTC.length > 0 ? montantTTC[0].totalFare : 0;  // Sum of all fares for the month
+    const totalAmount = montantTTC;  // Sum of all fares for the month
  console.log("totalAmoun",totalAmount);
     
     // Générer un nouveau numéro de facture
