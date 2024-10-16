@@ -173,7 +173,7 @@ const DataFact = () => {
             {(role === "Admin" || role === "Agentad") && (
               <>
                 <Link
-                  to={`/consultF/${params.row._id}`}
+                  to={`/consultF/${params.row.chauffeurId}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <div className="viewButton">Consulter</div>
