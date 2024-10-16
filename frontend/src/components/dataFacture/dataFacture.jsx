@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
-import { InvoiceColumns } from "../../DataTableInvoice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -18,8 +17,8 @@ const DataFact = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,13 +26,13 @@ const DataFact = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSearch(params.get("search") || "");
-    setSelectedMonth(params.get("month") || "");
-    setSelectedYear(params.get("year") || "");
+    setSelectedMonth(params.get("month") || new Date().getMonth() + 1);
+    setSelectedYear(params.get("year") || new Date().getFullYear());
   }, [location]);
 
   useEffect(() => {
-    getUsers();
-  }, []);
+    getFactures();
+  }, [selectedMonth, selectedYear]);
 
   const handleSearchTerm = (e) => {
     const value = e.target.value.toLowerCase();
@@ -66,67 +65,25 @@ const DataFact = () => {
   useEffect(() => {
     const filtered = data.filter((row) => {
       const matchesSearch =
-        (row.chauffeurName &&
-          row.chauffeurName.toLowerCase().includes(search)) ||
-        (row.chauffeurPrenom &&
-          row.chauffeurPrenom.toLowerCase().includes(search));
+        (row.chauffeurName && row.chauffeurName.toLowerCase().includes(search)) ||
+        (row.chauffeurPrenom && row.chauffeurPrenom.toLowerCase().includes(search));
 
-      const matchesMonth = selectedMonth
-        ? row.Month === parseInt(selectedMonth, 10)
-        : true;
-
-      const matchesYear = selectedYear
-        ? row.Year === parseInt(selectedYear, 10)
-        : true;
-
-      return matchesSearch && matchesMonth && matchesYear;
+      return matchesSearch;
     });
 
     setFilteredData(filtered);
-  }, [search, selectedMonth, selectedYear, data]);
+  }, [search, data]);
 
-  const getUsers = async () => {
+  const getFactures = async () => {
     try {
       setLoading(true);
       setError(null);
       console.log("Fetching factures...");
-      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/factures");
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures?month=${selectedMonth}&year=${selectedYear}`);
       if (response.status === 200) {
         const factures = response.data;
         console.log("Factures fetched:", factures);
-
-        const enhancedFactures = await Promise.all(
-          factures.map(async (facture) => {
-            if (!facture.chauffeur) {
-              return { ...facture, chauffeurName: "N/A", chauffeurPrenom: "N/A" };
-            }
-            try {
-              const [chauffeurResponse, rideRequestsResponse] = await Promise.all([
-                axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${facture.chauffeur}`),
-                axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/rideCounts?driverPhone=${facture.chauffeur}`)
-              ]);
-
-              const chauffeurData = chauffeurResponse.data;
-              const rideCounts = rideRequestsResponse.data;
-
-              return {
-                ...facture,
-                chauffeurName: chauffeurData.Nom,
-                chauffeurPrenom: chauffeurData.Prenom,
-                chauffeurEmail: chauffeurData.email,
-                chauffeurPhone: chauffeurData.phone,
-                photoAvatar: chauffeurData.photoAvatar,
-                acceptedRides: rideCounts.accepted,
-                cancelledRides: rideCounts.cancelled,
-              };
-            } catch (error) {
-              console.error(`Error fetching data for ${facture.chauffeur}:`, error);
-              return facture;
-            }
-          })
-        );
-
-        setData(enhancedFactures);
+        setData(factures);
       }
     } catch (error) {
       console.error("Error fetching factures:", error);
@@ -138,7 +95,7 @@ const DataFact = () => {
   };
 
   const handleRefresh = () => {
-    getUsers();
+    getFactures();
   };
 
   const handleExport = () => {
@@ -146,7 +103,47 @@ const DataFact = () => {
     toast.info("Fonctionnalité d'exportation à implémenter");
   };
 
-  const actionColumn = [
+  const handleSendEmail = async (id) => {
+    try {
+      await axios.post(`${process.env.REACT_APP_BASE_URL}/Chauff/send-invoice-email/${id}`);
+      toast.success("Email envoyé avec succès");
+      getFactures(); // Refresh the data to update the UI
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error("Erreur lors de l'envoi de l'email");
+    }
+  };
+
+  const columns = [
+    { field: "chauffeurName", headerName: "Nom", width: 130 },
+    { field: "chauffeurPrenom", headerName: "Prénom", width: 130 },
+    { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
+    { field: "montantTTC", headerName: "Montant TTC", width: 130 },
+    { 
+      field: "status", 
+      headerName: "Status", 
+      width: 130,
+      renderCell: (params) => (
+        <div className={`status ${params.value.toLowerCase()}`}>
+          {params.value}
+        </div>
+      )
+    },
+    { 
+      field: "sentByEmail", 
+      headerName: "Envoyé Par Email", 
+      width: 150,
+      renderCell: (params) => (
+        <div>
+          {params.value ? "Oui" : "Non"}
+          {!params.value && (
+            <Button onClick={() => handleSendEmail(params.row._id)}>
+              Envoyer
+            </Button>
+          )}
+        </div>
+      )
+    },
     {
       field: "action",
       headerName: "Action",
@@ -208,7 +205,6 @@ const DataFact = () => {
           value={selectedMonth}
           className="filterSelect"
         >
-          <option value="">Tous les mois</option>
           {[...Array(12)].map((_, i) => (
             <option key={i} value={i + 1}>
               {new Date(0, i).toLocaleString('default', { month: 'long' })}
@@ -220,7 +216,6 @@ const DataFact = () => {
           value={selectedYear}
           className="filterSelect"
         >
-          <option value="">Toutes les années</option>
           {[...Array(5)].map((_, i) => {
             const year = new Date().getFullYear() + i;
             return (
@@ -235,7 +230,7 @@ const DataFact = () => {
       <DataGrid
         className="datagrid"
         rows={filteredData}
-        columns={InvoiceColumns.concat(actionColumn)}
+        columns={columns}
         pageSize={9}
         rowsPerPageOptions={[9]}
         checkboxSelection
