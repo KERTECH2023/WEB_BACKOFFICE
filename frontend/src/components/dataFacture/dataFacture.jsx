@@ -64,13 +64,14 @@ const DataFact = () => {
 
   useEffect(() => {
     const filtered = data.filter((row) => {
-      const matchesSearch =
-        (row.chauffeurName && row.chauffeurName.toLowerCase().includes(search)) ||
-        (row.chauffeurPrenom && row.chauffeurPrenom.toLowerCase().includes(search));
-
-      return matchesSearch;
+      const searchTerm = search.toLowerCase();
+      return (
+        (row.nomChauffeur && row.nomChauffeur.toLowerCase().includes(searchTerm)) ||
+        (row.numero && row.numero.toLowerCase().includes(searchTerm))
+      );
     });
 
+    console.log("Filtered data:", filtered);
     setFilteredData(filtered);
   }, [search, data]);
 
@@ -78,12 +79,13 @@ const DataFact = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log("Fetching factures...");
+      console.log(`Fetching factures for month ${selectedMonth} and year ${selectedYear}...`);
       const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures?month=${selectedMonth}&year=${selectedYear}`);
       if (response.status === 200) {
         const factures = response.data;
         console.log("Factures fetched:", factures);
         setData(factures);
+        setFilteredData(factures);
       }
     } catch (error) {
       console.error("Error fetching factures:", error);
@@ -99,7 +101,6 @@ const DataFact = () => {
   };
 
   const handleExport = () => {
-    // Implement export functionality here
     toast.info("Fonctionnalité d'exportation à implémenter");
   };
 
@@ -107,7 +108,7 @@ const DataFact = () => {
     try {
       await axios.post(`${process.env.REACT_APP_BASE_URL}/Chauff/send-invoice-email/${id}`);
       toast.success("Email envoyé avec succès");
-      getFactures(); // Refresh the data to update the UI
+      getFactures();
     } catch (error) {
       console.error("Error sending email:", error);
       toast.error("Erreur lors de l'envoi de l'email");
@@ -115,16 +116,23 @@ const DataFact = () => {
   };
 
   const columns = [
-    { field: "chauffeurName", headerName: "Nom", width: 130 },
-    { field: "chauffeurPrenom", headerName: "Prénom", width: 130 },
+    { field: "numero", headerName: "Numéro", width: 150 },
+    { field: "nomChauffeur", headerName: "Nom du chauffeur", width: 200 },
     { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
-    { field: "montantTTC", headerName: "Montant TTC", width: 130 },
+    { field: "montantTTC", headerName: "Montant TTC", width: 130,
+      valueFormatter: (params) => {
+        if (params.value == null) {
+          return '';
+        }
+        return `${params.value.toFixed(2)} €`;
+      },
+    },
     { 
       field: "status", 
       headerName: "Status", 
       width: 130,
       renderCell: (params) => (
-        <div className={`status ${params.value.toLowerCase()}`}>
+        <div className={`status ${params.value ? params.value.toLowerCase() : ''}`}>
           {params.value}
         </div>
       )
@@ -167,6 +175,9 @@ const DataFact = () => {
       },
     },
   ];
+
+  console.log("Current data:", data);
+  console.log("Current filteredData:", filteredData);
 
   if (loading) {
     return <CircularProgress />;
