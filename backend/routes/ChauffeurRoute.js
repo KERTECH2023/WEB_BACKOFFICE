@@ -56,6 +56,7 @@ router.get("/newchauf", ChauffContro.recuperernewchauf);
 // router.put('/updatechauf/:id',Multer.single("photoAvatar"),UploadImage, ChauffContro.update);
 router.put("/updatestatus/:id", ChauffContro.updatestatus);
 router.put("/updatestatuss/:id", ChauffContro.updatestatuss);
+router.put("/updatestatusss/:id", ChauffContro.updatestatusss);
 //router.options('/facture-amounts',factureUpdate);
 //router.get('/factures/:chauffeurId', ChauffContro.getFacturesByChauffeurId);
 router.get("/factures", ChauffContro.recuperFact);
