@@ -225,7 +225,9 @@ const searchFacture = async (req, res) => {
   const id = req.params.id;
   console.log(id);
   try {
-    const data = await Facture.findById(id);
+    const data = await Facture.findOne({
+    chauffeurId:id
+});
 
     if (!data) {
       return res
