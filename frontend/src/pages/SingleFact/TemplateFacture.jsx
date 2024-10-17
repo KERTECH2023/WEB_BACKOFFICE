@@ -60,7 +60,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
                   : " - "}
               </td>
               <td>
-                {facture ? parseFloat(notes).toFixed(2) + " dt" : " - "}
+                {facture ? parseFloat(facture.notes).toFixed(2) + " dt" : " - "}
               </td>
             </tr>
           </tbody>
@@ -70,7 +70,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
       <div className={styles.total}>
         <p>
           Total à payer:{" "}
-          {facture ? parseFloat(notes).toFixed(2) + " dt" : " - "}
+          {facture ? parseFloat(facture.notes).toFixed(2) + " dt" : " - "}
         </p>
       </div>
 
