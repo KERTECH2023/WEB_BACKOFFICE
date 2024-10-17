@@ -18,6 +18,28 @@ const PDFDocument = require("pdfkit");
 
 const fs = require("fs");
 
+const createDriversNodeIfNotExists = async () => {
+  const driversRef = realtimeDB.ref("Drivers");
+
+  try {
+    const snapshot = await driversRef.once("value");
+    
+    if (!snapshot.exists()) {
+      // La référence "Drivers" n'existe pas, on la crée
+      await driversRef.set({
+        message: "Drivers node created successfully!"
+      });
+      console.log("Drivers node created.");
+    } else {
+      console.log("Drivers node already exists.");
+    }
+  } catch (error) {
+    console.error("Error checking or creating Drivers node:", error);
+  }
+};
+
+
+
 /**--------------------Ajouter un agnet------------------------  */
 
 const generateRandomPassword = () => {
@@ -207,41 +229,41 @@ const getRideCounts = async (req, res) => {
 };
 // Controller function to get factures by chauffeur ID
 const getFacturesByChauffeurId = (req, res) => {
-  const id = req.params.chauffeurId;
-
-  console.log("Chauffeur ID:", id);
-
-  Facture.find({ chauffeur: id })
-    .then(factures => {
-      res.status(200).send(factures);
-    })
-    .catch(err => {
-      console.error('Error while fetching factures:', err);
-      res.status(500).json({ error: 'An error occurred while fetching factures' });
-    });
-};
-const searchFacture = async (req, res) => {
-  const id = req.params.id;
-  console.log(id);
-  try {
-    const data = await Facture.findOne({
-    chauffeurId:id
-});
-
-    if (!data) {
-      return res
-        .status(404)
-        .send({ message: "Facture introuvable pour id " + id });
+    const id = req.params.chauffeurId;
+  
+    console.log("Chauffeur ID:", id);
+  
+    Facture.find({ chauffeur: id })
+      .then(factures => {
+        res.status(200).send(factures);
+      })
+      .catch(err => {
+        console.error('Error while fetching factures:', err);
+        res.status(500).json({ error: 'An error occurred while fetching factures' });
+      });
+  };
+  const searchFacture = async (req, res) => {
+    const id = req.params.id;
+    console.log(id);
+    try {
+      const data = await Facture.findOne({
+      chauffeurId:id
+  });
+  
+      if (!data) {
+        return res
+          .status(404)
+          .send({ message: "Facture introuvable pour id " + id });
+      }
+  
+      res.json(data);
+      console.log(data);
+    } catch (err) {
+      res
+        .status(500)
+        .send({ message: "Erreur de récupération de la facture avec id=" + id });
     }
-
-    res.json(data);
-    console.log(data);
-  } catch (err) {
-    res
-      .status(500)
-      .send({ message: "Erreur de récupération de la facture avec id=" + id });
-  }
-};
+  };
 const register = async (req, res) => {
   const {
     Nom,
@@ -366,173 +388,122 @@ async function sendConfirmationEmail(Email, Password) {
     subject: "TunisieUber Nouveau Compte ",
     html:
       `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-      <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
-      <head>
-      <meta charset="UTF-8">
-      <meta content="width=device-width, initial-scale=1" name="viewport">
-      <meta name="x-apple-disable-message-reformatting">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta content="telephone=no" name="format-detection">
-      <title>Nouveau message 2</title><!--[if (mso 16)]>
-      <style type="text/css">
-      a {text-decoration: none;}
-      </style>
-      <![endif]--><!--[if gte mso 9]><style>sup { font-size: 100% !important; }</style><![endif]--><!--[if gte mso 9]>
-      <xml>
-      <o:OfficeDocumentSettings>
-      <o:AllowPNG></o:AllowPNG>
-      <o:PixelsPerInch>96</o:PixelsPerInch>
-      </o:OfficeDocumentSettings>
-      </xml>
-      <![endif]--><!--[if !mso]><!-- -->
-      <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet"><!--<![endif]-->
-      <style type="text/css">
-      #outlook a {
-      padding:0;
-      }
-      .es-button {
-      mso-style-priority:100!important;
-      text-decoration:none!important;
-      }
-      a[x-apple-data-detectors] {
-      color:inherit!important;
-      text-decoration:none!important;
-      font-size:inherit!important;
-      font-family:inherit!important;
-      font-weight:inherit!important;
-      line-height:inherit!important;
-      }
-      .es-desk-hidden {
-      display:none;
-      float:left;
-      overflow:hidden;
-      width:0;
-      max-height:0;
-      line-height:0;
-      mso-hide:all;
-      }
-      @media only screen and (max-width:600px) {p, ul li, ol li, a { line-height:150%!important } h1, h2, h3, h1 a, h2 a, h3 a { line-height:120% } h1 { font-size:30px!important; text-align:center } h2 { font-size:24px!important; text-align:left } h3 { font-size:20px!important; text-align:left } .es-header-body h1 a, .es-content-body h1 a, .es-footer-body h1 a { font-size:30px!important; text-align:center } .es-header-body h2 a, .es-content-body h2 a, .es-footer-body h2 a { font-size:24px!important; text-align:left } .es-header-body h3 a, .es-content-body h3 a, .es-footer-body h3 a { font-size:20px!important; text-align:left } .es-menu td a { font-size:14px!important } .es-header-body p, .es-header-body ul li, .es-header-body ol li, .es-header-body a { font-size:14px!important } .es-content-body p, .es-content-body ul li, .es-content-body ol li, .es-content-body a { font-size:14px!important } .es-footer-body p, .es-footer-body ul li, .es-footer-body ol li, .es-footer-body a { font-size:12px!important } .es-infoblock p, .es-infoblock ul li, .es-infoblock ol li, .es-infoblock a { font-size:12px!important } *[class="gmail-fix"] { display:none!important } .es-m-txt-c, .es-m-txt-c h1, .es-m-txt-c h2, .es-m-txt-c h3 { text-align:center!important } .es-m-txt-r, .es-m-txt-r h1, .es-m-txt-r h2, .es-m-txt-r h3 { text-align:right!important } .es-m-txt-l, .es-m-txt-l h1, .es-m-txt-l h2, .es-m-txt-l h3 { text-align:left!important } .es-m-txt-r img, .es-m-txt-c img, .es-m-txt-l img { display:inline!important } .es-button-border { display:inline-block!important } a.es-button, button.es-button { font-size:18px!important; display:inline-block!important } .es-adaptive table, .es-left, .es-right { width:100%!important } .es-content table, .es-header table, .es-footer table, .es-content, .es-footer, .es-header { width:100%!important; max-width:600px!important } .es-adapt-td { display:block!important; width:100%!important } .adapt-img { width:100%!important; height:auto!important } .es-m-p0 { padding:0!important } .es-m-p0r { padding-right:0!important } .es-m-p0l { padding-left:0!important } .es-m-p0t { padding-top:0!important } .es-m-p0b { padding-bottom:0!important } .es-m-p20b { padding-bottom:20px!important } .es-mobile-hidden, .es-hidden { display:none!important } tr.es-desk-hidden, td.es-desk-hidden, table.es-desk-hidden { width:auto!important; overflow:visible!important; float:none!important; max-height:inherit!important; line-height:inherit!important } tr.es-desk-hidden { display:table-row!important } table.es-desk-hidden { display:table!important } td.es-desk-menu-hidden { display:table-cell!important } .es-menu td { width:1%!important } table.es-table-not-adapt, .esd-block-html table { width:auto!important } table.es-social { display:inline-block!important } table.es-social td { display:inline-block!important } .es-desk-hidden { display:table-row!important; width:auto!important; overflow:visible!important; max-height:inherit!important } .es-m-p5 { padding:5px!important } .es-m-p5t { padding-top:5px!important } .es-m-p5b { padding-bottom:5px!important } .es-m-p5r { padding-right:5px!important } .es-m-p5l { padding-left:5px!important } .es-m-p10 { padding:10px!important } .es-m-p10t { padding-top:10px!important } .es-m-p10b { padding-bottom:10px!important } .es-m-p10r { padding-right:10px!important } .es-m-p10l { padding-left:10px!important } .es-m-p15 { padding:15px!important } .es-m-p15t { padding-top:15px!important } .es-m-p15b { padding-bottom:15px!important } .es-m-p15r { padding-right:15px!important } .es-m-p15l { padding-left:15px!important } .es-m-p20 { padding:20px!important } .es-m-p20t { padding-top:20px!important } .es-m-p20r { padding-right:20px!important } .es-m-p20l { padding-left:20px!important } .es-m-p25 { padding:25px!important } .es-m-p25t { padding-top:25px!important } .es-m-p25b { padding-bottom:25px!important } .es-m-p25r { padding-right:25px!important } .es-m-p25l { padding-left:25px!important } .es-m-p30 { padding:30px!important } .es-m-p30t { padding-top:30px!important } .es-m-p30b { padding-bottom:30px!important } .es-m-p30r { padding-right:30px!important } .es-m-p30l { padding-left:30px!important } .es-m-p35 { padding:35px!important } .es-m-p35t { padding-top:35px!important } .es-m-p35b { padding-bottom:35px!important } .es-m-p35r { padding-right:35px!important } .es-m-p35l { padding-left:35px!important } .es-m-p40 { padding:40px!important } .es-m-p40t { padding-top:40px!important } .es-m-p40b { padding-bottom:40px!important } .es-m-p40r { padding-right:40px!important } .es-m-p40l { padding-left:40px!important } .h-auto { height:auto!important } }
-      </style>
-      </head>
-      <body data-new-gr-c-s-loaded="14.1031.0" style="width:100%;font-family:arial, 'helvetica neue', helvetica, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0">
-      <div class="es-wrapper-color" style="background-color:#D2A805"><!--[if gte mso 9]>
-      <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
-      <v:fill type="tile" color="#d2a805"></v:fill>
-      </v:background>
-      <![endif]-->
-      <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;padding:0;Margin:0;width:100%;height:100%;background-repeat:repeat;background-position:center top;background-color:#D2A805">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="telephone=no" name="format-detection">
+  <title>Account Activation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
+  <style type="text/css">
+    #outlook a { padding:0; }
+    .es-button { text-decoration:none!important; }
+    a[x-apple-data-detectors] { color:inherit!important; text-decoration:none!important; font-size:inherit!important; font-family:inherit!important; font-weight:inherit!important; line-height:inherit!important; }
+    @media only screen and (max-width:600px) {
+      p, ul li, ol li, a { line-height:150%!important }
+      h1, h2, h3, h1 a, h2 a, h3 a { line-height:120% }
+      h1 { font-size:30px!important; text-align:center }
+      h2 { font-size:24px!important; text-align:left }
+      h3 { font-size:20px!important; text-align:left }
+      .es-header-body h1 a, .es-content-body h1 a, .es-footer-body h1 a { font-size:30px!important; text-align:center }
+      .es-menu td a { font-size:14px!important }
+      .es-content-body p, .es-footer-body p, .es-header-body p { font-size:14px!important }
+      .es-m-txt-c, .es-m-txt-c h1, .es-m-txt-c h2, .es-m-txt-c h3 { text-align:center!important }
+      .es-adapt-td { display:block!important; width:100%!important }
+      .adapt-img { width:100%!important; height:auto!important }
+    }
+  </style>
+</head>
+<body style="width:100%;font-family:arial, 'helvetica neue', helvetica, sans-serif;padding:0;Margin:0;background-color:#D2A805">
+  <div class="es-wrapper-color" style="background-color:#D2A805">
+    <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0" style="padding:0;Margin:0;width:100%;height:100%;background-color:#D2A805">
       <tr>
-      <td valign="top" style="padding:0;Margin:0">
-      <table cellpadding="0" cellspacing="0" class="es-header" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%;background-color:transparent;background-repeat:repeat;background-position:center top">
-      <tr>
-      <td align="center" style="padding:0;Margin:0">
-      <table bgcolor="#ffffff" class="es-header-body" align="center" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
-      <tr>
-      <td align="left" style="padding:20px;Margin:0"><!--[if mso]><table style="width:560px" cellpadding="0"
-      cellspacing="0"><tr><td style="width:241px" valign="top"><![endif]-->
-      <table cellpadding="0" cellspacing="0" class="es-left" align="left" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
-      <tr>
-      <td class="es-m-p0r es-m-p20b" valign="top" align="center" style="padding:0;Margin:0;width:241px">
-      <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td align="left" class="es-m-txt-c" style="padding:0;Margin:0;font-size:0px"><a target="_blank" href="https://viewstripo.email" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;text-decoration:none;color:#3B8026;font-size:14px"><img src="https://ymjipk.stripocdn.email/content/guids/CABINET_20717d2a5fbd1820851bfff00c852e41c24f3af725e1d147e89a5d094d4f0aeb/images/logof.png" alt="Logo" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" title="Logo" width="193" height="127"></a></td>
+        <td valign="top" style="padding:0;Margin:0">
+          <table class="es-header" align="center" style="width:100%;background-color:transparent;">
+            <tr>
+              <td align="center" style="padding:0;Margin:0">
+                <table bgcolor="#ffffff" class="es-header-body" align="center" cellpadding="0" cellspacing="0" style="background-color:#FFFFFF;width:600px">
+                  <tr>
+                    <td align="left" style="padding:20px;Margin:0">
+                      <table cellpadding="0" cellspacing="0" align="left" style="float:left">
+                        <tr>
+                          <td valign="top" align="center" style="width:241px">
+                            <a href="https://viewstripo.email" target="_blank" style="text-decoration:none;color:#3B8026">
+                              <img src="https://ymjipk.stripocdn.email/content/guids/CABINET_20717d2a5fbd1820851bfff00c852e41c24f3af725e1d147e89a5d094d4f0aeb/images/logof.png" alt="Logo" title="Logo" width="193" height="127" style="display:block;border:0;outline:none;text-decoration:none">
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      <table cellpadding="0" cellspacing="0" align="right" style="float:right">
+                        <tr>
+                          <td align="left" style="width:299px">
+                            <table cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                              <tr class="links-images-right">
+                                <td align="center" valign="top" style="padding-top:10px;padding-bottom:0;border:0">
+                                  <a href="" target="_blank" style="display:block;color:#0b5394;font-size:18px">Commandez un taxi en un clic depuis votre mobile</a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <table class="es-content" cellspacing="0" cellpadding="0" align="center" style="width:100%">
+            <tr>
+              <td align="center" style="padding:0;Margin:0">
+                <table class="es-content-body" style="background-color:#ffffff;width:600px" cellspacing="0" cellpadding="0" align="center">
+                  <tr>
+                    <td align="left" style="padding:40px;Margin:0">
+                      <table cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <tr>
+                          <td align="center" valign="top" style="width:520px">
+                            <table cellpadding="0" cellspacing="0" width="100%" bgcolor="#fef852" style="background-color:#fef852;border-radius:20px">
+                              <tr>
+                                <td align="center" style="padding:30px 20px 10px">
+                                  <h1 style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:40px;color:#2D033A">Merci<br>pour nous choisir</h1>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td align="center" style="padding-bottom:30px">
+                                  <p style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:16px;color:#38363A">Votre compte a été activé avec succès.</p>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="left" style="padding:0 40px 40px">
+                      <table cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <tr>
+                          <td align="left" style="padding-top:5px;padding-bottom:5px">
+                            <h3 style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:20px;color:#2D033A">Cher(e) ` + Email + `,</h3>
+                            <p style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:14px;color:#38363A">Nous sommes ravis de vous accueillir sur TunisieUber ! Votre compte a été créé avec succès. Vous pouvez désormais profiter de tous nos services.</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
       </tr>
-      </table></td>
-      </tr>
-      </table><!--[if mso]></td><td style="width:20px"></td><td style="width:299px" valign="top"><![endif]-->
-      <table cellpadding="0" cellspacing="0" align="right" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td align="left" style="padding:0;Margin:0;width:299px">
-      <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td style="padding:0;Margin:0">
-      <table cellpadding="0" cellspacing="0" width="100%" class="es-menu" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr class="links-images-right">
-      <td align="center" valign="top" width="100%" style="Margin:0;padding-left:5px;padding-right:5px;padding-top:10px;padding-bottom:0px;border:0" id="esd-menu-id-0"><a target="_blank" href="" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;text-decoration:none;display:block;font-family:'Josefin Sans', helvetica, arial, sans-serif;color:#0b5394;font-size:18px">Commandez un taxi en un clic depuis votre mobile<img src="https://ymjipk.stripocdn.email/content/guids/CABINET_20717d2a5fbd1820851bfff00c852e41c24f3af725e1d147e89a5d094d4f0aeb/images/logof.png" alt="Commandez un taxi en un clic depuis votre mobile" title="Commandez un taxi en un clic depuis votre mobile" align="absmiddle" width="42" style="display:inline-block !important;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;padding-left:15px;vertical-align:middle;font-size:12px" height="28"></a></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table><!--[if mso]></td></tr></table><![endif]--></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table>
-      <table class="es-content" cellspacing="0" cellpadding="0" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%">
-      <tr>
-      <td align="center" style="padding:0;Margin:0">
-      <table class="es-content-body" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#ffffff;width:600px" cellspacing="0" cellpadding="0" bgcolor="#ffffff" align="center">
-      <tr>
-      <td align="left" style="padding:40px;Margin:0">
-      <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td align="center" valign="top" style="padding:0;Margin:0;width:520px">
-      <table cellpadding="0" cellspacing="0" width="100%" bgcolor="#fef852" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:separate;border-spacing:0px;background-color:#fef852;border-radius:20px" role="presentation">
-      <tr>
-      <td align="center" style="Margin:0;padding-bottom:10px;padding-left:20px;padding-right:20px;padding-top:30px"><h1 style="Margin:0;line-height:48px;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:40px;font-style:normal;font-weight:normal;color:#2D033A">Merci<br>pour nous choisir</h1></td>
-      </tr>
-      <tr>
-      <td align="center" style="padding:0;Margin:0;padding-bottom:30px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:24px;color:#38363A;font-size:16px"><br></p></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      <tr>
-      <td align="left" style="padding:0;Margin:0;padding-bottom:40px;padding-left:40px;padding-right:40px">
-      <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td align="center" valign="top" style="padding:0;Margin:0;width:520px">
-      <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td align="left" style="padding:0;Margin:0;padding-top:5px;padding-bottom:5px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:20px;font-style:normal;font-weight:normal;color:#2D033A">Cher(e) ` +
-      Email +
-      `,</h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Nous sommes ravis de vous accueillir sur TunisieUber ! Votre compte a été créé avec succès, et nous tenons à vous fournir les détails de connexion dont vous avez besoin pour commencer.</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Voici vos informations de compte :</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Adresse e-mail : <a href="mailto:louay.benkasdallah@esprit.tn" target="_blank" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;text-decoration:none;color:#3B8026;font-size:14px">` +
-      Email +
-      `</a></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Mot de passe : ${Password} </p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Nous vous recommandons de garder ces informations en lieu sûr et de ne pas les partager avec d'autres personnes. Si vous avez des raisons de croire que votre compte a été compromis, veuillez nous contacter immédiatement.</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Si vous avez des questions ou rencontrez des problèmes lors de votre utilisation de notre plateforme, n'hésitez pas à nous contacter. Notre équipe d'assistance se fera un plaisir de vous aider.</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Encore une fois, merci de nous rejoindre sur TunisieUber . Nous sommes impatients de vous offrir une expérience exceptionnelle.</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">Cordialement,</p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#38363A;font-size:14px">TunisieUber</p></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table>
-      <table cellpadding="0" cellspacing="0" class="es-content" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%">
-      <tr>
-      <td align="center" style="padding:0;Margin:0">
-      <table bgcolor="#ffffff" class="es-content-body" align="center" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:600px">
-      <tr>
-      <td align="left" bgcolor="#FFC312" style="Margin:0;padding-left:20px;padding-right:20px;padding-top:30px;padding-bottom:30px;background-color:#ffc312">
-      <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td align="left" style="padding:0;Margin:0;width:560px">
-      <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr>
-      <td align="center" style="padding:0;Margin:0;padding-left:10px;padding-right:10px;padding-top:15px"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:'Josefin Sans', helvetica, arial, sans-serif;line-height:21px;color:#ffffff;font-size:14px">Download Our&nbsp;App</p></td>
-      </tr>
-      <tr>
-      <td style="padding:0;Margin:0">
-      <table cellpadding="0" cellspacing="0" width="100%" class="es-menu" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-      <tr class="images">
-      <td align="center" valign="top" width="50%" id="esd-menu-id-1" style="Margin:0;padding-left:5px;padding-right:5px;padding-top:10px;padding-bottom:10px;border:0"><img src="https://ymjipk.stripocdn.email/content/guids/CABINET_b8050f8a2fcab03567028bda1790992c/images/pngwing_1.png" alt="Item2" title="Item2" height="40" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;font-size:12px" width="114"></td>
-      <td align="center" valign="top" width="50%" id="esd-menu-id-2" style="Margin:0;padding-left:5px;padding-right:5px;padding-top:10px;padding-bottom:10px;border:0"><img src="https://ymjipk.stripocdn.email/content/guids/CABINET_b8050f8a2fcab03567028bda1790992c/images/pngwing_2.png" alt="Item3" title="Item3" height="40" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;font-size:12px" width="118"></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table></td>
-      </tr>
-      </table>
-      </div>
-      </body>
-      </html>`,
+    </table>
+  </div>
+</body>
+</html>
+`,
   };
 
   return new Promise((resolve, reject) => {
@@ -986,11 +957,23 @@ const updatestatuss = async (req, res, next) => {
       // If the user exists, update the user's email and password
       await admin.auth().updateUser(userRecord.uid, {
         email: chauffeurEmail,
-        password: chauffeurPassword,
+         disabled:false
       });
 
       firebaseUser = userRecord;
       console.log("User updated:", userRecord);
+      try {
+        const reponse = await sendConfirmationEmail(
+          chauffeurEmail,
+          ""
+        );
+        return res.status(200).send({
+          message: "Chauffeur was Disabled successfully!",
+          chauffeurEmail: chauffeurEmail, // Sending the email in the response
+        });
+      } catch (error) {
+        console.error("Error sending email:", error);
+      }
     } catch (error) {
       console.error("Error getting existing user:", error);
 
@@ -1002,9 +985,20 @@ const updatestatuss = async (req, res, next) => {
 
       console.log("New user created:", firebaseUser);
 
-      // Send email verification for new users
+      try {
+        const reponse = await sendConfirmationEmail(
+          chauffeurEmail,
+          chauffeurPassword
+        );
+        return res.status(200).send({
+          message: "Chauffeur was Disabled successfully!",
+          chauffeurEmail: chauffeurEmail, // Sending the email in the response
+        });
+      } catch (error) {
+        console.error("Error sending email:", error);
+      }
     }
-
+    createDriversNodeIfNotExists();
     const activedriversRef = realtimeDB.ref("Drivers");
     const activeDriver = {
       name: chauffeurUpdated.Nom,
@@ -1028,18 +1022,7 @@ const updatestatuss = async (req, res, next) => {
       console.log("Successfully updated data in Firebase Firestore");
     }
 
-    try {
-      const reponse = await sendConfirmationEmail(
-        chauffeurEmail,
-        chauffeurPassword
-      );
-      return res.status(200).send({
-        message: "Chauffeur was Disabled successfully!",
-        chauffeurEmail: chauffeurEmail, // Sending the email in the response
-      });
-    } catch (error) {
-      console.error("Error sending email:", error);
-    }
+
   } catch (error) {
     console.error(error);
     return res.status(500).send({ error: error });
@@ -1068,7 +1051,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
     from: "Tunisie Uber <noreplytunisieuber@gmail.com>",
     to: Email,
     subject: "TunisieUber Compte Validé ",
-    html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
         <head>
         <meta charset="UTF-8">
@@ -1183,7 +1166,13 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
         <td align="center" style="padding:0;Margin:0;padding-top:40px;padding-bottom:40px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D">Merci de nous avoir rejoint.</h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p></td>
         </tr>
         <tr>
+        ${
+          chauffeurPassword === "" ? "" : `
         <td align="center" style="padding:0;Margin:0;padding-top:40px;padding-bottom:40px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D">votre mot de passe: ${chauffeurPassword}</h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p></td>
+          
+          `
+        }
+
         </tr>
         </table></td>
         </tr>
@@ -1211,7 +1200,6 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
         </body>
         </html>`,
   };
-
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
