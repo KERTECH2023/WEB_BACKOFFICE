@@ -977,28 +977,20 @@ const updatestatuss = async (req, res, next) => {
     } catch (error) {
       console.error("Error getting existing user:", error);
 
-      // If the user doesn't exist, create a new user
-      firebaseUser = await admin.auth().createUser({
-        email: chauffeurEmail,
-        password: chauffeurPassword,
-      });
-
-      console.log("New user created:", firebaseUser);
-
+      // If user doesn't exist, create a new one
       try {
-        const reponse = await sendConfirmationEmail(
-          chauffeurEmail,
-          chauffeurPassword
-        );
-        return res.status(200).send({
-          message: "Chauffeur was Disabled successfully!",
-          chauffeurEmail: chauffeurEmail, // Sending the email in the response
+        firebaseUser = await admin.auth().createUser({
+          email: chauffeurEmail,
+          password: chauffeurPassword,
         });
-      } catch (error) {
-        console.error("Error sending email:", error);
+        console.log("New Firebase user created:", firebaseUser);
+      } catch (createError) {
+        console.error("Error creating Firebase user:", createError);
+        return res.status(500).send({ message: "Error creating Firebase user" });
       }
     }
-    createDriversNodeIfNotExists();
+
+    // Prepare the driver data for Firebase Realtime Database
     const activedriversRef = realtimeDB.ref("Drivers");
     const activeDriver = {
       name: chauffeurUpdated.Nom,
@@ -1017,17 +1009,26 @@ const updatestatuss = async (req, res, next) => {
       },
     };
 
+    // Log Firebase path and data to ensure correctness
     if (firebaseUser) {
-      await activedriversRef.child(firebaseUser.uid).set(activeDriver);
-      console.log("Successfully updated data in Firebase Firestore");
+      const path = `Drivers/${firebaseUser.uid}`;
+      console.log("Writing to Firebase path:", path);
+      console.log("Driver data:", activeDriver);
+      
+      // Update Firebase Realtime Database with chauffeur details
+      await activedriversRef.child(firebaseUser.uid).set(activeDriver).catch(error => {
+        console.error("Error writing to Firebase:", error);
+        return res.status(500).send({ message: "Error writing to Firebase" });
+      });
+
+      console.log("Successfully updated chauffeur data in Firebase");
     }
 
+   
 
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send({ error: error });
-  }
-};
+
+     
+
 async function sendConfirmationEmail(Email, chauffeurPassword) {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
