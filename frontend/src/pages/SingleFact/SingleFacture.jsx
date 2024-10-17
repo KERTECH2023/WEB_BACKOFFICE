@@ -1,4 +1,3 @@
-// SingleF.jsx
 import React from "react";
 import ReactDOM from "react-dom";
 import { jsPDF } from "jspdf";
@@ -22,71 +21,60 @@ const SingleF = () => {
   const role = window.localStorage.getItem("userRole");
   const [facture, setFacture] = useState(null);
   const [chauffeur, setChauffeur] = useState(null);
+  const [loading, setLoading] = useState(true); // For loading state
 
+  // Fetch chauffeur details by ID
   const getChauffeurById = async (id) => {
-    const response = await fetch(
-      process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`
-    );
-    const data = await response.json();
-    return data;
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`
+      );
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching chauffeur:", error);
+    }
   };
 
+  // Fetch facture details by ID
   const getFactureById = async (id) => {
-    const response = await fetch(process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`);
-    const data = await response.json();
-    return data;
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`
+      );
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching facture:", error);
+    }
   };
 
+  // Fetch both facture and chauffeur details
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const factureData = await getFactureById(id);
-        setFacture(factureData);
+        const fetchedFacture = await getFactureById(id);
+        setFacture(fetchedFacture);
 
-        if (factureData.chauffeur) {
-          const chauffeurData = await getChauffeurById(factureData.chauffeur);
-          setChauffeur(chauffeurData);
+        if (fetchedFacture && fetchedFacture.chauffeurId) {
+          const fetchedChauffeur = await getChauffeurById(fetchedFacture.chauffeurId);
+          setChauffeur(fetchedChauffeur);
         }
+        setLoading(false); // Mark loading as complete
       } catch (error) {
         console.error("Error fetching data:", error);
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [id]);
 
-  const compressImage = async (imageBlob) => {
-    const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1024,
-    };
-
-    try {
-      // Convertir DataURL en Blob
-      const response = await fetch(imageBlob);
-      const imageFile = await response.blob();
-
-      // Compresser l'image
-      const compressedImage = await imageCompression(imageFile, options);
-
-      // Convertir le Blob compressé en DataURL
-      const compressedImageDataURL = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(compressedImage);
-      });
-
-      return compressedImageDataURL;
-    } catch (error) {
-      console.error("Erreur lors de la compression de l'image:", error);
-    }
-  };
-
+  // Handle PDF generation with optional email sending
   const handlePrint = async (sendByEmail = false) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
 
-    // Rendre le composant React dans un conteneur temporaire
     ReactDOM.render(
       <TemplateFacture chauffeur={chauffeur} facture={facture} />,
       container
@@ -109,7 +97,7 @@ const SingleF = () => {
       const imgData = canvas.toDataURL("image/png");
 
       const compressedImgData = await compressImage(imgData);
-      // Ajouter l'image au PDF
+
       pdf.addImage(
         imgData,
         "PNG",
@@ -118,6 +106,7 @@ const SingleF = () => {
         pdf.internal.pageSize.width,
         pdf.internal.pageSize.height
       );
+
       pdfsend.addImage(
         compressedImgData,
         "PNG",
@@ -127,24 +116,15 @@ const SingleF = () => {
         pdf.internal.pageSize.height
       );
 
-      // Générer le PDF en tant que blob
       const pdfBlob = pdf.output("blob");
-
       const pdfb = pdfsend.output("blob");
-      // Supprimer le conteneur après génération
+
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
       if (sendByEmail) {
-        // Si on souhaite envoyer le PDF par email
-        await sendEmailWithFacture(
-          pdfb,
-          chauffeur.email,
-          facture.Month,
-          facture._id
-        );
+        await sendEmailWithFacture(pdfb, chauffeur.email, facture.mois, facture._id);
       } else {
-        // Créer une URL blob pour le PDF et l'ouvrir dans un nouvel onglet
         const pdfURL = URL.createObjectURL(pdfBlob);
         window.open(pdfURL, "_blank");
       }
@@ -153,11 +133,12 @@ const SingleF = () => {
     }
   };
 
-  const sendEmailWithFacture = async (pdfBlob, email, Month, id) => {
+  // Handle sending the facture via email
+  const sendEmailWithFacture = async (pdfBlob, email, mois, id) => {
     const formData = new FormData();
     formData.append("file", pdfBlob, "facture.pdf");
     formData.append("email", email);
-    formData.append("Month", Month);
+    formData.append("mois", mois);
     formData.append("id", id);
 
     try {
@@ -173,6 +154,7 @@ const SingleF = () => {
     }
   };
 
+  // Handle facture submission
   const handleSubmite = () => {
     axios
       .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatefacture/${id}`, {
@@ -189,11 +171,38 @@ const SingleF = () => {
       })
       .catch((err) => {
         console.warn(err);
-        toast.error("Email exist Already !", {
+        toast.error("Erreur lors de la mise à jour de la facture !", {
           position: toast.POSITION.TOP_RIGHT,
         });
       });
   };
+
+  // Render chauffeur details
+  const renderChauffeurDetails = () => {
+    if (!chauffeur) return null;
+
+    return (
+      <>
+        <div className="detailItem">
+          <span className="itemKey">Nom:</span>
+          <span className="itemValue">{chauffeur.Nom}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Prenom:</span>
+          <span className="itemValue">{chauffeur.Prenom}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Email:</span>
+          <span className="itemValue">{chauffeur.email}</span>
+        </div>
+        {/* Add more fields as needed */}
+      </>
+    );
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="single">
@@ -205,129 +214,45 @@ const SingleF = () => {
           <div className="left">
             <h1 className="title">Facture</h1>
             <div className="item" id="factureContent">
-              <img
-                src={chauffeur && chauffeur.photoAvatar}
-                alt=""
-                className="itemImg"
-              />
+              {chauffeur && (
+                <img src={chauffeur.photoAvatar} alt="" className="itemImg" />
+              )}
               <div className="details">
                 <h1 className="itemTitle">
-                  {chauffeur && chauffeur.Nom} {chauffeur && chauffeur.Prenom}
+                  {chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : "Chauffeur"}
                 </h1>
-                <div className="detailItem">
-                  <span className="itemKey">Nom:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.Nom}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Nom D'utilisateur:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.username}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Prenom:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.Prenom}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">email:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.email}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">DateNaissance:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.DateNaissance}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Genre:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.gender}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Téléphone:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.phone}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">Adresse:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.address}
-                  </span>
-                </div>
-                <div className="detailItem">
-                  <span className="itemKey">N° Permis:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.cnicNo}
-                  </span>
-                </div>
+                {renderChauffeurDetails()}
                 <div className="detailItem">
                   <span className="itemKey">Mois:</span>
-                  <span className="itemValue">{facture && facture.Month}</span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">Montant Accumulé</span>
-                  <span className="itemValue">
-                    {facture && facture.totalFareAmount}
-                  </span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">Nombre Trajet:</span>
-                  <span className="itemValue">
-                    {facture && facture.nbretrajet}
-                  </span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">Montant Facture</span>
-                  <span className="itemValue">
-                    {facture && facture.montantTva}
-                  </span>
-                </div>{" "}
-                <div className="detailItem">
-                  <span className="itemKey">N° Permis:</span>
-                  <span className="itemValue">
-                    {chauffeur && chauffeur.cnicNo}
-                  </span>
+                  <span className="itemValue">{facture && facture.mois}</span>
                 </div>
-                {role === "Admin" || role === "Agentad" ? (
-                  <div>
-                    <div
-                      className="activateButton"
-                      onClick={() => handlePrint(false)}
-                    >
+                <div className="detailItem">
+                  <span className="itemKey">Montant Facture:</span>
+                  <span className="itemValue">{facture && facture.montantTTC}</span>
+                </div>
+                {/* Add more facture details */}
+                {(role === "Admin" || role === "Agentad") && (
+                  <>
+                    <div className="activateButton" onClick={() => handlePrint(false)}>
                       Consulter
                     </div>
-                    {facture && !facture.envoieFacture && (
-                      <div
-                        className="activateButton"
-                        onClick={() => handlePrint(true)}
-                      >
+                    {facture && !facture.envoye && (
+                      <div className="activateButton" onClick={() => handlePrint(true)}>
                         Envoyer Facture par Email
                       </div>
                     )}
-
-                    {facture && facture.isPaid === false ? (
-                      <div
-                        className="activateButton"
-                        onClick={() => handleSubmite()}
-                      >
+                    {facture && !facture.isPaid && (
+                      <div className="activateButton" onClick={handleSubmite}>
                         Payer La Facture
                       </div>
-                    ) : null}
-                  </div>
-                ) : null}
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>
           <div className="right">
-            <Chart aspect={3 / 1} title="User Spending ( Last 6 Months)" />
+            <Chart aspect={3 / 1} title="User Spending (Last 6 Months)" />
           </div>
         </div>
         <ToastContainer />
