@@ -20,7 +20,85 @@ const fs = require("fs");
 
 /**--------------------Ajouter un agnet------------------------  */
 
+const updatestatusss = async (req, res, next) => {
+  const { id } = req.params;
 
+  try {
+    // Update chauffeur status
+    const chauffeurUpdated = await Chauffeur.findByIdAndUpdate(id, {
+      $set: {
+        isActive: true,
+        Cstatus: "Validé",
+      },
+    });
+
+    if (!chauffeurUpdated) {
+      return res.status(404).send({ message: "Chauffeur not found!" });
+    }
+
+    // Fetch updated chauffeur details
+    const updatedChauffeur = await Chauffeur.findById(id);
+    const chauffeurEmail = updatedChauffeur.email;
+    const chauffeurPassword = Math.random().toString(36).slice(-6); // Generate a random password
+    console.log("Generated chauffeur password:", chauffeurPassword);
+
+    let firebaseUser;
+    let car;
+
+    // Fetch the car associated with the chauffeur
+    try {
+      car = await Car.findOne({ chauffeur: updatedChauffeur.id });
+      if (!car) {
+        throw new Error(`Car not found for chauffeur ID: ${updatedChauffeur.id}`);
+      }
+    } catch (error) {
+      console.error(`Error finding car by chauffeur ID: ${updatedChauffeur.id}`, error);
+      return res.status(500).send({ message: "Error finding car" });
+    }
+
+    // Check if Firebase user exists
+    try {
+      const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
+      console.log("Existing user found:", userRecord);
+
+      // Update user's email and password
+      firebaseUser = await admin.auth().updateUser(userRecord.uid, {
+        email: chauffeurEmail,
+        password: chauffeurPassword,
+      });
+      console.log("User updated in Firebase:", firebaseUser);
+    } catch (error) {
+      console.error("Error retrieving or updating user:", error);
+
+      // If user doesn't exist, create a new one
+      try {
+        firebaseUser = await admin.auth().createUser({
+          email: chauffeurEmail,
+          password: chauffeurPassword,
+        });
+        console.log("New Firebase user created:", firebaseUser);
+      } catch (createError) {
+        console.error("Error creating Firebase user:", createError);
+        return res.status(500).send({ message: "Error creating Firebase user" });
+      }
+    }
+
+    // Send confirmation email
+    try {
+      const response = await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
+      return res.status(200).send({
+        message: "Chauffeur was validated and email sent successfully!",
+        chauffeurEmail, // Include email in response
+      });
+    } catch (emailError) {
+      console.error("Error sending confirmation email:", emailError);
+      return res.status(500).send({ message: "Error sending confirmation email" });
+    }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return res.status(500).send({ message: "Internal server error" });
+  }
+};
 
 const generateRandomPassword = () => {
   return crypto.randomBytes(8).toString("hex");
@@ -1277,7 +1355,7 @@ module.exports = {
   destroy,
   searchuse,
   update,
-  updatestatus,
+  updatestatus, updatestatusss,
   chauffdes,
   updatestatuss,
   Comptevald,
