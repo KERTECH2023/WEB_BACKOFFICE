@@ -30,7 +30,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
         <p className={styles.invoiceInfoD}>
           Date:{" "}
           {facture
-            ? `${facture.Month} - ${facture.Year}`
+            ? `${facture.mois+1} - ${facture.annee}`
             : "[Date de la facture]"}
         </p>
       </div>
@@ -50,7 +50,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
             <tr>
               <td>
                 {facture
-                  ? `Facture de Mois :   ${facture.Month} - ${facture.Year} `
+                  ? `Facture de Mois :   ${facture.mois} - ${facture.mois+1} `
                   : " - "}
               </td>
               <td>{facture ? facture.nbTrajet : " - "}</td>
@@ -60,7 +60,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
                   : " - "}
               </td>
               <td>
-                {facture ? parseFloat(montantPaye).toFixed(2) + " dt" : " - "}
+                {facture ? parseFloat(notes).toFixed(2) + " dt" : " - "}
               </td>
             </tr>
           </tbody>
@@ -70,7 +70,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
       <div className={styles.total}>
         <p>
           Total à payer:{" "}
-          {facture ? parseFloat(montantPaye).toFixed(2) + " dt" : " - "}
+          {facture ? parseFloat(notes).toFixed(2) + " dt" : " - "}
         </p>
       </div>
 
