@@ -13,7 +13,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import imageCompression from "browser-image-compression";
 
 const SingleF = () => {
   const navigate = useNavigate();
@@ -86,17 +85,9 @@ const SingleF = () => {
       format: "a4",
     });
 
-    const pdfsend = new jsPDF({
-      orientation: "landscape",
-      unit: "px",
-      format: "a4",
-    });
-
     try {
       const canvas = await html2canvas(container, { scale: 2 });
       const imgData = canvas.toDataURL("image/png");
-
-      const compressedImgData = await compressImage(imgData);
 
       pdf.addImage(
         imgData,
@@ -107,23 +98,13 @@ const SingleF = () => {
         pdf.internal.pageSize.height
       );
 
-      pdfsend.addImage(
-        compressedImgData,
-        "PNG",
-        0,
-        0,
-        pdf.internal.pageSize.width,
-        pdf.internal.pageSize.height
-      );
-
       const pdfBlob = pdf.output("blob");
-      const pdfb = pdfsend.output("blob");
 
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
       if (sendByEmail) {
-        await sendEmailWithFacture(pdfb, chauffeur.email, facture.mois, facture._id);
+        await sendEmailWithFacture(pdfBlob, chauffeur.email, facture.mois, facture._id);
       } else {
         const pdfURL = URL.createObjectURL(pdfBlob);
         window.open(pdfURL, "_blank");
