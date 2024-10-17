@@ -60,7 +60,7 @@ const SingleC = () => {
 
     // Handle validations
     axios
-      .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatestatusss/${id}`
+      .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatestatuss/${id}`
       ,{ headers: {
         'Content-Type': 'multipart/form-data',
       },})
