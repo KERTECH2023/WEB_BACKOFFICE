@@ -20,8 +20,6 @@ const fs = require("fs");
 
 /**--------------------Ajouter un agnet------------------------  */
 
-
-
 const generateRandomPassword = () => {
   return crypto.randomBytes(8).toString("hex");
 };
@@ -207,6 +205,7 @@ const getRideCounts = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+// Controller function to get factures by chauffeur ID
 const getFacturesByChauffeurId = (req, res) => {
   const id = req.params.chauffeurId;
 
@@ -715,7 +714,6 @@ const updateFact = async (req, res, next) => {
     return res.status(500).send({ error: error.message });
   }
 };
-
 const sendActivatedEmail = async (Email, Nom, password) => {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
@@ -786,9 +784,18 @@ const updatestatus = async (req, res, next) => {
       const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
       console.log("Existing user:", userRecord);
 
-      // Delete the user record if it exists
+  // Delete the user record if it exists
       console.log(userRecord.uid);
-      await admin.auth().deleteUser(userRecord.uid);
+      await admin.auth().updateUser(userRecord.uid, {
+        disabled: true
+      });
+      const usersRef = realtimeDB.ref("Users");
+      usersRef.child(id).set(
+        {
+          deleted: new Date()
+        }
+      )
+
       console.log("User deleted successfully");
     } catch (error) {
       if (error.code === "auth/user-not-found") {
@@ -810,6 +817,7 @@ const updatestatus = async (req, res, next) => {
     return res.status(500).send({ error: error.message });
   }
 };
+
 const Comptevald = async (req, res, next) => {
   const { id } = req.params;
 
@@ -942,7 +950,6 @@ const updatestatuss = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // Update chauffeur status
     const chauffeurUpdated = await Chauffeur.findByIdAndUpdate(id, {
       $set: {
         isActive: true,
@@ -951,57 +958,53 @@ const updatestatuss = async (req, res, next) => {
     });
 
     if (!chauffeurUpdated) {
-      return res.status(404).send({ message: "Chauffeur not found!" });
+      return res.status(404).send({
+        message: "Chauffeur not found!",
+      });
     }
 
-    // Fetch updated chauffeur details
     const updatedChauffeur = await Chauffeur.findById(id);
-    const chauffeurEmail = updatedChauffeur.email;
-    const chauffeurPassword = Math.random().toString(36).slice(-6); // Generate a random password
-    console.log("Generated chauffeur password:", chauffeurPassword);
-
+    const chauffeurEmail = updatedChauffeur.email; // Assuming the email property name is 'email'
+    const chauffeurPassword = Math.random().toString(36).slice(-6); // Assuming the password property name is 'password'
+    console.log("chauffeurPassword:", chauffeurPassword);
     let firebaseUser;
     let car;
-
-    // Fetch the car associated with the chauffeur
     try {
       car = await Car.findOne({ chauffeur: updatedChauffeur.id });
-      if (!car) {
-        throw new Error(`Car not found for chauffeur ID: ${updatedChauffeur.id}`);
-      }
     } catch (error) {
-      console.error(`Error finding car by chauffeur ID: ${updatedChauffeur.id}`, error);
-      return res.status(500).send({ message: "Error finding car" });
+      console.error(
+        `Error finding car by chauffeur ID: ${updatedChauffeur.id}`,
+        error
+      );
+      r;
     }
-
-    // Check if Firebase user exists
+    // Check if the user already exists with the provided email
     try {
       const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
-      console.log("Existing user found:", userRecord);
+      console.log("Existing user:", userRecord);
 
-      // Update user's email and password
-      firebaseUser = await admin.auth().updateUser(userRecord.uid, {
+      // If the user exists, update the user's email and password
+      await admin.auth().updateUser(userRecord.uid, {
         email: chauffeurEmail,
         password: chauffeurPassword,
       });
-      console.log("User updated in Firebase:", firebaseUser);
-    } catch (error) {
-      console.error("Error retrieving or updating user:", error);
 
-      // If user doesn't exist, create a new one
-      try {
-        firebaseUser = await admin.auth().createUser({
-          email: chauffeurEmail,
-          password: chauffeurPassword,
-        });
-        console.log("New Firebase user created:", firebaseUser);
-      } catch (createError) {
-        console.error("Error creating Firebase user:", createError);
-        return res.status(500).send({ message: "Error creating Firebase user" });
-      }
+      firebaseUser = userRecord;
+      console.log("User updated:", userRecord);
+    } catch (error) {
+      console.error("Error getting existing user:", error);
+
+      // If the user doesn't exist, create a new user
+      firebaseUser = await admin.auth().createUser({
+        email: chauffeurEmail,
+        password: chauffeurPassword,
+      });
+
+      console.log("New user created:", firebaseUser);
+
+      // Send email verification for new users
     }
 
-    // Prepare the driver data for Firebase Realtime Database
     const activedriversRef = realtimeDB.ref("Drivers");
     const activeDriver = {
       name: chauffeurUpdated.Nom,
@@ -1020,38 +1023,28 @@ const updatestatuss = async (req, res, next) => {
       },
     };
 
-    // Log Firebase path and data to ensure correctness
     if (firebaseUser) {
-      const path = `Drivers/${firebaseUser.uid}`;
-      console.log("Writing to Firebase path:", path);
-      console.log("Driver data:", activeDriver);
-      
-      // Update Firebase Realtime Database with chauffeur details
-      await activedriversRef.child(firebaseUser.uid).set(activeDriver).catch(error => {
-        console.error("Error writing to Firebase:", error);
-        return res.status(500).send({ message: "Error writing to Firebase" });
-      });
-
-      console.log("Successfully updated chauffeur data in Firebase");
+      await activedriversRef.child(firebaseUser.uid).set(activeDriver);
+      console.log("Successfully updated data in Firebase Firestore");
     }
 
-    // Send confirmation email
     try {
-      const response = await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
+      const reponse = await sendConfirmationEmail(
+        chauffeurEmail,
+        chauffeurPassword
+      );
       return res.status(200).send({
-        message: "Chauffeur was validated and email sent successfully!",
-        chauffeurEmail, // Include email in response
+        message: "Chauffeur was Disabled successfully!",
+        chauffeurEmail: chauffeurEmail, // Sending the email in the response
       });
-    } catch (emailError) {
-      console.error("Error sending confirmation email:", emailError);
-      return res.status(500).send({ message: "Error sending confirmation email" });
+    } catch (error) {
+      console.error("Error sending email:", error);
     }
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return res.status(500).send({ message: "Internal server error" });
+    console.error(error);
+    return res.status(500).send({ error: error });
   }
 };
-
 async function sendConfirmationEmail(Email, chauffeurPassword) {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
@@ -1232,7 +1225,6 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 }
 
 module.exports = {
-  
   register,
   login,
   recupereruse,
