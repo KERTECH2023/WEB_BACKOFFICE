@@ -25,7 +25,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
       {/* Informations Facture */}
       <div className={styles.invoiceInfo}>
         <p className={styles.invoiceInfoF}>
-          Facture N°: {facture ? facture.invoiceNumber : ""}
+          Facture N°: {facture ? facture.numero : ""}
         </p>
         <p className={styles.invoiceInfoD}>
           Date:{" "}
@@ -53,10 +53,10 @@ const TemplateFacture = ({ chauffeur, facture }) => {
                   ? `Facture de Mois :   ${facture.Month} - ${facture.Year} `
                   : " - "}
               </td>
-              <td>{facture ? facture.nbretrajet : " - "}</td>
+              <td>{facture ? facture.nbTrajet : " - "}</td>
               <td>
                 {facture
-                  ? parseFloat(facture.totalFareAmount).toFixed(2) + " dt"
+                  ? parseFloat(facture.montantTTC).toFixed(2) + " dt"
                   : " - "}
               </td>
               <td>
