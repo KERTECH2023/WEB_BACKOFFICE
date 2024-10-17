@@ -921,6 +921,7 @@ const updatestatuss = async (req, res, next) => {
   const { id } = req.params;
 
   try {
+    // Mise à jour du chauffeur avec isActive et Cstatus
     const chauffeurUpdated = await Chauffeur.findByIdAndUpdate(id, {
       $set: {
         isActive: true,
@@ -934,50 +935,55 @@ const updatestatuss = async (req, res, next) => {
       });
     }
 
+    // Récupération des informations du chauffeur mis à jour
     const updatedChauffeur = await Chauffeur.findById(id);
-    const chauffeurEmail = updatedChauffeur.email; // Assuming the email property name is 'email'
-    const chauffeurPassword = Math.random().toString(36).slice(-6); // Assuming the password property name is 'password'
+    const chauffeurEmail = updatedChauffeur.email; // Assurez-vous que la propriété email existe
+    const chauffeurPassword = Math.random().toString(36).slice(-6); // Génération d'un mot de passe temporaire
+
     console.log("chauffeurPassword:", chauffeurPassword);
     let firebaseUser;
     let car;
+
     try {
       car = await Car.findOne({ chauffeur: updatedChauffeur.id });
     } catch (error) {
-      console.error(
-        `Error finding car by chauffeur ID: ${updatedChauffeur.id}`,
-        error
-      );
-      r;
+      console.error(`Error finding car by chauffeur ID: ${updatedChauffeur.id}`, error);
+      return res.status(500).send({
+        message: "Error finding car by chauffeur ID",
+      });
     }
-    // Check if the user already exists with the provided email
+
+    // Gestion de l'utilisateur Firebase
     try {
       const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
       console.log("Existing user:", userRecord);
 
-      // If the user exists, update the user's email and password
+      // Mise à jour de l'utilisateur Firebase si déjà existant
       await admin.auth().updateUser(userRecord.uid, {
         email: chauffeurEmail,
-         disabled:false
+        disabled: false,
       });
 
       firebaseUser = userRecord;
       console.log("User updated:", userRecord);
+
+      // Envoi d'un email de confirmation
       try {
-        const reponse = await sendConfirmationEmail(
-          chauffeurEmail,
-          ""
-        );
+        await sendConfirmationEmail(chauffeurEmail, ""); // Envoi de l'email
         return res.status(200).send({
-          message: "Chauffeur was Disabled successfully!",
-          chauffeurEmail: chauffeurEmail, // Sending the email in the response
+          message: "Chauffeur was successfully enabled!",
+          chauffeurEmail: chauffeurEmail,
         });
       } catch (error) {
         console.error("Error sending email:", error);
+        return res.status(500).send({
+          message: "Error sending confirmation email",
+        });
       }
     } catch (error) {
       console.error("Error getting existing user:", error);
 
-      // If user doesn't exist, create a new one
+      // Création d'un nouvel utilisateur Firebase si l'utilisateur n'existe pas
       try {
         firebaseUser = await admin.auth().createUser({
           email: chauffeurEmail,
@@ -986,11 +992,13 @@ const updatestatuss = async (req, res, next) => {
         console.log("New Firebase user created:", firebaseUser);
       } catch (createError) {
         console.error("Error creating Firebase user:", createError);
-        return res.status(500).send({ message: "Error creating Firebase user" });
+        return res.status(500).send({
+          message: "Error creating Firebase user",
+        });
       }
     }
 
-    // Prepare the driver data for Firebase Realtime Database
+    // Préparation des données du chauffeur pour Firebase Realtime Database
     const activedriversRef = realtimeDB.ref("Drivers");
     const activeDriver = {
       name: chauffeurUpdated.Nom,
@@ -1009,20 +1017,32 @@ const updatestatuss = async (req, res, next) => {
       },
     };
 
-    // Log Firebase path and data to ensure correctness
+    // Vérification et mise à jour de Firebase Realtime Database
     if (firebaseUser) {
       const path = `Drivers/${firebaseUser.uid}`;
       console.log("Writing to Firebase path:", path);
       console.log("Driver data:", activeDriver);
-      
-      // Update Firebase Realtime Database with chauffeur details
-      await activedriversRef.child(firebaseUser.uid).set(activeDriver).catch(error => {
-        console.error("Error writing to Firebase:", error);
-        return res.status(500).send({ message: "Error writing to Firebase" });
-      });
 
-      console.log("Successfully updated chauffeur data in Firebase");
+      try {
+        await activedriversRef.child(firebaseUser.uid).set(activeDriver);
+        console.log("Successfully updated chauffeur data in Firebase");
+        return res.status(200).send({
+          message: "Chauffeur updated successfully!",
+        });
+      } catch (error) {
+        console.error("Error writing to Firebase:", error);
+        return res.status(500).send({
+          message: "Error writing to Firebase",
+        });
+      }
     }
+  } catch (error) {
+    console.error("General error:", error);
+    return res.status(500).send({
+      message: "An error occurred while updating the chauffeur",
+    });
+  }
+};
 
    
 
