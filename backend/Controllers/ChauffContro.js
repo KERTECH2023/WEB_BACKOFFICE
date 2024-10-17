@@ -19,31 +19,7 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 
 /**--------------------Ajouter un agnet------------------------  */
-const getFactureById = async (req, res) => {
-    const { id } = req.params;
 
-    try {
-        // Récupérer la facture par ID
-        const facture = await Facture.findById(id);
-
-        // Vérifier si la facture existe
-        if (!facture) {
-            return res.status(404).json({ message: "Facture non trouvée" });
-        }
-
-        // Vérifier si l'ID du chauffeur correspond
-        const chauffeurId = facture.chauffeurId.toString();
-        if (chauffeurId !== req.user.chauffeurId) {
-            return res.status(403).json({ message: "Accès refusé, vous ne pouvez pas accéder à cette facture." });
-        }
-
-        // Retourner la facture
-        res.status(200).json(facture);
-    } catch (error) {
-        console.error("Erreur lors de la récupération de la facture:", error);
-        res.status(500).json({ message: "Erreur serveur" });
-    }
-};
 
 
 const generateRandomPassword = () => {
@@ -231,21 +207,20 @@ const getRideCounts = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-// Controller function to get factures by chauffeur ID
-// const getFacturesByChauffeurId = (req, res) => {
-//   const id = req.params.chauffeurId;
+const getFacturesByChauffeurId = (req, res) => {
+  const id = req.params.chauffeurId;
 
-//   console.log("Chauffeur ID:", id);
+  console.log("Chauffeur ID:", id);
 
-//   Facture.find({ chauffeur: id })
-//     .then(factures => {
-//       res.status(200).send(factures);
-//     })
-//     .catch(err => {
-//       console.error('Error while fetching factures:', err);
-//       res.status(500).json({ error: 'An error occurred while fetching factures' });
-//     });
-// };
+  Facture.find({ chauffeur: id })
+    .then(factures => {
+      res.status(200).send(factures);
+    })
+    .catch(err => {
+      console.error('Error while fetching factures:', err);
+      res.status(500).json({ error: 'An error occurred while fetching factures' });
+    });
+};
 const searchFacture = async (req, res) => {
   const id = req.params.id;
   console.log(id);
@@ -1255,7 +1230,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 }
 
 module.exports = {
-  getFactureById,
+  
   register,
   login,
   recupereruse,
@@ -1267,7 +1242,7 @@ module.exports = {
   updatestatuss,
   Comptevald,
   recuperernewchauf,
-  //getFacturesByChauffeurId,
+  getFacturesByChauffeurId,
   recuperFact,
   searchFacture,
   updateFact,
