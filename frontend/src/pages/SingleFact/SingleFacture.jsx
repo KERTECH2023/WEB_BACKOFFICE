@@ -54,19 +54,21 @@ const SingleF = () => {
       try {
         const fetchedFacture = await getFactureById(id);
         setFacture(fetchedFacture);
-
-        if (fetchedFacture && fetchedFacture.chauffeurId) {
-          const fetchedChauffeur = await getChauffeurById(fetchedFacture.chauffeurId);
+        console.log(fetchedFacture)
+ const fetchedChauffeur = await getChauffeurById(id);
           setChauffeur(fetchedChauffeur);
-        }
         setLoading(false); // Mark loading as complete
+        console.log(fetchedChauffeur)
+        
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
+    if(id){
 
     fetchData();
+}
   }, [id]);
 
   // Handle PDF generation with optional email sending
