@@ -1001,39 +1001,48 @@ const updatestatuss = async (req, res, next) => {
       }
     }
 
-    // Prepare the driver data for Firebase Realtime Database
-    const activedriversRef = realtimeDB.ref("Drivers");
-    const activeDriver = {
-      name: chauffeurUpdated.Nom,
-      DateNaissance: chauffeurUpdated.DateNaissance,
-      address: chauffeurUpdated.address,
-      cnicNo: chauffeurUpdated.cnicNo,
-      gender: chauffeurUpdated.gender,
-      postalCode: chauffeurUpdated.postalCode,
-      email: chauffeurUpdated.email,
-      imageUrl: chauffeurUpdated.photoAvatar,
-      phone: chauffeurUpdated.phone,
-      Cstatus: true,
-      carDetails: {
-        immatriculation: car.immatriculation,
-        modelle: car.modelle,
-      },
-    };
+   // Prepare the driver data for Firebase Realtime Database
+const activedriversRef = realtimeDB.ref("Drivers");
+const activeDriver = {
+  name: chauffeurUpdated.Nom,
+  DateNaissance: chauffeurUpdated.DateNaissance,
+  address: chauffeurUpdated.address,
+  cnicNo: chauffeurUpdated.cnicNo,
+  gender: chauffeurUpdated.gender,
+  postalCode: chauffeurUpdated.postalCode,
+  email: chauffeurUpdated.email,
+  imageUrl: chauffeurUpdated.photoAvatar,
+  phone: chauffeurUpdated.phone,
+  Cstatus: true,
+  carDetails: {
+    immatriculation: car.immatriculation,
+    modelle: car.modelle,
+  },
+};
 
-    // Log Firebase path and data to ensure correctness
-    if (firebaseUser) {
-      const path = `Drivers/${firebaseUser.uid}`;
-      console.log("Writing to Firebase path:", path);
-      console.log("Driver data:", activeDriver);
-      
-      // Update Firebase Realtime Database with chauffeur details
-      await activedriversRef.child(firebaseUser.uid).set(activeDriver).catch(error => {
-        console.error("Error writing to Firebase:", error);
-        return res.status(500).send({ message: "Error writing to Firebase" });
-      });
+// Log Firebase path and data to ensure correctness
+if (firebaseUser) {
+  const path = `Drivers/${firebaseUser.uid}`;
+  console.log("Writing to Firebase path:", path);
+  console.log("Driver data:", activeDriver);
+  
+  // Check if the driver already exists
+  const existingDriverSnapshot = await activedriversRef.child(firebaseUser.uid).once('value');
 
-      console.log("Successfully updated chauffeur data in Firebase");
-    }
+  if (!existingDriverSnapshot.exists()) {
+    // Update Firebase Realtime Database with chauffeur details only if it does not exist
+    await activedriversRef.child(firebaseUser.uid).set(activeDriver).catch(error => {
+      console.error("Error writing to Firebase:", error);
+      return res.status(500).send({ message: "Error writing to Firebase" });
+    });
+
+    console.log("Successfully added chauffeur data to Firebase");
+  } else {
+    console.log("Driver already exists. No changes made.");
+    return res.status(400).send({ message: "Driver already exists" });
+  }
+}
+
 
     // Send confirmation email
     try {
