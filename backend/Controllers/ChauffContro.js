@@ -1001,7 +1001,7 @@ const updatestatuss = async (req, res, next) => {
       }
     }
 
-   // Prepare the driver data for Firebase Realtime Database
+// Préparer les données du conducteur pour la base de données Firebase Realtime
 const activedriversRef = realtimeDB.ref("Drivers");
 const activeDriver = {
   name: chauffeurUpdated.Nom,
@@ -1020,28 +1020,57 @@ const activeDriver = {
   },
 };
 
-// Log Firebase path and data to ensure correctness
+// Loguer le chemin et les données de Firebase pour assurer la validité
 if (firebaseUser) {
-  const path = `Drivers/${firebaseUser.uid}`;
-  console.log("Writing to Firebase path:", path);
-  console.log("Driver data:", activeDriver);
+  const path = `Drivers/`;
+  console.log("Vérification du chemin Firebase :", path);
   
-  // Check if the driver already exists
-  const existingDriverSnapshot = await activedriversRef.child(firebaseUser.uid).once('value');
+  // Récupérer tous les conducteurs existants
+  const allDriversSnapshot = await activedriversRef.once('value');
+  let driverExists = false;
 
-  if (!existingDriverSnapshot.exists()) {
-    // Update Firebase Realtime Database with chauffeur details only if it does not exist
+  allDriversSnapshot.forEach(driverSnapshot => {
+    const driverData = driverSnapshot.val();
+
+    // Vérifier si les données du conducteur correspondent
+    if (
+      driverData.name === activeDriver.name &&
+      driverData.DateNaissance === activeDriver.DateNaissance &&
+      driverData.address === activeDriver.address &&
+      driverData.cnicNo === activeDriver.cnicNo &&
+      driverData.gender === activeDriver.gender &&
+      driverData.postalCode === activeDriver.postalCode &&
+      driverData.email === activeDriver.email &&
+      driverData.imageUrl === activeDriver.imageUrl &&
+      driverData.phone === activeDriver.phone &&
+      driverData.carDetails.immatriculation === activeDriver.carDetails.immatriculation &&
+      driverData.carDetails.modelle === activeDriver.carDetails.modelle
+    ) {
+      driverExists = true; // Le conducteur existe déjà
+    }
+  });
+
+  if (!driverExists) {
+    // Loguer les données du conducteur avant l'écriture
+    console.log("Données du conducteur :", activeDriver);
+
+    // Ajouter le conducteur dans la base de données Firebase
     await activedriversRef.child(firebaseUser.uid).set(activeDriver).catch(error => {
-      console.error("Error writing to Firebase:", error);
-      return res.status(500).send({ message: "Error writing to Firebase" });
+      console.error("Erreur lors de l'écriture dans Firebase :", error);
+      return res.status(500).send({ message: "Erreur lors de l'écriture dans Firebase" });
     });
 
-    console.log("Successfully added chauffeur data to Firebase");
+    console.log("Données du conducteur ajoutées avec succès dans Firebase");
+    return res.status(200).send({ message: "Conducteur ajouté avec succès" });
   } else {
-    console.log("Driver already exists. No changes made.");
-    return res.status(400).send({ message: "Driver already exists" });
+    console.log("Le conducteur existe déjà. Aucune modification n'a été effectuée.");
+    return res.status(400).send({ message: "Le conducteur existe déjà" });
   }
+} else {
+  console.error("L'utilisateur Firebase n'est pas défini.");
+  return res.status(400).send({ message: "Aucun utilisateur authentifié trouvé." });
 }
+
 
 
     // Send confirmation email
