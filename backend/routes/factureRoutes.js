@@ -15,6 +15,6 @@ router.get('/chauffeur/:driverId/mois', factureController.getFacturesForDriverTh
 router.get('/chauffeur/:driverId/pdf', factureController.getFacturePDF);
 
 // Nouvelle route pour mettre à jour le statut de la facture à "PAYE"
-router.patch('/chauffeur/:driverId/payer', factureController.updateFactureToPaid);
+router.patch('/:driverId/payer', factureController.updateFactureToPaid);
 
 module.exports = router;
