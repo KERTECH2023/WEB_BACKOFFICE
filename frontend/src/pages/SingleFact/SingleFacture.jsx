@@ -193,7 +193,7 @@ const SingleF = () => {
           <span className="itemKey">Address:</span>
           <span className="itemValue">{chauffeur.address}</span>
         </div>
-       >
+
         <div className="detailItem">
           <span className="itemKey">CIN:</span>
           <span className="itemValue">{chauffeur.cnicNo}</span>
