@@ -12,6 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { storage, ref, uploadBytesResumable, getDownloadURL } from "../../config"; // Import Firebase
 
 const SingleF = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const SingleF = () => {
   const [facture, setFacture] = useState(null);
   const [chauffeur, setChauffeur] = useState(null);
   const [loading, setLoading] = useState(true); // For loading state
+  const [uploadedURL, setUploadedURL] = useState(''); // For uploaded facture URL
 
   // Fetch chauffeur details by ID
   const getChauffeurById = async (id) => {
@@ -68,7 +70,7 @@ const SingleF = () => {
     }
   }, [id]);
 
-  // Handle PDF generation with optional email sending
+  // Handle PDF generation and upload to Firebase Storage
   const handlePrint = async (sendByEmail = false) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -102,13 +104,26 @@ const SingleF = () => {
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
+      // Upload PDF to Firebase Storage
+      const storageRef = ref(storage, `factures/facture_${id}.pdf`);
+      const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
+
+      uploadTask.on(
+        "state_changed",
+        null,
+        (error) => {
+          console.error("Erreur lors de l'upload:", error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setUploadedURL(downloadURL); // Save the URL of the uploaded facture
+            toast.success("Facture téléversée avec succès");
+          });
+        }
+      );
+
       if (sendByEmail) {
-        await sendEmailWithFacture(
-          pdfBlob,
-          chauffeur.email,
-          facture.mois,
-          facture._id
-        );
+        await sendEmailWithFacture(pdfBlob, chauffeur.email, facture.mois, facture._id);
       } else {
         const pdfURL = URL.createObjectURL(pdfBlob);
         window.open(pdfURL, "_blank");
