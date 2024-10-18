@@ -2,6 +2,7 @@ const Facture = require('../Models/Facture');
 const Chauffeur = require('../Models/Chauffeur');
 const moment = require('moment');
 const RideRequest = require('../Models/AllRideRequest');
+
 // Récupérer toutes les factures du mois en cours
 exports.getAllFacturesForThisMonth = async () => {
   const month = moment().month() + 1;  // Mois actuel
@@ -36,7 +37,7 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
       throw new Error(`Facture déjà générée pour ce chauffeur (${chauffeurId}) au mois ${mois} de l'année ${annee}.`);
     }
 
-     // Récupérer toutes les courses complétées pour le chauffeur ce mois
+    // Récupérer toutes les courses complétées pour le chauffeur ce mois
     const rideRequests = await RideRequest.find({
       chauffeurId,
       status: 'completed',
@@ -51,10 +52,10 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
 
     // Calculer le montant total TTC en réduisant le fareAmount
     const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
-    console.log("montantTTC",montantTTC);
+    console.log("montantTTC", montantTTC);
 
     const totalAmount = montantTTC;  // Sum of all fares for the month
- console.log("totalAmoun",totalAmount);
+    console.log("totalAmount", totalAmount);
     
     // Générer un nouveau numéro de facture
     const chauffeur = await Chauffeur.findById(chauffeurId);
@@ -88,5 +89,34 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
     return nouvelleFacture;
   } catch (error) {
     throw new Error(`Erreur lors de la génération de la facture: ${error.message}`);
+  }
+};
+
+// Nouvelle fonction pour mettre à jour le statut de la facture à "PAYE"
+exports.updateFactureStatusToPaid = async (chauffeurId) => {
+  try {
+    const currentMonth = moment().month() + 1;
+    const currentYear = moment().year();
+
+    const updatedFacture = await Facture.findOneAndUpdate(
+      { 
+        chauffeurId: chauffeurId,
+        mois: currentMonth,
+        annee: currentYear,
+        status: "NON_PAYE"
+      },
+      { 
+        $set: { status: "PAYE" }
+      },
+      { new: true }
+    );
+
+    if (!updatedFacture) {
+      throw new Error("Facture non trouvée ou déjà payée pour ce chauffeur ce mois-ci.");
+    }
+
+    return updatedFacture;
+  } catch (error) {
+    throw new Error(`Erreur lors de la mise à jour du statut de la facture: ${error.message}`);
   }
 };
