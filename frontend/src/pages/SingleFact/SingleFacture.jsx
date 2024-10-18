@@ -140,7 +140,7 @@ const SingleF = () => {
   // Handle facture submission
   const handleSubmite = () => {
     axios
-      .put(process.env.REACT_APP_BASE_URL + `/facture/${id}/payer`, {
+      .patch(process.env.REACT_APP_BASE_URL + `/facture/${id}/payer`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
