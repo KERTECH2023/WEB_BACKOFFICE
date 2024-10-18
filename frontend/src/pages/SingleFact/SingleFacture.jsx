@@ -166,19 +166,51 @@ const SingleF = () => {
 
     return (
       <>
-        <div className="detailItem">
-          <span className="itemKey">Nom:</span>
-          <span className="itemValue">{chauffeur.Nom}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Prenom:</span>
-          <span className="itemValue">{chauffeur.Prenom}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Email:</span>
-          <span className="itemValue">{chauffeur.email}</span>
-        </div>
-        {/* Add more fields as needed */}
+          <div className="detailItem">
+    <span className="itemKey">Nom:</span>
+    <span className="itemValue">{chauffeur.Nom}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Prenom:</span>
+    <span className="itemValue">{chauffeur.Prenom}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Email:</span>
+    <span className="itemValue">{chauffeur.email}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Phone:</span>
+    <span className="itemValue">{chauffeur.phone}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Address:</span>
+    <span className="itemValue">{chauffeur.address}</span>
+  </div>
+
+  <div className="detailItem">
+    <span className="itemKey">Date de Naissance:</span>
+    <span className="itemValue">{new Date(chauffeur.DateNaissance.$date).toLocaleDateString()}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">CIN:</span>
+    <span className="itemValue">{chauffeur.cnicNo}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Role:</span>
+    <span className="itemValue">{chauffeur.role}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Status:</span>
+    <span className="itemValue">{chauffeur.Cstatus}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Type:</span>
+    <span className="itemValue">{chauffeur.type}</span>
+  </div>
+  <div className="detailItem">
+    <span className="itemKey">Rating:</span>
+    <span className="itemValue">{`${chauffeur.ratingsAverage} (${chauffeur.ratingsQuantity} votes)`}</span>
+  </div>
       </>
     );
   };
@@ -209,10 +241,7 @@ const SingleF = () => {
                   <span className="itemKey">Mois:</span>
                   <span className="itemValue">{facture && facture.mois}</span>
                 </div>
-                <div className="detailItem">
-                  <span className="itemKey">Montant Facture:</span>
-                  <span className="itemValue">{facture && facture.montantTTC}</span>
-                </div>
+            
                 {/* Add more facture details */}
                 {(role === "Admin" || role === "Agentad") && (
                   <>
