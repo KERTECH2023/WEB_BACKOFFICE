@@ -66,7 +66,7 @@ const TemplateFacture = ({ chauffeur, facture }) => {
 
       <div className={styles.total}>
         <p>
-          Total à payer: {facture ? extractMontant(facture.notes) + " dt" : " - "}
+          Total à payer: {facture ?parseFloat(facture.fraisDeService).toFixed(2) + " dt" : " - "}
         </p>
       </div>
 
