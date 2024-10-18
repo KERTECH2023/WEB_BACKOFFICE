@@ -604,11 +604,17 @@ const transporter = nodemailer.createTransport({
 
 const updateFacture = async (id) => {
   try {
-    const factureUpdated = await Facture.findByIdAndUpdate(id, {
-      $set: {
-        isPaid: true,
+    const factureUpdated = await Facture.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isPaid: true,            // Mark as paid
+          status: "PAYE",          // Update status to "PAYE"
+          updatedAt: new Date()    // Update the 'updatedAt' timestamp
+        },
       },
-    }).populate("chauffeur");
+      { new: true } // Return the updated document
+    ).populate("chauffeur");
 
     if (!factureUpdated) {
       console.error("Facture non trouvée:", id);
@@ -621,6 +627,7 @@ const updateFacture = async (id) => {
     throw error;
   }
 };
+
 
 const sendEmail = async (facture, pdfPath) => {
   try {
