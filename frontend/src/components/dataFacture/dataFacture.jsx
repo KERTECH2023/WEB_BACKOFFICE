@@ -104,16 +104,7 @@ const DataFact = () => {
     toast.info("Fonctionnalité d'exportation à implémenter");
   };
 
-  const handleSendEmail = async (id) => {
-    try {
-      await axios.post(`${process.env.REACT_APP_BASE_URL}/Chauff/send-invoice-email/${id}`);
-      toast.success("Email envoyé avec succès");
-      getFactures();
-    } catch (error) {
-      console.error("Error sending email:", error);
-      toast.error("Erreur lors de l'envoi de l'email");
-    }
-  };
+
 
   const columns = [
     { field: "numero", headerName: "Numéro", width: 150 },
@@ -156,21 +147,7 @@ const DataFact = () => {
         </div>
       ),
     },
-    {
-      field: "sentByEmail",
-      headerName: "Envoyé Par Email",
-      width: 150,
-      renderCell: (params) => (
-        <div>
-          {params.value ? "Oui" : "Non"}
-          {!params.value && (
-            <Button onClick={() => handleSendEmail(params.row._id)}>
-              Envoyer
-            </Button>
-          )}
-        </div>
-      ),
-    },
+
     {
       field: "action",
       headerName: "Action",
