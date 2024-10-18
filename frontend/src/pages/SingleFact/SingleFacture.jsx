@@ -13,6 +13,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { storage } from "./firebase"; // Importer le fichier firebase
+import { ref, uploadBytes } from "firebase/storage"; // Importer les fonctions nécessaires
 
 const SingleF = () => {
   const navigate = useNavigate();
@@ -20,7 +22,8 @@ const SingleF = () => {
   const role = window.localStorage.getItem("userRole");
   const [facture, setFacture] = useState(null);
   const [chauffeur, setChauffeur] = useState(null);
-  const [loading, setLoading] = useState(true); // For loading state
+  const [loading, setLoading] = useState(true);
+  const [image, setImage] = useState(null); // État pour l'image upload
 
   // Fetch chauffeur details by ID
   const getChauffeurById = async (id) => {
@@ -54,11 +57,9 @@ const SingleF = () => {
       try {
         const fetchedFacture = await getFactureById(id);
         setFacture(fetchedFacture);
-        console.log(fetchedFacture);
         const fetchedChauffeur = await getChauffeurById(id);
         setChauffeur(fetchedChauffeur);
-        setLoading(false); // Mark loading as complete
-        console.log(fetchedChauffeur);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
@@ -69,8 +70,8 @@ const SingleF = () => {
     }
   }, [id]);
 
-  // Handle PDF generation with optional email sending
-  const handlePrint = async (sendByEmail = false) => {
+  // Handle PDF generation and upload as image
+  const handlePrintAndUploadImage = async (sendByEmail = false) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
 
@@ -89,31 +90,21 @@ const SingleF = () => {
       const canvas = await html2canvas(container, { scale: 2 });
       const imgData = canvas.toDataURL("image/png");
 
-      pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        0,
-        pdf.internal.pageSize.width,
-        pdf.internal.pageSize.height
-      );
+      pdf.addImage(imgData, "PNG", 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
+      
+      // Upload image to Firebase
+      const imageRef = ref(storage, `invoices/${facture._id}.png`);
+      const blob = await fetch(imgData).then(res => res.blob());
+      await uploadBytes(imageRef, blob);
+      toast.success("Image de la facture uploadée avec succès!");
 
+      // Generate PDF URL
       const pdfBlob = pdf.output("blob");
+      const pdfURL = URL.createObjectURL(pdfBlob);
+      window.open(pdfURL, "_blank");
 
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
-
-      if (sendByEmail) {
-        await sendEmailWithFacture(
-          pdfBlob,
-          chauffeur.email,
-          facture.mois,
-          facture._id
-        );
-      } else {
-        const pdfURL = URL.createObjectURL(pdfBlob);
-        window.open(pdfURL, "_blank");
-      }
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
@@ -128,15 +119,11 @@ const SingleF = () => {
     formData.append("id", id);
 
     try {
-      await axios.post(
-        process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       toast.success("Facture envoyée avec succès par e-mail");
     } catch (error) {
       toast.error("Erreur lors de l'envoi de la facture par e-mail");
@@ -156,7 +143,6 @@ const SingleF = () => {
         toast.success("Facture de chauffeur a été bien payé", {
           position: toast.POSITION.TOP_RIGHT,
         });
-
         setTimeout(() => navigate("/Chauffeur"), 3000);
       })
       .catch((err) => {
@@ -193,7 +179,6 @@ const SingleF = () => {
           <span className="itemKey">Address:</span>
           <span className="itemValue">{chauffeur.address}</span>
         </div>
-
         <div className="detailItem">
           <span className="itemKey">CIN:</span>
           <span className="itemValue">{chauffeur.cnicNo}</span>
@@ -227,7 +212,6 @@ const SingleF = () => {
   return (
     <div className="single">
       <Sidebar />
-
       <div className="singleContainer">
         <Navbar />
         <div className="top">
@@ -239,9 +223,7 @@ const SingleF = () => {
               )}
               <div className="details">
                 <h1 className="itemTitle">
-                  {chauffeur
-                    ? `${chauffeur.Nom} ${chauffeur.Prenom}`
-                    : "Chauffeur"}
+                  {chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : "Chauffeur"}
                 </h1>
                 {renderChauffeurDetails()}
                 <div className="detailItem">
@@ -253,14 +235,14 @@ const SingleF = () => {
                   <>
                     <div
                       className="activateButton"
-                      onClick={() => handlePrint(false)}
+                      onClick={() => handlePrintAndUploadImage(false)}
                     >
                       Consulter
                     </div>
                     {facture && !facture.envoye && (
                       <div
                         className="activateButton"
-                        onClick={() => handlePrint(true)}
+                        onClick={() => handlePrintAndUploadImage(true)}
                       >
                         Envoyer Facture par Email
                       </div>
@@ -279,6 +261,7 @@ const SingleF = () => {
             <Chart aspect={3 / 1} title="User Spending (Last 6 Months)" />
           </div>
         </div>
+
         <ToastContainer />
       </div>
     </div>
