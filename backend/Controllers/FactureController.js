@@ -2,6 +2,7 @@ const factureService = require('../services/factureService');
 const pdfService = require('../services/pdfService');
 const path = require('path');
 const moment = require('moment');
+
 // Récupérer toutes les factures pour tous les chauffeurs ce mois-ci
 exports.getAllFacturesThisMonth = async (req, res) => {
   try {
@@ -45,7 +46,7 @@ exports.generateFacturesForChauffeur = async (req, res) => {
   try {
     const { driverId } = req.params;
     const mois = moment().month();  // Mois en cours
-    const annee = moment().year();      // Année en cours
+    const annee = moment().year();  // Année en cours
 
     // Appel à la fonction pour générer la facture sans passer nbTrajet et montantTTC
     const nouvelleFacture = await factureService.generateFactures(driverId, mois, annee);
@@ -53,5 +54,16 @@ exports.generateFacturesForChauffeur = async (req, res) => {
     res.json(nouvelleFacture);
   } catch (error) {
     res.status(500).send(`Erreur lors de la génération des factures: ${error.message}`);
+  }
+};
+
+// Nouvelle méthode pour mettre à jour le statut de la facture à "PAYE"
+exports.updateFactureToPaid = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+    const updatedFacture = await factureService.updateFactureStatusToPaid(driverId);
+    res.json(updatedFacture);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 };
