@@ -19,7 +19,7 @@ const DataFact = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -67,8 +67,7 @@ const DataFact = () => {
       const searchTerm = search.toLowerCase();
       return (
         (row.nomChauffeur && row.nomChauffeur.toLowerCase().includes(searchTerm)) ||
-        (row.numero && row.numero.toLowerCase().includes(searchTerm)) ||
-        (row.chauffeur && row.chauffeur.toLowerCase().includes(searchTerm))
+        (row.numero && row.numero.toLowerCase().includes(searchTerm))
       );
     });
 
@@ -118,10 +117,17 @@ const DataFact = () => {
 
   const columns = [
     { field: "numero", headerName: "Numéro", width: 150 },
-    { field: "nomChauffeur", headerName: "Nom du chauffeur", width: 200,
-      valueGetter: (params) => `${params.row.chauffeurName || ''} ${params.row.chauffeurPrenom || ''}` },
+    {
+      field: "nomChauffeur", 
+      headerName: "Nom du chauffeur", 
+      width: 200,
+      valueGetter: (params) => `${params.row.nomChauffeur || ''}`,
+    },
     { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
-    { field: "montantTTC", headerName: "Montant TTC", width: 130,
+    {
+      field: "montantTTC",
+      headerName: "Montant TTC",
+      width: 130,
       valueFormatter: (params) => {
         if (params.value == null) {
           return '';
@@ -129,7 +135,10 @@ const DataFact = () => {
         return `${params.value.toFixed(2)} DT`;
       },
     },
-    { field: "fraisDeService", headerName: "Frais de service", width: 130,
+    {
+      field: "fraisDeService",
+      headerName: "Frais de service",
+      width: 130,
       valueFormatter: (params) => {
         if (params.value == null) {
           return '';
@@ -137,19 +146,19 @@ const DataFact = () => {
         return `${params.value.toFixed(2)} DT`;
       },
     },
-    { 
-      field: "status", 
-      headerName: "Status", 
+    {
+      field: "status",
+      headerName: "Status",
       width: 130,
       renderCell: (params) => (
         <div className={`status ${params.value ? params.value.toLowerCase() : ''}`}>
           {params.value}
         </div>
-      )
+      ),
     },
-    { 
-      field: "sentByEmail", 
-      headerName: "Envoyé Par Email", 
+    {
+      field: "sentByEmail",
+      headerName: "Envoyé Par Email",
       width: 150,
       renderCell: (params) => (
         <div>
@@ -160,7 +169,7 @@ const DataFact = () => {
             </Button>
           )}
         </div>
-      )
+      ),
     },
     {
       field: "action",
