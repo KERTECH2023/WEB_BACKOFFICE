@@ -101,9 +101,7 @@ exports.updateFactureStatusToPaid = async (chauffeurId) => {
     const updatedFacture = await Facture.findOneAndUpdate(
       { 
         chauffeurId: chauffeurId,
-        mois: currentMonth,
-        annee: currentYear,
-        status: "NON_PAYE"
+            status: "NON_PAYE"
       },
       { 
         $set: { status: "PAYE" }
