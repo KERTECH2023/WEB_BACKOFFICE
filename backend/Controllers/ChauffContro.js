@@ -42,6 +42,50 @@ const createDriversNodeIfNotExists = async () => {
 
 /**--------------------Ajouter un agnet------------------------  */
 
+
+const updateFacturesByChauffeurId = async (req, res) => {
+  const chauffeurId = req.params.chauffeurId;  // ID du chauffeur
+
+  try {
+    // On trouve et on met à jour toutes les factures du chauffeur
+    const facturesUpdated = await Facture.updateMany(
+      { chauffeurId },  // On recherche avec chauffeurId
+      {
+        $set: {
+          isPaid: true,            // Marquer comme payé
+          status: "PAYE",          // Mettre à jour le statut
+          updatedAt: new Date()    // Date de mise à jour
+        }
+      },
+      { new: true }  // Retourner les factures mises à jour (mais `updateMany` ne renvoie pas de documents, donc à ignorer ici)
+    );
+
+    // Vérifier si des factures ont été mises à jour
+    if (facturesUpdated.matchedCount === 0) {
+      return res.status(404).send({ message: `Aucune facture trouvée pour le chauffeur avec id ${chauffeurId}` });
+    }
+
+    res.status(200).send({ message: `Toutes les factures du chauffeur ${chauffeurId} ont été mises à jour` });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des factures:", error);
+    res.status(500).json({ error: "Une erreur est survenue lors de la mise à jour des factures" });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const generateRandomPassword = () => {
   return crypto.randomBytes(8).toString("hex");
 };
@@ -1241,6 +1285,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 }
 
 module.exports = {
+  updateFacturesByChauffeurId,
   register,
   login,
   recupereruse,
