@@ -193,12 +193,7 @@ const SingleF = () => {
           <span className="itemKey">Address:</span>
           <span className="itemValue">{chauffeur.address}</span>
         </div>
-        <div className="detailItem">
-          <span className="itemKey">Date de Naissance:</span>
-          <span className="itemValue">
-            {new Date(chauffeur.DateNaissance.$date).toLocaleDateString()}
-          </span>
-        </div>
+       >
         <div className="detailItem">
           <span className="itemKey">CIN:</span>
           <span className="itemValue">{chauffeur.cnicNo}</span>
