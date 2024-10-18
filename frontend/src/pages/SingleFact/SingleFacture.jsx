@@ -54,21 +54,19 @@ const SingleF = () => {
       try {
         const fetchedFacture = await getFactureById(id);
         setFacture(fetchedFacture);
-        console.log(fetchedFacture)
- const fetchedChauffeur = await getChauffeurById(id);
-          setChauffeur(fetchedChauffeur);
+        console.log(fetchedFacture);
+        const fetchedChauffeur = await getChauffeurById(id);
+        setChauffeur(fetchedChauffeur);
         setLoading(false); // Mark loading as complete
-        console.log(fetchedChauffeur)
-        
+        console.log(fetchedChauffeur);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
-    if(id){
-
-    fetchData();
-}
+    if (id) {
+      fetchData();
+    }
   }, [id]);
 
   // Handle PDF generation with optional email sending
@@ -106,7 +104,12 @@ const SingleF = () => {
       document.body.removeChild(container);
 
       if (sendByEmail) {
-        await sendEmailWithFacture(pdfBlob, chauffeur.email, facture.mois, facture._id);
+        await sendEmailWithFacture(
+          pdfBlob,
+          chauffeur.email,
+          facture.mois,
+          facture._id
+        );
       } else {
         const pdfURL = URL.createObjectURL(pdfBlob);
         window.open(pdfURL, "_blank");
@@ -125,11 +128,15 @@ const SingleF = () => {
     formData.append("id", id);
 
     try {
-      await axios.post(process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await axios.post(
+        process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       toast.success("Facture envoyée avec succès par e-mail");
     } catch (error) {
       toast.error("Erreur lors de l'envoi de la facture par e-mail");
@@ -166,51 +173,54 @@ const SingleF = () => {
 
     return (
       <>
-          <div className="detailItem">
-    <span className="itemKey">Nom:</span>
-    <span className="itemValue">{chauffeur.Nom}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Prenom:</span>
-    <span className="itemValue">{chauffeur.Prenom}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Email:</span>
-    <span className="itemValue">{chauffeur.email}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Phone:</span>
-    <span className="itemValue">{chauffeur.phone}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Address:</span>
-    <span className="itemValue">{chauffeur.address}</span>
-  </div>
-
-  <div className="detailItem">
-    <span className="itemKey">Date de Naissance:</span>
-    <span className="itemValue">{new Date(chauffeur.DateNaissance.$date).toLocaleDateString()}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">CIN:</span>
-    <span className="itemValue">{chauffeur.cnicNo}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Role:</span>
-    <span className="itemValue">{chauffeur.role}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Status:</span>
-    <span className="itemValue">{chauffeur.Cstatus}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Type:</span>
-    <span className="itemValue">{chauffeur.type}</span>
-  </div>
-  <div className="detailItem">
-    <span className="itemKey">Rating:</span>
-    <span className="itemValue">{`${chauffeur.ratingsAverage} (${chauffeur.ratingsQuantity} votes)`}</span>
-  </div>
+        <div className="detailItem">
+          <span className="itemKey">Nom:</span>
+          <span className="itemValue">{chauffeur.Nom}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Prenom:</span>
+          <span className="itemValue">{chauffeur.Prenom}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Email:</span>
+          <span className="itemValue">{chauffeur.email}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Phone:</span>
+          <span className="itemValue">{chauffeur.phone}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Address:</span>
+          <span className="itemValue">{chauffeur.address}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Date de Naissance:</span>
+          <span className="itemValue">
+            {new Date(chauffeur.DateNaissance.$date).toLocaleDateString()}
+          </span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">CIN:</span>
+          <span className="itemValue">{chauffeur.cnicNo}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Role:</span>
+          <span className="itemValue">{chauffeur.role}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Status:</span>
+          <span className="itemValue">{chauffeur.Cstatus}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Type:</span>
+          <span className="itemValue">{chauffeur.type}</span>
+        </div>
+        <div className="detailItem">
+          <span className="itemKey">Rating:</span>
+          <span className="itemValue">
+            {`${chauffeur.ratingsAverage} (${chauffeur.ratingsQuantity} votes)`}
+          </span>
+        </div>
       </>
     );
   };
@@ -234,26 +244,33 @@ const SingleF = () => {
               )}
               <div className="details">
                 <h1 className="itemTitle">
-                  {chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : "Chauffeur"}
+                  {chauffeur
+                    ? `${chauffeur.Nom} ${chauffeur.Prenom}`
+                    : "Chauffeur"}
                 </h1>
                 {renderChauffeurDetails()}
                 <div className="detailItem">
                   <span className="itemKey">Mois:</span>
                   <span className="itemValue">{facture && facture.mois}</span>
                 </div>
-            
-                {/* Add more facture details */}
+
                 {(role === "Admin" || role === "Agentad") && (
                   <>
-                    <div className="activateButton" onClick={() => handlePrint(false)}>
+                    <div
+                      className="activateButton"
+                      onClick={() => handlePrint(false)}
+                    >
                       Consulter
                     </div>
                     {facture && !facture.envoye && (
-                      <div className="activateButton" onClick={() => handlePrint(true)}>
+                      <div
+                        className="activateButton"
+                        onClick={() => handlePrint(true)}
+                      >
                         Envoyer Facture par Email
                       </div>
                     )}
-                    {facture && !facture.isPaid && (
+                    {facture && !facture.isPaid && facture.status !== "PAYE" && (
                       <div className="activateButton" onClick={handleSubmite}>
                         Payer La Facture
                       </div>
