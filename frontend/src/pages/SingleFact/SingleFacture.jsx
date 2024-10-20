@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -7,12 +7,16 @@ import "./SingleF.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { storage, ref, uploadBytesResumable, getDownloadURL } from "../../config"; // Assurez-vous d'importer Firebase
+import {
+  storage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "../../config"; // Assurez-vous d'importer Firebase
 
 const SingleF = () => {
   const navigate = useNavigate();
@@ -21,6 +25,7 @@ const SingleF = () => {
   const [facture, setFacture] = useState(null);
   const [chauffeur, setChauffeur] = useState(null);
   const [loading, setLoading] = useState(true); // For loading state
+  const [uploadProgress, setUploadProgress] = useState(0); // New state for upload progress
 
   // Fetch chauffeur details by ID
   const getChauffeurById = async (id) => {
@@ -115,6 +120,7 @@ const SingleF = () => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log(`Upload is ${progress}% done`);
+          setUploadProgress(progress); // Update progress state
         },
         (error) => {
           // Gestion des erreurs
@@ -124,6 +130,8 @@ const SingleF = () => {
           // Récupérer l'URL de téléchargement une fois le fichier téléversé
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             console.log("File available at", downloadURL);
+
+            setUploadProgress(0); // Reset progress once upload is done
 
             // Si l'utilisateur veut envoyer par e-mail
             if (sendByEmail) {
@@ -282,6 +290,16 @@ const SingleF = () => {
               <button onClick={handleSubmite} className="sendButton">
                 Payer Facture
               </button>
+            )}
+
+            {uploadProgress > 0 && (
+              <div className="progressBar">
+                <span>Uploading: {Math.round(uploadProgress)}%</span>
+                <div
+                  className="progress"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
             )}
           </div>
         </div>
