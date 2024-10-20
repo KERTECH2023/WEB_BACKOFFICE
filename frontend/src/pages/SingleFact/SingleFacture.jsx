@@ -1,299 +1,71 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-import TemplateFacture from "../../pages/SingleFact/TemplateFacture.jsx";
-import "./SingleF.scss";
-import Sidebar from "../../components/sidebar/Sidebar";
-import Navbar from "../../components/navbar/Navbar";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { storage, ref, uploadBytesResumable, getDownloadURL } from "../../config"; // Import Firebase
+import React, { useState } from "react";
+import { storage, ref, uploadBytesResumable, getDownloadURL } from "../config"; // Adjust the path to your Firebase config file
 
-const SingleF = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const role = window.localStorage.getItem("userRole");
-  const [facture, setFacture] = useState(null);
-  const [chauffeur, setChauffeur] = useState(null);
-  const [loading, setLoading] = useState(true); // For loading state
-  const [uploadedURL, setUploadedURL] = useState(''); // For uploaded facture URL
+const SingleFacture = () => {
+  const [file, setFile] = useState(null); // State to handle the selected file
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [downloadURL, setDownloadURL] = useState("");
 
-  // Fetch chauffeur details by ID
-  const getChauffeurById = async (id) => {
-    try {
-      const response = await fetch(
-        process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`
-      );
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching chauffeur:", error);
-    }
+  // Handle file selection
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
   };
 
-  // Fetch facture details by ID
-  const getFactureById = async (id) => {
-    try {
-      const response = await fetch(
-        process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`
-      );
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching facture:", error);
-    }
-  };
+  // Handle file upload to Firebase
+  const handleUpload = () => {
+    if (!file) return alert("Please select a file first!");
 
-  // Fetch both facture and chauffeur details
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedFacture = await getFactureById(id);
-        setFacture(fetchedFacture);
-        console.log(fetchedFacture);
-        const fetchedChauffeur = await getChauffeurById(id);
-        setChauffeur(fetchedChauffeur);
-        setLoading(false); // Mark loading as complete
-        console.log(fetchedChauffeur);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setLoading(false);
-      }
-    };
-    if (id) {
-      fetchData();
-    }
-  }, [id]);
+    // Reference to the location in Firebase Storage
+    const storageRef = ref(storage, `invoices/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
 
-  // Handle PDF generation and upload to Firebase Storage
-  const handlePrint = async (sendByEmail = false) => {
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-
-    ReactDOM.render(
-      <TemplateFacture chauffeur={chauffeur} facture={facture} />,
-      container
-    );
-
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "px",
-      format: "a4",
-    });
-
-    try {
-      const canvas = await html2canvas(container, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        0,
-        pdf.internal.pageSize.width,
-        pdf.internal.pageSize.height
-      );
-
-      const pdfBlob = pdf.output("blob");
-
-      ReactDOM.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-
-      // Upload PDF to Firebase Storage
-      const storageRef = ref(storage, `factures/facture_${id}.pdf`);
-      const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
-
-      uploadTask.on(
-        "state_changed",
-        null,
-        (error) => {
-          console.error("Erreur lors de l'upload:", error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setUploadedURL(downloadURL); // Save the URL of the uploaded facture
-            toast.success("Facture téléversée avec succès");
-          });
-        }
-      );
-
-      if (sendByEmail) {
-        await sendEmailWithFacture(pdfBlob, chauffeur.email, facture.mois, facture._id);
-      } else {
-        const pdfURL = URL.createObjectURL(pdfBlob);
-        window.open(pdfURL, "_blank");
-      }
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    }
-  };
-
-  // Handle sending the facture via email
-  const sendEmailWithFacture = async (pdfBlob, email, mois, id) => {
-    const formData = new FormData();
-    formData.append("file", pdfBlob, "facture.pdf");
-    formData.append("email", email);
-    formData.append("mois", mois);
-    formData.append("id", id);
-
-    try {
-      await axios.post(
-        process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      toast.success("Facture envoyée avec succès par e-mail");
-    } catch (error) {
-      toast.error("Erreur lors de l'envoi de la facture par e-mail");
-      console.error(error);
-    }
-  };
-
-  // Handle facture submission
-  const handleSubmite = () => {
-    axios
-      .patch(process.env.REACT_APP_BASE_URL + `/facture/${id}/payer`, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        toast.success("Facture de chauffeur a été bien payé", {
-          position: toast.POSITION.TOP_RIGHT,
+    // Track the state of the upload
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress); // Update progress state
+        console.log("Upload is " + progress + "% done");
+      },
+      (error) => {
+        // Handle upload error
+        console.error("Error uploading file:", error);
+      },
+      () => {
+        // On successful upload, get the file's download URL
+        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          setDownloadURL(url); // Store the download URL in state
+          console.log("File available at", url);
         });
-
-        setTimeout(() => navigate("/Chauffeur"), 3000);
-      })
-      .catch((err) => {
-        console.warn(err);
-        toast.error("Erreur lors de la mise à jour de la facture !", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-      });
-  };
-
-  // Render chauffeur details
-  const renderChauffeurDetails = () => {
-    if (!chauffeur) return null;
-
-    return (
-      <>
-        <div className="detailItem">
-          <span className="itemKey">Nom:</span>
-          <span className="itemValue">{chauffeur.Nom}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Prenom:</span>
-          <span className="itemValue">{chauffeur.Prenom}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Email:</span>
-          <span className="itemValue">{chauffeur.email}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Phone:</span>
-          <span className="itemValue">{chauffeur.phone}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Address:</span>
-          <span className="itemValue">{chauffeur.address}</span>
-        </div>
-
-        <div className="detailItem">
-          <span className="itemKey">CIN:</span>
-          <span className="itemValue">{chauffeur.cnicNo}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Role:</span>
-          <span className="itemValue">{chauffeur.role}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Status:</span>
-          <span className="itemValue">{chauffeur.Cstatus}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Type:</span>
-          <span className="itemValue">{chauffeur.type}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Rating:</span>
-          <span className="itemValue">
-            {`${chauffeur.ratingsAverage} (${chauffeur.ratingsQuantity} votes)`}
-          </span>
-        </div>
-      </>
+      }
     );
   };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
-    <div className="single">
-      <Sidebar />
+    <div>
+      <h1>Upload Invoice</h1>
+      
+      {/* File input */}
+      <input type="file" onChange={handleFileChange} />
+      
+      {/* Upload button */}
+      <button onClick={handleUpload}>Consulter</button>
 
-      <div className="singleContainer">
-        <Navbar />
-        <div className="top">
-          <div className="left">
-            <h1 className="title">Facture</h1>
-            <div className="item" id="factureContent">
-              {chauffeur && (
-                <img src={chauffeur.photoAvatar} alt="" className="itemImg" />
-              )}
-              <div className="details">
-                <h1 className="itemTitle">
-                  {chauffeur
-                    ? `${chauffeur.Nom} ${chauffeur.Prenom}`
-                    : "Chauffeur"}
-                </h1>
-                {renderChauffeurDetails()}
-                <div className="detailItem">
-                  <span className="itemKey">Mois:</span>
-                  <span className="itemValue">{facture && facture.mois}</span>
-                </div>
-
-                {(role === "Admin" || role === "Agentad") && (
-                  <>
-                    <div
-                      className="activateButton"
-                      onClick={() => handlePrint(false)}
-                    >
-                      Consulter
-                    </div>
-                    {facture && !facture.envoye && (
-                      <div
-                        className="activateButton"
-                        onClick={() => handlePrint(true)}
-                      >
-                        Envoyer Facture par Email
-                      </div>
-                    )}
-                    {facture && !facture.isPaid && facture.status !== "PAYE" && (
-                      <div className="activateButton" onClick={handleSubmite}>
-                        Payer La Facture
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+      {/* Display upload progress */}
+      {uploadProgress > 0 && <p>Upload Progress: {uploadProgress}%</p>}
+      
+      {/* Display download URL if available */}
+      {downloadURL && (
+        <div>
+          <p>Upload complete! File available at:</p>
+          <a href={downloadURL} target="_blank" rel="noopener noreferrer">
+            {downloadURL}
+          </a>
         </div>
-        <ToastContainer />
-      </div>
+      )}
     </div>
   );
 };
 
-export default SingleF;
+export default SingleFacture;
