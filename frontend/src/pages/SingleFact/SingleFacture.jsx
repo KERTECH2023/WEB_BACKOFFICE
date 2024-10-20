@@ -12,6 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { storage, ref, uploadBytesResumable, getDownloadURL } from "../../config"; // Assurez-vous d'importer Firebase
 
 const SingleF = () => {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const SingleF = () => {
     }
   }, [id]);
 
-  // Handle PDF generation with optional email sending
+  // Handle PDF generation with optional email sending and Firebase Storage upload
   const handlePrint = async (sendByEmail = false) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -99,20 +100,47 @@ const SingleF = () => {
 
       const pdfBlob = pdf.output("blob");
 
+      // Supprimer le composant temporaire de l'interface utilisateur
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
-      if (sendByEmail) {
-        await sendEmailWithFacture(
-          pdfBlob,
-          chauffeur.email,
-          facture.mois,
-          facture._id
-        );
-      } else {
-        const pdfURL = URL.createObjectURL(pdfBlob);
-        window.open(pdfURL, "_blank");
-      }
+      // Téléverser le PDF dans Firebase Storage
+      const storageRef = ref(storage, `factures/${facture._id}.pdf`);
+      const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // Suivi du progrès du téléversement
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          // Gestion des erreurs
+          console.error("Error uploading file:", error);
+        },
+        () => {
+          // Récupérer l'URL de téléchargement une fois le fichier téléversé
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log("File available at", downloadURL);
+
+            // Si l'utilisateur veut envoyer par e-mail
+            if (sendByEmail) {
+              sendEmailWithFacture(
+                pdfBlob,
+                chauffeur.email,
+                facture.mois,
+                facture._id
+              );
+            } else {
+              // Ouvrir le PDF dans un nouvel onglet
+              const pdfURL = URL.createObjectURL(pdfBlob);
+              window.open(pdfURL, "_blank");
+            }
+          });
+        }
+      );
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
@@ -238,41 +266,23 @@ const SingleF = () => {
               )}
               <div className="details">
                 <h1 className="itemTitle">
-                  {chauffeur
-                    ? `${chauffeur.Nom} ${chauffeur.Prenom}`
-                    : "Chauffeur"}
+                  {chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : ""}
                 </h1>
                 {renderChauffeurDetails()}
-                <div className="detailItem">
-                  <span className="itemKey">Mois:</span>
-                  <span className="itemValue">{facture && facture.mois}</span>
-                </div>
-
-                {(role === "Admin" || role === "Agentad") && (
-                  <>
-                    <div
-                      className="activateButton"
-                      onClick={() => handlePrint(false)}
-                    >
-                      Consulter
-                    </div>
-                    {facture && !facture.envoye && (
-                      <div
-                        className="activateButton"
-                        onClick={() => handlePrint(true)}
-                      >
-                        Envoyer Facture par Email
-                      </div>
-                    )}
-                    {facture && !facture.isPaid && facture.status !== "PAYE" && (
-                      <div className="activateButton" onClick={handleSubmite}>
-                        Payer La Facture
-                      </div>
-                    )}
-                  </>
-                )}
               </div>
             </div>
+
+            <button
+              onClick={() => handlePrint(false)}
+              className="consultButton"
+            >
+              Consulter
+            </button>
+            {role !== "admin" && (
+              <button onClick={handleSubmite} className="sendButton">
+                Payer Facture
+              </button>
+            )}
           </div>
         </div>
         <ToastContainer />
