@@ -20,7 +20,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
 
       // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
-        chauffeurId: chauffeur._id, // Filtre par chauffeurId
+        driverPhone: chauffeur.phone, // Filtre par chauffeurId
         status: 'completed',
         time: {
           $gte: moment([annee, mois - 1]).startOf('month').toDate(),
