@@ -214,7 +214,7 @@ const SingleF = () => {
         toast.success("Facture de chauffeur a été bien payée", {
           position: toast.POSITION.TOP_RIGHT,
         });
-        setTimeout(() => navigate("/Chauffeur"), 3000);
+        setTimeout(() => navigate("/ConsultInvoices"), 3000);
       })
       .catch((err) => {
         console.warn("Error updating facture:", err);
