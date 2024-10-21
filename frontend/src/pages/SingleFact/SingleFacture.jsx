@@ -29,6 +29,7 @@ const SingleF = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [pdfError, setPdfError] = useState(null);
 
+  // Fetch Chauffeur by ID
   const getChauffeurById = async (id) => {
     try {
       const response = await fetch(
@@ -42,6 +43,7 @@ const SingleF = () => {
     }
   };
 
+  // Fetch Facture by ID
   const getFactureById = async (id) => {
     try {
       const response = await fetch(
@@ -55,8 +57,9 @@ const SingleF = () => {
     }
   };
 
-  const checkPdfExists = async (chauffeurId, mois, annee) => {
-    const pdfFileName = `${chauffeurId}_${mois}_${annee}.pdf`; // Format: idchauffeur_month_year.pdf
+  // Check if PDF exists using the facture ID
+  const checkPdfExists = async (factureId) => {
+    const pdfFileName = `${factureId}.pdf`; // Using idFacture for naming
     const pdfRef = ref(storage, `factures/${pdfFileName}`);
     
     try {
@@ -78,6 +81,7 @@ const SingleF = () => {
     }
   };
 
+  // Load Facture and Chauffeur data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -89,8 +93,7 @@ const SingleF = () => {
         setChauffeur(fetchedChauffeur);
         console.log("Fetched chauffeur:", fetchedChauffeur);
 
-        const { mois, annee } = fetchedFacture;  // Assuming your facture has mois (month) and annee (year) fields
-        await checkPdfExists(fetchedFacture.chauffeurId, mois, annee);
+        await checkPdfExists(fetchedFacture._id); // Use facture ID to check for PDF
         
         setLoading(false);
       } catch (error) {
@@ -105,6 +108,7 @@ const SingleF = () => {
     }
   }, [id]);
 
+  // Handle generating and uploading the PDF
   const handlePrint = async (sendByEmail = false) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -138,7 +142,7 @@ const SingleF = () => {
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
-      const pdfFileName = `${facture.chauffeurId}_${facture.mois}_${facture.annee}.pdf`; // Store with new format
+      const pdfFileName = `${facture._id}.pdf`; // Save using facture ID
       const storageRef = ref(storage, `factures/${pdfFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
 
@@ -160,12 +164,7 @@ const SingleF = () => {
             setUploadProgress(0);
 
             if (sendByEmail) {
-              sendEmailWithFacture(
-                pdfBlob,
-                chauffeur.email,
-                facture.mois,
-                facture._id
-              );
+              sendEmailWithFacture(pdfBlob, chauffeur.email, facture.mois, facture._id);
             } else {
               window.open(downloadURL, "_blank");
             }
@@ -178,6 +177,7 @@ const SingleF = () => {
     }
   };
 
+  // Send email with the PDF
   const sendEmailWithFacture = async (pdfBlob, email, mois, id) => {
     const formData = new FormData();
     formData.append("file", pdfBlob, "facture.pdf");
@@ -202,6 +202,7 @@ const SingleF = () => {
     }
   };
 
+  // Handle facture payment
   const handleSubmite = () => {
     axios
       .patch(`${process.env.REACT_APP_BASE_URL}/facture/${id}/payer`, {
@@ -244,22 +245,6 @@ const SingleF = () => {
           <span className="itemKey">Phone:</span>
           <span className="itemValue">{chauffeur.phone}</span>
         </div>
-        <div className="detailItem">
-          <span className="itemKey">Address:</span>
-          <span className="itemValue">{chauffeur.address}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">CIN:</span>
-          <span className="itemValue">{chauffeur.cnicNo}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Role:</span>
-          <span className="itemValue">{chauffeur.role}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Status:</span>
-          <span className="itemValue">{chauffeur.status}</span>
-        </div>
       </>
     );
   };
@@ -275,36 +260,37 @@ const SingleF = () => {
         <Navbar />
         <div className="top">
           <div className="left">
-            <h1 className="title">Information Chauffeur</h1>
+            <h1 className="title">Facture</h1>
             <div className="item">
-              {renderChauffeurDetails()}
-              {role !== "userChauffeur" && (
-                <button onClick={handleSubmite} className="editButton">
-                  Payer facture
-                </button>
+              {chauffeur && (
+                <img src={chauffeur.photoAvatar} alt="" className="itemImg" />
               )}
-            </div>
-          </div>
-          <div className="right">
-            {pdfUrl ? (
-              <iframe
-                src={pdfUrl}
-                width="100%"
-                height="600px"
-                style={{ border: "none" }}
-                title="Facture PDF"
-              />
-            ) : pdfError ? (
-              <div className="pdfError">
-                {pdfError}
-                <button onClick={() => handlePrint(false)} className="generateButton">
-                  Generate Facture
-                </button>
+              <div className="details">
+                <h1 className="itemTitle">
+                  Facture de {chauffeur && chauffeur.Prenom}
+                </h1>
+                {renderChauffeurDetails()}
               </div>
-            ) : null}
+            </div>
+            <button
+              className="updateButton"
+              onClick={() => handlePrint(false)}
+              disabled={uploadProgress > 0}
+            >
+              {uploadProgress > 0 ? `Uploading (${uploadProgress}%)...` : "Générer PDF"}
+            </button>
+            <button
+              className="updateButton"
+              onClick={() => handlePrint(true)}
+              disabled={uploadProgress > 0}
+            >
+              {uploadProgress > 0 ? `Uploading (${uploadProgress}%)...` : "Envoyer par E-mail"}
+            </button>
+            <button className="updateButton" onClick={handleSubmite}>
+              Payer
+            </button>
           </div>
         </div>
-        <ToastContainer />
       </div>
     </div>
   );
