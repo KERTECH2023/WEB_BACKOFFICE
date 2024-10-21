@@ -3,6 +3,31 @@ const pdfService = require('../services/pdfService');
 const path = require('path');
 const moment = require('moment');
 
+// Générer des factures pour tous les chauffeurs ce mois-ci
+exports.generateFacturesForAllChauffeurs = async (req, res) => {
+  try {
+    const chauffeurs = await Chauffeur.find(); // Récupère tous les chauffeurs
+    const results = [];
+
+    for (const chauffeur of chauffeurs) {
+      const driverId = chauffeur._id;
+      const mois = moment().month(); // Mois en cours
+      const annee = moment().year(); // Année en cours
+
+      // Appel à la fonction pour générer la facture
+      const nouvelleFacture = await factureService.generateFactures(driverId, mois, annee);
+      results.push(nouvelleFacture);
+    }
+
+    res.json(results);
+  } catch (error) {
+    res.status(500).send(`Erreur lors de la génération des factures pour tous les chauffeurs: ${error.message}`);
+  }
+};
+
+
+
+
 // Récupérer toutes les factures pour tous les chauffeurs ce mois-ci
 exports.getAllFacturesThisMonth = async (req, res) => {
   try {
