@@ -3,9 +3,6 @@ const Chauffeur = require('../Models/Chauffeur');
 const moment = require('moment');
 const RideRequest = require('../Models/AllRideRequest');
 
-
-
-
 exports.generateFacturesForAllChauffeurs = async () => {
   try {
     const mois = moment().month() + 1;
@@ -23,7 +20,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
 
       // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
-        chauffeurId: chauffeur._id,
+        chauffeurId: chauffeur._id, // Filtre par chauffeurId
         status: 'completed',
         time: {
           $gte: moment([annee, mois - 1]).startOf('month').toDate(),
@@ -69,6 +66,9 @@ exports.generateFacturesForAllChauffeurs = async () => {
     throw new Error(`Erreur lors de la génération des factures: ${error.message}`);
   }
 };
+
+
+
 
 
 
