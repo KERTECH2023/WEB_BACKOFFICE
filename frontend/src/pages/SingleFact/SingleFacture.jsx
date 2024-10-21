@@ -66,7 +66,7 @@ const SingleF = () => {
       console.log("Checking for PDF:", `factures/${pdfFileName}`);
       const url = await getDownloadURL(pdfRef);
       console.log("PDF URL found:", url);
-      setPdfUrl(url);
+      setPdfUrl(url); // Set the PDF URL
       setPdfError(null);
     } catch (error) {
       if (error.code === 'storage/object-not-found') { // Handle 404 case
@@ -160,7 +160,7 @@ const SingleF = () => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             console.log("File available at", downloadURL);
-            setPdfUrl(downloadURL);
+            setPdfUrl(downloadURL); // Set the new PDF URL
             setUploadProgress(0);
 
             if (sendByEmail) {
@@ -291,7 +291,20 @@ const SingleF = () => {
             </button>
           </div>
         </div>
+        <div className="bottom">
+          {pdfUrl ? (
+            <div className="pdfViewer">
+              <h2>Facture Générée:</h2>
+              <iframe src={pdfUrl} width="100%" height="600px" title="Facture PDF"></iframe>
+            </div>
+          ) : (
+            <div className="pdfError">
+              <h2>{pdfError}</h2>
+            </div>
+          )}
+        </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
