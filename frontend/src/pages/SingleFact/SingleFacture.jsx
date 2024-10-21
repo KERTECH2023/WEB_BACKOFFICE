@@ -59,17 +59,17 @@ const SingleF = () => {
 
   // Check if PDF exists using the facture ID
   const checkPdfExists = async (factureId) => {
-    const pdfFileName = `${factureId}.pdf`; // Using idFacture for naming
+    const pdfFileName = `${factureId}.pdf`;
     const pdfRef = ref(storage, `factures/${pdfFileName}`);
     
     try {
       console.log("Checking for PDF:", `factures/${pdfFileName}`);
       const url = await getDownloadURL(pdfRef);
       console.log("PDF URL found:", url);
-      setPdfUrl(url); // Set the PDF URL
+      setPdfUrl(url);
       setPdfError(null);
     } catch (error) {
-      if (error.code === 'storage/object-not-found') { // Handle 404 case
+      if (error.code === 'storage/object-not-found') {
         console.error("Facture PDF not found (404)");
         setPdfError("Facture does not exist. Please generate it.");
         setPdfUrl(null);
@@ -93,7 +93,7 @@ const SingleF = () => {
         setChauffeur(fetchedChauffeur);
         console.log("Fetched chauffeur:", fetchedChauffeur);
 
-        await checkPdfExists(fetchedFacture._id); // Use facture ID to check for PDF
+        await checkPdfExists(fetchedFacture._id);
         
         setLoading(false);
       } catch (error) {
@@ -142,7 +142,7 @@ const SingleF = () => {
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
-      const pdfFileName = `${facture._id}.pdf`; // Save using facture ID
+      const pdfFileName = `${facture._id}.pdf`;
       const storageRef = ref(storage, `factures/${pdfFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
 
@@ -160,7 +160,7 @@ const SingleF = () => {
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             console.log("File available at", downloadURL);
-            setPdfUrl(downloadURL); // Set the new PDF URL
+            setPdfUrl(downloadURL);
             setUploadProgress(0);
 
             if (sendByEmail) {
@@ -286,9 +286,11 @@ const SingleF = () => {
             >
               {uploadProgress > 0 ? `Uploading (${uploadProgress}%)...` : "Envoyer par E-mail"}
             </button>
-            <button className="updateButton" onClick={handleSubmite}>
-              Payer
-            </button>
+            {facture && facture.status !== "PAYE" && (
+              <button className="updateButton" onClick={handleSubmite}>
+                Payer
+              </button>
+            )}
           </div>
         </div>
         <div className="bottom">
