@@ -27,6 +27,7 @@ const SingleF = () => {
   const [loading, setLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [pdfError, setPdfError] = useState(null);
 
   const getChauffeurById = async (id) => {
     try {
@@ -37,6 +38,7 @@ const SingleF = () => {
       return data;
     } catch (error) {
       console.error("Error fetching chauffeur:", error);
+      throw error;
     }
   };
 
@@ -49,16 +51,22 @@ const SingleF = () => {
       return data;
     } catch (error) {
       console.error("Error fetching facture:", error);
+      throw error;
     }
   };
 
   const checkPdfExists = async (id) => {
     const pdfRef = ref(storage, `factures/${id}.pdf`);
     try {
+      console.log("Checking for PDF:", `factures/${id}.pdf`);
       const url = await getDownloadURL(pdfRef);
+      console.log("PDF URL found:", url);
       setPdfUrl(url);
+      setPdfError(null);
     } catch (error) {
-      console.log("PDF does not exist yet");
+      console.error("Error checking PDF existence:", error);
+      setPdfError("PDF not found or inaccessible");
+      setPdfUrl(null);
     }
   };
 
@@ -67,13 +75,18 @@ const SingleF = () => {
       try {
         const fetchedFacture = await getFactureById(id);
         setFacture(fetchedFacture);
+        console.log("Fetched facture:", fetchedFacture);
+        
         const fetchedChauffeur = await getChauffeurById(fetchedFacture.chauffeurId);
         setChauffeur(fetchedChauffeur);
+        console.log("Fetched chauffeur:", fetchedChauffeur);
+        
         await checkPdfExists(id);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
+        toast.error("Erreur lors du chargement des données");
       }
     };
     if (id) {
@@ -126,6 +139,7 @@ const SingleF = () => {
         },
         (error) => {
           console.error("Error uploading file:", error);
+          toast.error("Erreur lors du téléchargement du fichier");
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
@@ -148,6 +162,7 @@ const SingleF = () => {
       );
     } catch (error) {
       console.error("Error generating PDF:", error);
+      toast.error("Erreur lors de la génération du PDF");
     }
   };
 
@@ -170,8 +185,8 @@ const SingleF = () => {
       );
       toast.success("Facture envoyée avec succès par e-mail");
     } catch (error) {
+      console.error("Error sending email:", error);
       toast.error("Erreur lors de l'envoi de la facture par e-mail");
-      console.error(error);
     }
   };
 
@@ -183,14 +198,13 @@ const SingleF = () => {
         },
       })
       .then((response) => {
-        toast.success("Facture de chauffeur a été bien payé", {
+        toast.success("Facture de chauffeur a été bien payée", {
           position: toast.POSITION.TOP_RIGHT,
         });
-
         setTimeout(() => navigate("/Chauffeur"), 3000);
       })
       .catch((err) => {
-        console.warn(err);
+        console.warn("Error updating facture:", err);
         toast.error("Erreur lors de la mise à jour de la facture !", {
           position: toast.POSITION.TOP_RIGHT,
         });
@@ -249,7 +263,7 @@ const SingleF = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Chargement...</div>;
   }
 
   return (
@@ -290,7 +304,7 @@ const SingleF = () => {
 
             {uploadProgress > 0 && (
               <div className="progressBar">
-                <span>Uploading: {Math.round(uploadProgress)}%</span>
+                <span>Téléchargement: {Math.round(uploadProgress)}%</span>
                 <div
                   className="progress"
                   style={{ width: `${uploadProgress}%` }}
@@ -299,7 +313,7 @@ const SingleF = () => {
             )}
           </div>
           <div className="right">
-            {pdfUrl && (
+            {pdfUrl ? (
               <iframe
                 src={pdfUrl}
                 width="100%"
@@ -307,7 +321,14 @@ const SingleF = () => {
                 style={{ border: "none" }}
                 title="Facture PDF"
               />
-            )}
+            ) : pdfError ? (
+              <div className="pdfError">
+                {pdfError}
+                <button onClick={() => checkPdfExists(id)} className="retryButton">
+                  Réessayer
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
         <ToastContainer />
