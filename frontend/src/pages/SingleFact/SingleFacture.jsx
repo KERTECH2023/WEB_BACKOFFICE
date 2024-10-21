@@ -55,18 +55,26 @@ const SingleF = () => {
     }
   };
 
-  const checkPdfExists = async (id) => {
-    const pdfRef = ref(storage, `factures/${id}.pdf`);
+  const checkPdfExists = async (chauffeurId, mois, annee) => {
+    const pdfFileName = `${chauffeurId}_${mois}_${annee}.pdf`; // Format: idchauffeur_month_year.pdf
+    const pdfRef = ref(storage, `factures/${pdfFileName}`);
+    
     try {
-      console.log("Checking for PDF:", `factures/${id}.pdf`);
+      console.log("Checking for PDF:", `factures/${pdfFileName}`);
       const url = await getDownloadURL(pdfRef);
       console.log("PDF URL found:", url);
       setPdfUrl(url);
       setPdfError(null);
     } catch (error) {
-      console.error("Error checking PDF existence:", error);
-      setPdfError("PDF not found or inaccessible");
-      setPdfUrl(null);
+      if (error.code === 'storage/object-not-found') { // Handle 404 case
+        console.error("Facture PDF not found (404)");
+        setPdfError("Facture does not exist. Please generate it.");
+        setPdfUrl(null);
+      } else {
+        console.error("Error checking PDF existence:", error);
+        setPdfError("Error accessing the PDF file");
+        setPdfUrl(null);
+      }
     }
   };
 
@@ -76,12 +84,14 @@ const SingleF = () => {
         const fetchedFacture = await getFactureById(id);
         setFacture(fetchedFacture);
         console.log("Fetched facture:", fetchedFacture);
-        
+
         const fetchedChauffeur = await getChauffeurById(fetchedFacture.chauffeurId);
         setChauffeur(fetchedChauffeur);
         console.log("Fetched chauffeur:", fetchedChauffeur);
+
+        const { mois, annee } = fetchedFacture;  // Assuming your facture has mois (month) and annee (year) fields
+        await checkPdfExists(fetchedFacture.chauffeurId, mois, annee);
         
-        await checkPdfExists(id);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -89,6 +99,7 @@ const SingleF = () => {
         toast.error("Erreur lors du chargement des données");
       }
     };
+
     if (id) {
       fetchData();
     }
@@ -127,7 +138,8 @@ const SingleF = () => {
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
-      const storageRef = ref(storage, `factures/${facture._id}.pdf`);
+      const pdfFileName = `${facture.chauffeurId}_${facture.mois}_${facture.annee}.pdf`; // Store with new format
+      const storageRef = ref(storage, `factures/${pdfFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
 
       uploadTask.on(
@@ -246,24 +258,14 @@ const SingleF = () => {
         </div>
         <div className="detailItem">
           <span className="itemKey">Status:</span>
-          <span className="itemValue">{chauffeur.Cstatus}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Type:</span>
-          <span className="itemValue">{chauffeur.type}</span>
-        </div>
-        <div className="detailItem">
-          <span className="itemKey">Rating:</span>
-          <span className="itemValue">
-            {`${chauffeur.ratingsAverage} (${chauffeur.ratingsQuantity} votes)`}
-          </span>
+          <span className="itemValue">{chauffeur.status}</span>
         </div>
       </>
     );
   };
 
   if (loading) {
-    return <div>Chargement...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -273,44 +275,15 @@ const SingleF = () => {
         <Navbar />
         <div className="top">
           <div className="left">
-            <h1 className="title">Facture</h1>
-            <div className="item" id="factureContent">
-              {chauffeur && (
-                <img src={chauffeur.photoAvatar} alt="" className="itemImg" />
+            <h1 className="title">Information Chauffeur</h1>
+            <div className="item">
+              {renderChauffeurDetails()}
+              {role !== "userChauffeur" && (
+                <button onClick={handleSubmite} className="editButton">
+                  Payer facture
+                </button>
               )}
-              <div className="details">
-                <h1 className="itemTitle">
-                  {chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : ""}
-                </h1>
-                {renderChauffeurDetails()}
-              </div>
             </div>
-
-            {!pdfUrl && (
-              <button onClick={() => handlePrint(false)} className="consultButton">
-                Consulter
-              </button>
-            )}
-            
-            {role !== "admin" && (
-              <button onClick={handleSubmite} className="sendButton">
-                Payer Facture
-              </button>
-            )}
-
-            <button onClick={() => handlePrint(true)} className="sendButton">
-              Envoyer par Email
-            </button>
-
-            {uploadProgress > 0 && (
-              <div className="progressBar">
-                <span>Téléchargement: {Math.round(uploadProgress)}%</span>
-                <div
-                  className="progress"
-                  style={{ width: `${uploadProgress}%` }}
-                ></div>
-              </div>
-            )}
           </div>
           <div className="right">
             {pdfUrl ? (
@@ -324,8 +297,8 @@ const SingleF = () => {
             ) : pdfError ? (
               <div className="pdfError">
                 {pdfError}
-                <button onClick={() => checkPdfExists(id)} className="retryButton">
-                  Réessayer
+                <button onClick={() => handlePrint(false)} className="generateButton">
+                  Generate Facture
                 </button>
               </div>
             ) : null}
