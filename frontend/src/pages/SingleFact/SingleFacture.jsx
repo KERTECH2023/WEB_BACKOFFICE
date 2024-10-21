@@ -16,7 +16,7 @@ import {
   ref,
   uploadBytesResumable,
   getDownloadURL,
-} from "../../config"; // Assurez-vous d'importer Firebase
+} from "../../config";
 
 const SingleF = () => {
   const navigate = useNavigate();
@@ -24,14 +24,14 @@ const SingleF = () => {
   const role = window.localStorage.getItem("userRole");
   const [facture, setFacture] = useState(null);
   const [chauffeur, setChauffeur] = useState(null);
-  const [loading, setLoading] = useState(true); // For loading state
-  const [uploadProgress, setUploadProgress] = useState(0); // New state for upload progress
+  const [loading, setLoading] = useState(true);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
-  // Fetch chauffeur details by ID
   const getChauffeurById = async (id) => {
     try {
       const response = await fetch(
-        process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`
+        `${process.env.REACT_APP_BASE_URL}/Chauff/searchchauf/${id}`
       );
       const data = await response.json();
       return data;
@@ -40,11 +40,10 @@ const SingleF = () => {
     }
   };
 
-  // Fetch facture details by ID
   const getFactureById = async (id) => {
     try {
       const response = await fetch(
-        process.env.REACT_APP_BASE_URL + `/Chauff/factures/${id}`
+        `${process.env.REACT_APP_BASE_URL}/Chauff/factures/${id}`
       );
       const data = await response.json();
       return data;
@@ -53,17 +52,25 @@ const SingleF = () => {
     }
   };
 
-  // Fetch both facture and chauffeur details
+  const checkPdfExists = async (id) => {
+    const pdfRef = ref(storage, `factures/${id}.pdf`);
+    try {
+      const url = await getDownloadURL(pdfRef);
+      setPdfUrl(url);
+    } catch (error) {
+      console.log("PDF does not exist yet");
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const fetchedFacture = await getFactureById(id);
         setFacture(fetchedFacture);
-        console.log(fetchedFacture);
-        const fetchedChauffeur = await getChauffeurById(id);
+        const fetchedChauffeur = await getChauffeurById(fetchedFacture.chauffeurId);
         setChauffeur(fetchedChauffeur);
-        setLoading(false); // Mark loading as complete
-        console.log(fetchedChauffeur);
+        await checkPdfExists(id);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
@@ -74,7 +81,6 @@ const SingleF = () => {
     }
   }, [id]);
 
-  // Handle PDF generation with optional email sending and Firebase Storage upload
   const handlePrint = async (sendByEmail = false) => {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -105,35 +111,28 @@ const SingleF = () => {
 
       const pdfBlob = pdf.output("blob");
 
-      // Supprimer le composant temporaire de l'interface utilisateur
       ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
 
-      // Téléverser le PDF dans Firebase Storage
       const storageRef = ref(storage, `factures/${facture._id}.pdf`);
       const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
 
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          // Suivi du progrès du téléversement
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log(`Upload is ${progress}% done`);
-          setUploadProgress(progress); // Update progress state
+          setUploadProgress(progress);
         },
         (error) => {
-          // Gestion des erreurs
           console.error("Error uploading file:", error);
         },
         () => {
-          // Récupérer l'URL de téléchargement une fois le fichier téléversé
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             console.log("File available at", downloadURL);
+            setPdfUrl(downloadURL);
+            setUploadProgress(0);
 
-            setUploadProgress(0); // Reset progress once upload is done
-
-            // Si l'utilisateur veut envoyer par e-mail
             if (sendByEmail) {
               sendEmailWithFacture(
                 pdfBlob,
@@ -142,9 +141,7 @@ const SingleF = () => {
                 facture._id
               );
             } else {
-              // Ouvrir le PDF dans un nouvel onglet
-              const pdfURL = URL.createObjectURL(pdfBlob);
-              window.open(pdfURL, "_blank");
+              window.open(downloadURL, "_blank");
             }
           });
         }
@@ -154,7 +151,6 @@ const SingleF = () => {
     }
   };
 
-  // Handle sending the facture via email
   const sendEmailWithFacture = async (pdfBlob, email, mois, id) => {
     const formData = new FormData();
     formData.append("file", pdfBlob, "facture.pdf");
@@ -164,7 +160,7 @@ const SingleF = () => {
 
     try {
       await axios.post(
-        process.env.REACT_APP_BASE_URL + "/Chauff/sendFacture",
+        `${process.env.REACT_APP_BASE_URL}/Chauff/sendFacture`,
         formData,
         {
           headers: {
@@ -179,10 +175,9 @@ const SingleF = () => {
     }
   };
 
-  // Handle facture submission
   const handleSubmite = () => {
     axios
-      .patch(process.env.REACT_APP_BASE_URL + `/facture/${id}/payer`, {
+      .patch(`${process.env.REACT_APP_BASE_URL}/facture/${id}/payer`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -202,7 +197,6 @@ const SingleF = () => {
       });
   };
 
-  // Render chauffeur details
   const renderChauffeurDetails = () => {
     if (!chauffeur) return null;
 
@@ -228,7 +222,6 @@ const SingleF = () => {
           <span className="itemKey">Address:</span>
           <span className="itemValue">{chauffeur.address}</span>
         </div>
-
         <div className="detailItem">
           <span className="itemKey">CIN:</span>
           <span className="itemValue">{chauffeur.cnicNo}</span>
@@ -262,7 +255,6 @@ const SingleF = () => {
   return (
     <div className="single">
       <Sidebar />
-
       <div className="singleContainer">
         <Navbar />
         <div className="top">
@@ -280,17 +272,21 @@ const SingleF = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => handlePrint(false)}
-              className="consultButton"
-            >
-              Consulter
-            </button>
+            {!pdfUrl && (
+              <button onClick={() => handlePrint(false)} className="consultButton">
+                Consulter
+              </button>
+            )}
+            
             {role !== "admin" && (
               <button onClick={handleSubmite} className="sendButton">
                 Payer Facture
               </button>
             )}
+
+            <button onClick={() => handlePrint(true)} className="sendButton">
+              Envoyer par Email
+            </button>
 
             {uploadProgress > 0 && (
               <div className="progressBar">
@@ -300,6 +296,17 @@ const SingleF = () => {
                   style={{ width: `${uploadProgress}%` }}
                 ></div>
               </div>
+            )}
+          </div>
+          <div className="right">
+            {pdfUrl && (
+              <iframe
+                src={pdfUrl}
+                width="100%"
+                height="600px"
+                style={{ border: "none" }}
+                title="Facture PDF"
+              />
             )}
           </div>
         </div>
