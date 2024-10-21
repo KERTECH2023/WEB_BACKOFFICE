@@ -6,7 +6,7 @@ const moment = require('moment');
 // Générer des factures pour tous les chauffeurs ce mois-ci
 exports.generateFacturesForAllChauffeurs = async (req, res) => {
   try {
-    const chauffeurs = await Chauffeur.find(); // Récupère tous les chauffeurs
+    const chauffeurs = await (await Chauffeur.find()).toJSON(); // Récupère tous les chauffeurs
     const results = [];
 
     for (const chauffeur of chauffeurs) {
