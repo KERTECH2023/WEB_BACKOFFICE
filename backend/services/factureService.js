@@ -3,6 +3,37 @@ const Chauffeur = require('../Models/Chauffeur');
 const moment = require('moment');
 const RideRequest = require('../Models/AllRideRequest');
 
+// Filtrer les factures par date de création ou par mois
+exports.filterFacturesByDateOrMonth = async (date, mois, annee) => {
+  try {
+    let query = {};
+
+    // Si une date est fournie, filtrer par cette date de création
+    if (date) {
+      query['dateCreation'] = {
+        $gte: moment(date).startOf('day').toDate(),
+        $lte: moment(date).endOf('day').toDate()
+      };
+    }
+
+    // Si un mois et une année sont fournis, filtrer par mois et année
+    if (mois && annee) {
+      query['mois'] = mois;
+      query['annee'] = annee;
+    }
+
+    // Récupérer les factures correspondant aux filtres
+    const factures = await Facture.find(query);
+    return factures;
+  } catch (error) {
+    throw new Error(`Erreur lors du filtrage des factures: ${error.message}`);
+  }
+};
+
+
+
+
+
 exports.getChauffeurByFactureId = async (factureId) => {
   try {
     // Récupérer la facture avec l'ID fourni
