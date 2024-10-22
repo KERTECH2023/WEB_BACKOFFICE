@@ -3,7 +3,7 @@ const Chauffeur = require('../Models/Chauffeur');
 const moment = require('moment');
 const RideRequest = require('../Models/AllRideRequest');
 
-const Facture = require('../Models/Facture');
+
 
 // Récupérer une facture par son ID
 exports.getFactureById = async (factureId) => {
