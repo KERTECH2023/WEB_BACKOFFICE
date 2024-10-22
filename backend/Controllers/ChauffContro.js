@@ -42,6 +42,43 @@ const createDriversNodeIfNotExists = async () => {
 
 /**--------------------Ajouter un agnet------------------------  */
 
+const rejectChauffeur = async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+
+  try {
+    const chauffeur = await Chauffeur.findById(id);
+    if (!chauffeur) {
+      return res.status(404).send({ message: 'Chauffeur not found' });
+    }
+
+    // Create transporter for sending email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'noreplytunisieuber@gmail.com',
+        pass: 'jspi ogjl jhqg mpln',
+      },
+    });
+
+    // Email options
+    const mailOptions = {
+      from: 'noreplytunisieuber@gmail.com',
+      to: chauffeur.email,
+      subject: 'Rejet de votre inscription',
+      text: `Votre inscription a été refusée pour la raison suivante : ${reason}`,
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+    res.status(200).send({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error("Erreur lors de l'envoi de l'email:", error);
+    res.status(500).send({ message: 'Error sending email' });
+  }
+};
+
+
 
 
 
@@ -1265,4 +1302,5 @@ module.exports = {
   sendFactureEmail,
   getRideCounts,
   updateF,
+  rejectChauffeur,
 };
