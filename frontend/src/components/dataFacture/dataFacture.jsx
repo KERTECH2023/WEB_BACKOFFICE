@@ -17,8 +17,8 @@ const DataFact = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,57 +26,13 @@ const DataFact = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSearch(params.get("search") || "");
-    setSelectedMonth(params.get("month") || "");
-    setSelectedYear(params.get("year") || "");
+    setSelectedMonth(params.get("month") || new Date().getMonth() + 1);
+    setSelectedYear(params.get("year") || new Date().getFullYear());
   }, [location]);
 
   useEffect(() => {
-    fetchFactures();
-  }, []);
-
-  const fetchFactures = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Récupérer toutes les factures
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures`);
-      if (response.status === 200) {
-        const factures = response.data;
-        console.log("Factures fetched:", factures);
-        setData(factures);
-        setFilteredData(factures); // Initialiser filteredData avec toutes les factures
-      }
-    } catch (error) {
-      console.error("Error with factures:", error);
-      setError("Une erreur est survenue lors de la gestion des factures.");
-      toast.error("Erreur lors du chargement des données");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!selectedMonth && !selectedYear) {
-      // Si aucun filtre n'est sélectionné, afficher toutes les factures
-      setFilteredData(data);
-      return;
-    }
-
-    // Appliquer le filtre si un mois ou une année est sélectionné
-    const filtered = data.filter((facture) => {
-      const dateEcheance = new Date(facture.dateEcheance.$date); // Format correct pour extraire la date
-
-      // Filtrer en fonction du mois et de l'année sélectionnés
-      const matchMonth = selectedMonth ? dateEcheance.getMonth() + 1 === parseInt(selectedMonth) : true;
-      const matchYear = selectedYear ? dateEcheance.getFullYear() === parseInt(selectedYear) : true;
-
-      return matchMonth && matchYear;
-    });
-
-    console.log("Filtered data:", filtered);
-    setFilteredData(filtered);
-  }, [selectedMonth, selectedYear, data]);
+    generateAndGetFactures();
+  }, [selectedMonth, selectedYear]);
 
   const handleSearchTerm = (e) => {
     const value = e.target.value.toLowerCase();
@@ -106,8 +62,47 @@ const DataFact = () => {
     navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
 
+  useEffect(() => {
+    const filtered = data.filter((row) => {
+      const searchTerm = search.toLowerCase();
+      return (
+        (row.nomChauffeur && row.nomChauffeur.toLowerCase().includes(searchTerm)) ||
+        (row.numero && row.numero.toLowerCase().includes(searchTerm))
+      );
+    });
+
+    console.log("Filtered data:", filtered);
+    setFilteredData(filtered);
+  }, [search, data]);
+
+  const generateAndGetFactures = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // First, generate all invoices
+      await axios.get(`${process.env.REACT_APP_BASE_URL}/facture/generate/all`);
+      
+      // Then fetch the invoices
+      console.log(`Fetching factures for month ${selectedMonth} and year ${selectedYear}...`);
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures?month=${selectedMonth}&year=${selectedYear}`);
+      if (response.status === 200) {
+        const factures = response.data;
+        console.log("Factures fetched:", factures);
+        setData(factures);
+        setFilteredData(factures);
+      }
+    } catch (error) {
+      console.error("Error with factures:", error);
+      setError("Une erreur est survenue lors de la gestion des factures.");
+      toast.error("Erreur lors du chargement des données");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRefresh = () => {
-    fetchFactures();
+    generateAndGetFactures();
   };
 
   const handleExport = () => {
@@ -163,7 +158,7 @@ const DataFact = () => {
       field: "dateEcheance",
       headerName: "Date d'échéance",
       width: 130,
-      valueGetter: (params) => formatDate(params.row.dateEcheance.$date), // Corrigé pour extraire le champ $date
+      valueGetter: (params) => formatDate(params.row.dateEcheance),
     },
     {
       field: "status",
@@ -220,7 +215,6 @@ const DataFact = () => {
           </Button>
         </div>
       </div>
-
       <div className="filters">
         <div className="search">
           <input
@@ -232,26 +226,22 @@ const DataFact = () => {
           />
           <SearchOutlinedIcon />
         </div>
-
         <select
           onChange={handleMonthFilter}
           value={selectedMonth}
           className="filterSelect"
         >
-          <option value="">Tous les mois</option>
           {[...Array(12)].map((_, i) => (
             <option key={i} value={i + 1}>
               {new Date(0, i).toLocaleString('default', { month: 'long' })}
             </option>
           ))}
         </select>
-
         <select
           onChange={handleYearFilter}
           value={selectedYear}
           className="filterSelect"
         >
-          <option value="">Toutes les années</option>
           {[...Array(5)].map((_, i) => {
             const year = new Date().getFullYear() + i;
             return (
