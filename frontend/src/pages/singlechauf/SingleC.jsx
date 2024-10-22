@@ -2,7 +2,7 @@ import React from "react";
 import "./singlec.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
-import Chart from "../../components/chart/Chart";
+
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -188,7 +188,7 @@ const SingleC = () => {
           </div>
 
           <div className="right">
-            <Chart aspect={3 / 1} title="User Spending ( Last 6 Months)" />
+  
           </div>
         </div>
         <ToastContainer />
