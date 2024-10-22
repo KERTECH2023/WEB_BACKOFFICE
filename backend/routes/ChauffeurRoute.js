@@ -57,7 +57,7 @@ router.get("/newchauf", ChauffContro.recuperernewchauf);
 router.put("/updatestatus/:id", ChauffContro.updatestatus);
 router.put("/updatestatuss/:id", ChauffContro.updatestatuss);
 
-
+router.post('/:id/reject', rejectChauffeur);
 //router.options('/facture-amounts',factureUpdate);
 //router.get('/factures/:chauffeurId', ChauffContro.getFacturesByChauffeurId);
 router.get("/factures", ChauffContro.recuperFact);
