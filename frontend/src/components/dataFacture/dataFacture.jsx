@@ -3,7 +3,7 @@ import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./dataFacture.css";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -12,11 +12,11 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 const DataFact = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); // Toutes les factures
+  const [filteredData, setFilteredData] = useState([]); // Factures filtrées
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -24,81 +24,60 @@ const DataFact = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSearch(params.get("search") || "");
-    setSelectedMonth(params.get("month") || new Date().getMonth() + 1);
-    setSelectedYear(params.get("year") || new Date().getFullYear());
-  }, [location]);
-
-  useEffect(() => {
     generateAndGetFactures();
-  }, [selectedMonth, selectedYear]);
+  }, []);
 
-  const handleSearchTerm = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearch(value);
-    updateURL({ search: value });
-  };
-
-  const handleMonthFilter = (e) => {
-    setSelectedMonth(e.target.value);
-    updateURL({ month: e.target.value });
-  };
-
-  const handleYearFilter = (e) => {
-    setSelectedYear(e.target.value);
-    updateURL({ year: e.target.value });
-  };
-
-  const updateURL = (params) => {
-    const searchParams = new URLSearchParams(location.search);
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) {
-        searchParams.set(key, value);
-      } else {
-        searchParams.delete(key);
-      }
-    });
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
-  };
-
-  useEffect(() => {
-    const filtered = data.filter((row) => {
-      const searchTerm = search.toLowerCase();
-      return (
-        (row.nomChauffeur && row.nomChauffeur.toLowerCase().includes(searchTerm)) ||
-        (row.numero && row.numero.toLowerCase().includes(searchTerm))
-      );
-    });
-
-    console.log("Filtered data:", filtered);
-    setFilteredData(filtered);
-  }, [search, data]);
-
+  // Récupérer toutes les factures une seule fois
   const generateAndGetFactures = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // First, generate all invoices
-      await axios.get(`${process.env.REACT_APP_BASE_URL}/facture/generate/all`);
-      
-      // Then fetch the invoices
-      console.log(`Fetching factures for month ${selectedMonth} and year ${selectedYear}...`);
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures?month=${selectedMonth}&year=${selectedYear}`);
+
+      // Récupérer toutes les factures sans filtre
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures/all`);
       if (response.status === 200) {
         const factures = response.data;
-        console.log("Factures fetched:", factures);
-        setData(factures);
-        setFilteredData(factures);
+        setData(factures); // Stocker toutes les factures
+        filterData(factures); // Appliquer le filtre
       }
     } catch (error) {
-      console.error("Error with factures:", error);
+      console.error("Erreur avec les factures :", error);
       setError("Une erreur est survenue lors de la gestion des factures.");
       toast.error("Erreur lors du chargement des données");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Appliquer le filtre par mois, année et recherche
+  const filterData = (factures) => {
+    const filtered = factures.filter((facture) => {
+      const matchesSearch = facture.nomChauffeur.toLowerCase().includes(search.toLowerCase()) ||
+                            facture.numero.toLowerCase().includes(search.toLowerCase());
+      const matchesMonth = facture.mois === parseInt(selectedMonth);
+      const matchesYear = facture.annee === parseInt(selectedYear);
+      
+      return matchesSearch && matchesMonth && matchesYear;
+    });
+    setFilteredData(filtered);
+  };
+
+  // Filtrer à chaque changement de mois, d'année ou de recherche
+  useEffect(() => {
+    filterData(data); // Appliquer le filtre aux données récupérées
+  }, [search, selectedMonth, selectedYear]);
+
+  const handleSearchTerm = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearch(value);
+  };
+
+  const handleMonthFilter = (e) => {
+    setSelectedMonth(e.target.value);
+  };
+
+  const handleYearFilter = (e) => {
+    setSelectedYear(e.target.value);
   };
 
   const handleRefresh = () => {
@@ -180,12 +159,9 @@ const DataFact = () => {
           <div className="cellAction">
             {(role === "Admin" || role === "Agentad") && (
               <>
-                <Link
-                  to={`/consultF/${params.row._id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
+                <a href={`/consultF/${params.row._id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div className="viewButton">Consulter</div>
-                </Link>
+                </a>
               </>
             )}
           </div>
@@ -215,6 +191,7 @@ const DataFact = () => {
           </Button>
         </div>
       </div>
+
       <div className="filters">
         <div className="search">
           <input
@@ -226,24 +203,18 @@ const DataFact = () => {
           />
           <SearchOutlinedIcon />
         </div>
-        <select
-          onChange={handleMonthFilter}
-          value={selectedMonth}
-          className="filterSelect"
-        >
+
+        <select onChange={handleMonthFilter} value={selectedMonth} className="filterSelect">
           {[...Array(12)].map((_, i) => (
             <option key={i} value={i + 1}>
               {new Date(0, i).toLocaleString('default', { month: 'long' })}
             </option>
           ))}
         </select>
-        <select
-          onChange={handleYearFilter}
-          value={selectedYear}
-          className="filterSelect"
-        >
+
+        <select onChange={handleYearFilter} value={selectedYear} className="filterSelect">
           {[...Array(5)].map((_, i) => {
-            const year = new Date().getFullYear() + i;
+            const year = new Date().getFullYear() - i;
             return (
               <option key={year} value={year}>
                 {year}
