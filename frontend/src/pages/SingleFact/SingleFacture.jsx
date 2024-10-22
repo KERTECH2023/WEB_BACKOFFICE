@@ -89,7 +89,7 @@ const SingleF = () => {
         setFacture(fetchedFacture);
         console.log("Fetched facture:", fetchedFacture);
 
-        const fetchedChauffeur = await getChauffeurById(fetchedFacture.chauffeurId);
+        const fetchedChauffeur = await getChauffeurById(id);
         setChauffeur(fetchedChauffeur);
         console.log("Fetched chauffeur:", fetchedChauffeur);
 
