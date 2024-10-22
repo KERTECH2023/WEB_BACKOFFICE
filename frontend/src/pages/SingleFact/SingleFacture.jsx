@@ -33,7 +33,7 @@ const SingleF = () => {
   const getChauffeurById = async (id) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/Chauff/searchchauf/${id}`
+        `${process.env.REACT_APP_BASE_URL}/facture/${id}/chauffeur`
       );
       const data = await response.json();
       return data;
@@ -47,7 +47,7 @@ const SingleF = () => {
   const getFactureById = async (id) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/Chauff/factures/${id}`
+        `${process.env.REACT_APP_BASE_URL}/facture/${id}`
       );
       const data = await response.json();
       return data;
