@@ -3,6 +3,20 @@ const Chauffeur = require('../Models/Chauffeur');
 const moment = require('moment');
 const RideRequest = require('../Models/AllRideRequest');
 
+const Facture = require('../Models/Facture');
+
+// Récupérer une facture par son ID
+exports.getFactureById = async (factureId) => {
+  try {
+    const facture = await Facture.findById(factureId); // Recherche la facture par son ID
+    return facture;
+  } catch (error) {
+    throw new Error(`Erreur lors de la récupération de la facture: ${error.message}`);
+  }
+};
+
+
+
 exports.generateFacturesForAllChauffeurs = async () => {
   try {
     const mois = moment().month() + 1;
