@@ -39,7 +39,7 @@ const DataFact = () => {
       setLoading(true);
       setError(null);
 
-      // Récupérer toutes les factures sans filtre
+      // Récupérer toutes les factures
       const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures`);
       if (response.status === 200) {
         const factures = response.data;
@@ -65,7 +65,7 @@ const DataFact = () => {
 
     // Appliquer le filtre si un mois ou une année est sélectionné
     const filtered = data.filter((facture) => {
-      const dateEcheance = new Date(facture.dateEcheance.$date);
+      const dateEcheance = new Date(facture.dateEcheance.$date); // Format correct pour extraire la date
 
       // Filtrer en fonction du mois et de l'année sélectionnés
       const matchMonth = selectedMonth ? dateEcheance.getMonth() + 1 === parseInt(selectedMonth) : true;
@@ -163,7 +163,7 @@ const DataFact = () => {
       field: "dateEcheance",
       headerName: "Date d'échéance",
       width: 130,
-      valueGetter: (params) => formatDate(params.row.dateEcheance),
+      valueGetter: (params) => formatDate(params.row.dateEcheance.$date), // Corrigé pour extraire le champ $date
     },
     {
       field: "status",
