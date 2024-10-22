@@ -3,6 +3,23 @@ const pdfService = require('../services/pdfService');
 const path = require('path');
 const moment = require('moment');
 
+exports.getChauffeurByFactureId = async (req, res) => {
+  try {
+    const { factureId } = req.params;
+    const chauffeur = await factureService.getChauffeurByFactureId(factureId);
+
+    if (!chauffeur) {
+      return res.status(404).send('Chauffeur non trouvé.');
+    }
+
+    res.json(chauffeur);
+  } catch (error) {
+    res.status(500).send(`Erreur lors de la récupération du chauffeur: ${error.message}`);
+  }
+};
+
+
+
 exports.getFactureById = async (req, res) => {
   try {
     const { factureId } = req.params; // Récupère l'ID de la facture à partir des paramètres de la requête
