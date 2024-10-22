@@ -9,9 +9,7 @@ exports.filterFacturesByDateOrMonth = async (req, res) => {
     const { date, mois, annee } = req.query; // Les paramètres de filtre passent dans la requête
     const factures = await factureService.filterFacturesByDateOrMonth(date, mois, annee);
 
-    if (factures.length === 0) {
-      return res.status(404).send('Aucune facture trouvée.');
-    }
+  
 
     res.json(factures);
   } catch (error) {
