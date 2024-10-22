@@ -1,19 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./singlec.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
-
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import List from "../../components/table/Table";
 import ListVoi from "../../components/tablevoiture/TableVoi";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const SingleC = () => {
   const [user, setUser] = useState();
+  const [showTextarea, setShowTextarea] = useState(false);  // To show/hide the text area
+  const [rejectionReason, setRejectionReason] = useState('');  // To hold rejection reason
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -39,64 +38,68 @@ const SingleC = () => {
   console.log("USER**", user);
 
   const handleSubmit = () => {
-    // Prevent the default submit and page reload
-
-    // Handle validations
     axios
       .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatestatus/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
-
       .then((response) => {
         toast.success("Compte Chauffeur  a été Desactivé avec Success !", {
           position: toast.POSITION.TOP_RIGHT,
         });
-
-        //navigate("/users")
         setTimeout(() => navigate("/Chauffeur"), 3000);
-        console.log(response.Nom);
-
-        // Handle response
       })
-
       .catch((err) => {
         console.warn(err);
-        toast.error("Email exist Alre13ady !", {
+        toast.error("Email exist Already!", {
           position: toast.POSITION.TOP_RIGHT,
         });
       });
   };
 
   const handleSubmite = () => {
-    // Prevent the default submit and page reload
-    // Handle validations
     axios
       .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatestatuss/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
-
       .then((response) => {
         toast.success("Compte Chauffeur  a été Validé avec Success !", {
           position: toast.POSITION.TOP_RIGHT,
         });
-
-        //navigate("/users")
         setTimeout(() => navigate("/Chauffeur"), 3000);
-        console.log(response.Nom);
-
-        // Handle response
       })
-
       .catch((err) => {
         console.warn(err);
-        toast.error("Email exist Already !", {
+        toast.error("Email exist Already!", {
           position: toast.POSITION.TOP_RIGHT,
         });
       });
+  };
+
+  // Handle "Refuser" button click
+  const handleRefuserClick = () => {
+    setShowTextarea(true);
+  };
+
+  // Handle sending the rejection reason to the backend
+  const handleSendRejection = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error("Veuillez entrer la cause du refus.");
+      return;
+    }
+
+    try {
+      await axios.post(`/chauffeurs/${id}/reject`, { reason: rejectionReason });
+      toast.success("La cause de refus a été envoyée avec succès.");
+      setShowTextarea(false);
+      setRejectionReason('');
+    } catch (error) {
+      console.error("Erreur lors de l'envoi de la cause de refus:", error);
+      toast.error("Erreur lors de l'envoi.");
+    }
   };
 
   return (
@@ -135,9 +138,7 @@ const SingleC = () => {
                 </div>
                 <div className="detailItem">
                   <span className="itemKey">DateNaissance:</span>
-                  <span className="itemValue">
-                    {user && user.DateNaissance}
-                  </span>
+                  <span className="itemValue">{user && user.DateNaissance}</span>
                 </div>
                 <div className="detailItem">
                   <span className="itemKey">Genre:</span>
@@ -167,7 +168,8 @@ const SingleC = () => {
                   <span className="itemKey">N° CIN:</span>
                   <span className="itemValue">{user && user.cnicNo}</span>
                 </div>
-  {role === "Admin" || role === "Agentad" ? (
+
+                {role === "Admin" || role === "Agentad" ? (
                   <div>
                     <div className="DesaButton" onClick={() => handleSubmit()}>
                       Desactivé Ce Compte
@@ -181,15 +183,41 @@ const SingleC = () => {
                         Activé Ce Compte
                       </div>
                     ) : null}
+
+                    {/* "Refuser" button */}
+                    <div>
+                      <button className="refuserButton" onClick={handleRefuserClick}>
+                        Refuser
+                      </button>
+                    </div>
+
+                    {/* Textarea for rejection reason */}
+                    {showTextarea && (
+                      <div style={{ marginTop: '10px' }}>
+                        <textarea
+                          value={rejectionReason}
+                          onChange={(e) => setRejectionReason(e.target.value)}
+                          placeholder="Entrez la cause du refus"
+                          rows="4"
+                          cols="50"
+                          style={{ width: '100%', padding: '10px' }}
+                        ></textarea>
+                        <button
+                          className="sendRejectionButton"
+                          onClick={handleSendRejection}
+                          style={{ marginTop: '10px', backgroundColor: 'blue', color: 'white' }}
+                        >
+                          Envoyer la cause
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : null}
               </div>
             </div>
           </div>
 
-          <div className="right">
-  
-          </div>
+          <div className="right"></div>
         </div>
         <ToastContainer />
         <div className="bottom">
