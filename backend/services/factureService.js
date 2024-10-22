@@ -3,7 +3,27 @@ const Chauffeur = require('../Models/Chauffeur');
 const moment = require('moment');
 const RideRequest = require('../Models/AllRideRequest');
 
+exports.getChauffeurByFactureId = async (factureId) => {
+  try {
+    // Récupérer la facture avec l'ID fourni
+    const facture = await Facture.findById(factureId);
 
+    if (!facture) {
+      throw new Error('Facture non trouvée.');
+    }
+
+    // Récupérer le chauffeur associé à cette facture
+    const chauffeur = await Chauffeur.findById(facture.chauffeurId);
+
+    if (!chauffeur) {
+      throw new Error('Chauffeur non trouvé.');
+    }
+
+    return chauffeur;
+  } catch (error) {
+    throw new Error(`Erreur lors de la récupération du chauffeur: ${error.message}`);
+  }
+};
 
 // Récupérer une facture par son ID
 exports.getFactureById = async (factureId) => {
