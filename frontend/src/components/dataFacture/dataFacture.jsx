@@ -85,7 +85,7 @@ const DataFact = () => {
       
       // Then fetch the invoices
       console.log(`Fetching factures for month ${selectedMonth} and year ${selectedYear}...`);
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures?month=${selectedMonth}&year=${selectedYear}`);
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/facture/factures?month=${selectedMonth}&year=${selectedYear}`);
       if (response.status === 200) {
         const factures = response.data;
         console.log("Factures fetched:", factures);
