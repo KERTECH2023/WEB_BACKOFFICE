@@ -3,6 +3,26 @@ const pdfService = require('../services/pdfService');
 const path = require('path');
 const moment = require('moment');
 
+// Filtrer les factures par date ou par mois
+exports.filterFacturesByDateOrMonth = async (req, res) => {
+  try {
+    const { date, mois, annee } = req.query; // Les paramètres de filtre passent dans la requête
+    const factures = await factureService.filterFacturesByDateOrMonth(date, mois, annee);
+
+    if (factures.length === 0) {
+      return res.status(404).send('Aucune facture trouvée.');
+    }
+
+    res.json(factures);
+  } catch (error) {
+    res.status(500).send(`Erreur lors du filtrage des factures: ${error.message}`);
+  }
+};
+
+
+
+
+
 exports.getChauffeurByFactureId = async (req, res) => {
   try {
     const { factureId } = req.params;
