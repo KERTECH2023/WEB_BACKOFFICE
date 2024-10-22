@@ -8,6 +8,7 @@ router.get('/mois', factureController.getAllFacturesThisMonth);
 
 router.get('/:factureId/chauffeur', factureController.getChauffeurByFactureId);
 
+router.get('/factures/filter', factureController.filterFacturesByDateOrMonth);
 
 // Route pour générer des factures pour tous les chauffeurs
 router.get('/generate/all', factureController.generateFacturesForAllChauffeurs);
