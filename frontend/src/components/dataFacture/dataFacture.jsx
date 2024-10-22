@@ -31,7 +31,7 @@ const DataFact = () => {
   }, [location]);
 
   useEffect(() => {
-    getFactures();
+    generateAndGetFactures();
   }, [selectedMonth, selectedYear]);
 
   const handleSearchTerm = (e) => {
@@ -75,10 +75,15 @@ const DataFact = () => {
     setFilteredData(filtered);
   }, [search, data]);
 
-  const getFactures = async () => {
+  const generateAndGetFactures = async () => {
     try {
       setLoading(true);
       setError(null);
+      
+      // First, generate all invoices
+      await axios.get(`${process.env.REACT_APP_BASE_URL}/facture/generate/all`);
+      
+      // Then fetch the invoices
       console.log(`Fetching factures for month ${selectedMonth} and year ${selectedYear}...`);
       const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/factures?month=${selectedMonth}&year=${selectedYear}`);
       if (response.status === 200) {
@@ -88,8 +93,8 @@ const DataFact = () => {
         setFilteredData(factures);
       }
     } catch (error) {
-      console.error("Error fetching factures:", error);
-      setError("Une erreur est survenue lors de la récupération des factures.");
+      console.error("Error with factures:", error);
+      setError("Une erreur est survenue lors de la gestion des factures.");
       toast.error("Erreur lors du chargement des données");
     } finally {
       setLoading(false);
@@ -97,14 +102,17 @@ const DataFact = () => {
   };
 
   const handleRefresh = () => {
-    getFactures();
+    generateAndGetFactures();
   };
 
   const handleExport = () => {
     toast.info("Fonctionnalité d'exportation à implémenter");
   };
 
-
+  const formatDate = (date) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('fr-FR');
+  };
 
   const columns = [
     { field: "numero", headerName: "Numéro", width: 150 },
@@ -113,6 +121,15 @@ const DataFact = () => {
       headerName: "Nom du chauffeur", 
       width: 200,
       valueGetter: (params) => `${params.row.nomChauffeur || ''}`,
+    },
+    { 
+      field: "periode", 
+      headerName: "Période", 
+      width: 150,
+      valueGetter: (params) => {
+        const mois = new Date(0, params.row.mois - 1).toLocaleString('fr-FR', { month: 'long' });
+        return `${mois} ${params.row.annee}`;
+      }
     },
     { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
     {
@@ -138,6 +155,12 @@ const DataFact = () => {
       },
     },
     {
+      field: "dateEcheance",
+      headerName: "Date d'échéance",
+      width: 130,
+      valueGetter: (params) => formatDate(params.row.dateEcheance),
+    },
+    {
       field: "status",
       headerName: "Status",
       width: 130,
@@ -147,7 +170,6 @@ const DataFact = () => {
         </div>
       ),
     },
-
     {
       field: "action",
       headerName: "Action",
@@ -171,9 +193,6 @@ const DataFact = () => {
       },
     },
   ];
-
-  console.log("Current data:", data);
-  console.log("Current filteredData:", filteredData);
 
   if (loading) {
     return <CircularProgress />;
