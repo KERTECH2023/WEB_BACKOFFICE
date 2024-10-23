@@ -92,7 +92,7 @@ const SingleC = () => {
     }
 
     try {
-      await axios.post(process.env.REACT_APP_BASE_URL + `/Chauff/chauffeurs/${id}/reject`, { reason: rejectionReason });
+      await axios.post(process.env.REACT_APP_BASE_URL + `/chauff/${id}/reject`, { reason: rejectionReason });
       toast.success("La cause de refus a été envoyée avec succès.");
       setShowTextarea(false);
       setRejectionReason('');
