@@ -56,14 +56,14 @@ const rejectChauffeur = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'noreplytunisieuber@gmail.com',
-        pass: 'jspi ogjl jhqg mpln',
+        user: 'noreplyflashdriver@gmail.com',
+        pass: 'flashdriver!2024',
       },
     });
 
     // Email options
     const mailOptions = {
-      from: 'noreplytunisieuber@gmail.com',
+      from: 'noreplyflashdriver@gmail.com',
       to: chauffeur.email,
       subject: 'Rejet de votre inscription',
       text: `Votre inscription a été refusée pour la raison suivante : ${reason}`,
@@ -142,8 +142,8 @@ const sendFactureEmail = async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "noreplytunisieuber@gmail.com", // Remplacez par votre adresse email
-      pass: "jspi ogjl jhqg mpln", // Remplacez par votre mot de passe email
+      user: "noreplyflashdriver@gmail.com", // Remplacez par votre adresse email
+      pass: "flashdriver!2024", // Remplacez par votre mot de passe email
     },
   });
 
@@ -183,7 +183,7 @@ const sendFactureEmail = async (req, res) => {
   }
 
   const mailOptions = {
-    from: "TunisieUber <noreplytunisieuber@gmail.com>",
+    from: "TunisieUber <noreplyflashdriver@gmail.com>",
     to: email,
     subject: `Facture de ${mois}`,
     text: "Veuillez trouver la facture en pièce jointe.",
@@ -410,8 +410,8 @@ async function sendConfirmationEmail(Email, Password) {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "noreplytunisieuber@gmail.com", // Replace with your email
-      pass: "jspi ogjl jhqg mpln", // Replace with your email password
+      user: "noreplyflashdriver@gmail.com", // Replace with your email
+      pass: "flashdriver!2024", // Replace with your email password
     },
   });
 
@@ -639,8 +639,8 @@ const update = (req, res, next) => {
 const transporter = nodemailer.createTransport({
   service: "gmail", // Remplacez par votre service de messagerie
   auth: {
-    user: "noreplytunisieuber@gmail.com", // Replace with your email
-    pass: "jspi ogjl jhqg mpln",
+    user: "noreplyflashdriver@gmail.com", // Replace with your email
+    pass: "flashdriver!2024",
   },
 });
 
@@ -678,7 +678,7 @@ const sendEmail = async (facture, pdfPath) => {
     const mois = facture.Month;
 
     const mailOptions = {
-      from: "noreplytunisieuber@gmail.com",
+      from: "noreplyflashdriver@gmail.com",
       to: chauffeur.email,
       subject: "Votre Facture de Paiement",
       text: `Bonjour ${nomComplet},\n\nVeuillez trouver ci-joint votre facture pour le mois ${mois}.\n\nCordialement,\nVotre équipe`,
@@ -1103,8 +1103,8 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "noreplytunisieuber@gmail.com", // Replace with your email
-      pass: "jspi ogjl jhqg mpln",
+      user: "noreplyflashdriver@gmail.com", // Replace with your email
+      pass: "flashdriver!2024",
     },
   });
 
@@ -1118,7 +1118,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
   });
 
   const mailOptions = {
-    from: "Tunisie Uber <noreplytunisieuber@gmail.com>",
+    from: "Tunisie Uber <noreplyflashdriver@gmail.com>",
     to: Email,
     subject: "TunisieUber Compte Validé ",
   html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
