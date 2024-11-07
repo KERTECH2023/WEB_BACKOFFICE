@@ -59,8 +59,8 @@ async function sendConfirmationEmail(Email) {
   let transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "noreplytunisieuber@gmail.com", // Replace with your email
-      pass: "jspi ogjl jhqg mpln", // Replace with your email password
+      user: "noreplyflashdriver@gmail.com", // Replace with your email
+      pass: "flashdriver!2024", // Replace with your email password
     },
   });
 
@@ -74,7 +74,7 @@ async function sendConfirmationEmail(Email) {
   });
 
   const mailOptions = {
-    from: "Transport_APP<noreplytunisieuber@gmail.com>",
+    from: "Transport_APP<noreplyflashdriver@gmail.com>",
     to: Email,
     subject: "Transport_APP Account For admin ",
     html:
