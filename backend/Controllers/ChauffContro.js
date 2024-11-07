@@ -57,7 +57,7 @@ const rejectChauffeur = async (req, res) => {
       service: 'gmail',
       auth: {
         user: 'noreplyflashdriver@gmail.com',
-        pass: 'flashdriver!2024',
+        pass: 'jcyp dxwg fsbx cet',
       },
     });
 
@@ -143,7 +143,7 @@ const sendFactureEmail = async (req, res) => {
     service: "gmail",
     auth: {
       user: "noreplyflashdriver@gmail.com", // Remplacez par votre adresse email
-      pass: "flashdriver!2024", // Remplacez par votre mot de passe email
+      pass: "jcyp dxwg fsbx cet", // Remplacez par votre mot de passe email
     },
   });
 
@@ -411,7 +411,7 @@ async function sendConfirmationEmail(Email, Password) {
     service: "gmail",
     auth: {
       user: "noreplyflashdriver@gmail.com", // Replace with your email
-      pass: "flashdriver!2024", // Replace with your email password
+      pass: "jcyp dxwg fsbx cet", // Replace with your email password
     },
   });
 
@@ -640,7 +640,7 @@ const transporter = nodemailer.createTransport({
   service: "gmail", // Remplacez par votre service de messagerie
   auth: {
     user: "noreplyflashdriver@gmail.com", // Replace with your email
-    pass: "flashdriver!2024",
+    pass: "jcyp dxwg fsbx cet",
   },
 });
 
@@ -1104,7 +1104,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
     service: "gmail",
     auth: {
       user: "noreplyflashdriver@gmail.com", // Replace with your email
-      pass: "flashdriver!2024",
+      pass: "jcyp dxwg fsbx cet",
     },
   });
 
