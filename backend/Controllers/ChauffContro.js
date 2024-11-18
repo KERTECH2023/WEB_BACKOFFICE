@@ -306,104 +306,113 @@ const getFacturesByChauffeurId = (req, res) => {
         .send({ message: "Erreur de récupération de la facture avec id=" + id });
     }
   };
-const register = async (req, res) => {
-  const {
-    Nom,
-    Prenom,
-    email,
-    phone,
-    DateNaissance,
-    gender,
-    role,
-    cnicNo,
-    address,
-    ratingsAverage,
-    ratingsQuantity,
-    postalCode,
-  } = req.body;
-
-  // const {firebaseUrl} =req.file ? req.file : "";
-
-  const photoAvatarUrl = req.uploadedFiles.photoAvatar || "";
-  const photoPermisRecUrl = req.uploadedFiles.photoPermisRec || "";
-  const photoPermisVerUrl = req.uploadedFiles.photoPermisVer || "";
-  const photoVtcUrl = req.uploadedFiles.photoVtc || "";
-  const photoCinUrl = req.uploadedFiles.photoCin || "";
-
-  const verifUtilisateur = await Chauffeur.findOne({ email });
-  if (verifUtilisateur) {
-    res.status(403).send({ message: "Chauffeur existe deja !" });
-  } else {
-    const nouveauUtilisateur = new Chauffeur();
-
-    mdpEncrypted = bcrypt.hashSync(phone, 10);
-
-    const nounIndex = Math.floor(Math.random() * Nom.length);
-    const preIndex = Math.floor(Math.random() * Prenom.length);
-    const randomNumber = Math.floor(Math.random() * 90000);
-
-    nouveauUtilisateur.username = `${
-      Nom[Math.floor(Math.random() * Nom.length)]
-    }${Prenom[Math.floor(Math.random() * Prenom.length)]}${Math.floor(
-      Math.random() * 90000
-    )}`;
-    nouveauUtilisateur.Nom = Nom;
-    nouveauUtilisateur.Prenom = Prenom;
-    nouveauUtilisateur.email = email;
-    nouveauUtilisateur.phone = phone;
-    nouveauUtilisateur.password = mdpEncrypted;
-
-    nouveauUtilisateur.photoAvatar = photoAvatarUrl;
-    nouveauUtilisateur.photoCin = photoCinUrl;
-    nouveauUtilisateur.photoPermisRec = photoPermisRecUrl;
-    nouveauUtilisateur.photoPermisVer = photoPermisVerUrl;
-    nouveauUtilisateur.photoVtc = photoVtcUrl;
-    nouveauUtilisateur.gender = gender;
-    nouveauUtilisateur.role = "Chauffeur";
-    nouveauUtilisateur.Cstatus = "En_cours";
-    nouveauUtilisateur.DateNaissance = DateNaissance;
-    nouveauUtilisateur.cnicNo = cnicNo;
-    nouveauUtilisateur.address = address;
-    // nouveauUtilisateur.ratingsAverage = ratingsAverage
-    // nouveauUtilisateur.ratingsQuantity = ratingsQuantity
-    nouveauUtilisateur.postalCode = postalCode;
-    nouveauUtilisateur.isActive = true;
-
-    console.log(nouveauUtilisateur);
-
-    try {
-      await nouveauUtilisateur.save();
-
-      console.log(mdpEncrypted);
-      // token creation
-      const token = jwt.sign(
-        { _id: nouveauUtilisateur._id },
-        config.token_secret,
-        {
-          expiresIn: "120000", // in Milliseconds (3600000 = 1 hour)
-        }
-      );
-
+  const register = async (req, res) => {
+    const {
+      Nom,
+      Prenom,
+      email,
+      phone,
+      DateNaissance,
+      gender,
+      role,
+      cnicNo,
+      address,
+      ratingsAverage,
+      ratingsQuantity,
+      postalCode,
+    } = req.body;
+  
+    const photoAvatarUrl = req.uploadedFiles?.photoAvatar || "";
+    const photoPermisRecUrl = req.uploadedFiles?.photoPermisRec || "";
+    const photoPermisVerUrl = req.uploadedFiles?.photoPermisVer || "";
+    const photoVtcUrl = req.uploadedFiles?.photoVtc || "";
+    const photoCinUrl = req.uploadedFiles?.photoCin || "";
+  
+    const verifUtilisateur = await Chauffeur.findOne({ email });
+    if (verifUtilisateur) {
+      res.status(403).send({ message: "Chauffeur existe deja !" });
+    } else {
+      const nouveauUtilisateur = new Chauffeur();
+      const mdpEncrypted = bcrypt.hashSync(phone, 10);
+  
+      const nounIndex = Math.floor(Math.random() * Nom.length);
+      const preIndex = Math.floor(Math.random() * Prenom.length);
+      const randomNumber = Math.floor(Math.random() * 90000);
+  
+      nouveauUtilisateur.username = `${Nom[nounIndex]}${Prenom[preIndex]}${randomNumber}`;
+      nouveauUtilisateur.Nom = Nom;
+      nouveauUtilisateur.Prenom = Prenom;
+      nouveauUtilisateur.email = email;
+      nouveauUtilisateur.phone = phone;
+      nouveauUtilisateur.password = mdpEncrypted;
+  
+      nouveauUtilisateur.photoAvatar = photoAvatarUrl;
+      nouveauUtilisateur.photoCin = photoCinUrl;
+      nouveauUtilisateur.photoPermisRec = photoPermisRecUrl;
+      nouveauUtilisateur.photoPermisVer = photoPermisVerUrl;
+      nouveauUtilisateur.photoVtc = photoVtcUrl;
+      nouveauUtilisateur.gender = gender;
+      nouveauUtilisateur.role = "Chauffeur";
+      nouveauUtilisateur.Cstatus = "En_cours";
+      nouveauUtilisateur.DateNaissance = DateNaissance;
+      nouveauUtilisateur.cnicNo = cnicNo;
+      nouveauUtilisateur.address = address;
+      nouveauUtilisateur.postalCode = postalCode;
+      nouveauUtilisateur.isActive = true;
+  
       try {
-        const response = await sendConfirmationEmail(
+        await nouveauUtilisateur.save();
+  
+        // Add driver to Firebase Realtime Database
+        const driverId = nouveauUtilisateur._id.toString();
+        const driverData = {
+          Nom,
+          Prenom,
           email,
-          Nom[nounIndex] + Prenom[preIndex] + randomNumber
+          phone,
+          DateNaissance,
+          gender,
+          role: "Chauffeur",
+          cnicNo,
+          address,
+          postalCode,
+          isActive: true,
+          photoAvatarUrl,
+          photoCinUrl,
+          photoPermisRecUrl,
+          photoPermisVerUrl,
+          photoVtcUrl,
+        };
+  
+        await admin.database().ref(`Drivers/${driverId}`).set(driverData);
+  
+        const token = jwt.sign(
+          { _id: driverId },
+          config.token_secret,
+          { expiresIn: "120000" }
         );
-        console.log("Email sent successfully:", response);
+  
+        try {
+          const response = await sendConfirmationEmail(
+            email,
+            Nom[nounIndex] + Prenom[preIndex] + randomNumber
+          );
+          console.log("Email sent successfully:", response);
+        } catch (error) {
+          console.error("Error sending email:", error);
+        }
+        
+        res.status(201).send({
+          message: "success",
+          user: nouveauUtilisateur,
+          Token: jwt.verify(token, config.token_secret),
+        });
       } catch (error) {
-        console.error("Error sending email:", error);
+        console.error("Error while saving user:", error);
+        res.status(500).send({ message: "Error while saving user." });
       }
-      res.status(201).send({
-        message: "success",
-        uses: nouveauUtilisateur,
-        Token: jwt.verify(token, config.token_secret),
-      });
-    } catch (error) {
-      console.error("Error while saving user:", error);
-      res.status(500).send({ message: "Error while saving user." });
     }
-  }
-};
+  };
 
 async function sendConfirmationEmail(Email, Password) {
   // create reusable transporter object using the default SMTP transport
