@@ -1,13 +1,10 @@
  {
-              "type": "service_account",
-              "project_id": "prd-transport",
-              "private_key_id": "6ca5137f97e9763fedd1933746ba9475484cf693",
-              "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC45ojup1CZ2yjR\n67Jd9A9qc6eatHLtgSqIjvZSlEHqTzn1sOv3tWdT8MTAwf2KSqwxz6d4l1V73M78\nbMPb6/vqOYxbLaDamC5Zf0bM7zSoqKiy9rooEGbaTepdIopgOVaITyWBF0P6Sc7n\nWE0vn4nwuid6B86enduA7WKiz2ZqzRX3f0lQf8dZopm5j4TLi/y5oFf+6PIgHPQv\nbLJaWTnGCKot/Fk6GqTqC2EhAwYWGzLrCASOD+k03fjX6GoFDGn64s0L1FUbToDq\n4tAX/FCUUFIBPr1FNX6MDS4K6OlNUkVCQ343UvZylWUebf1P+9vpDy4Hm+hO/s5e\npqb5VsZrAgMBAAECggEAMDddye4zpIt0D5nI/5sfUgEq2bropWqjbszpCwvCTJmw\nYZNrVUMm2MrWY/Wyahei47Jk15uPHSetikHKqVTWcnPjV/uEELzSiWAZVGOkdb7V\njyWr0brFN3ROA094ijMpj44kF4+7mE8a91Ude6e8ztucY8QZa1962BoPOKmg6YRz\ndDyrfstq7qemKiVb/Z6EL3XznHzEFLxFeW9h5g0WnRYY5gq+YqgalzQNAfRLzUF5\n1dSW8RH+hoUVomrIH2nZ6DrA8EUmPhQ2rnYFzbwzpc15Y5V6XHNQ495XvyVjwm80\nh2sCV7TcyPkM6a9Y7z1zw2OkfFzwMWVBkr5Kt4kZ4QKBgQDx5pVq2oWk1z/gQNG7\nlCDYbC44nWAPIm72TDW1nroaCWKN888dG+8Sh5aqtNGlhN2umi307R5L8Av7NeXO\n3agDl2F8g5poyv0sQ5scRFUZ+dwQ4Dl36nQh3+szDKj5wlWGolowhD2GPxEXuFef\naEj7wPDkYkCLRrriqr0F+p9peQKBgQDDrXKbJqHCfVBY6q7GRA27gZKNWqNzq60u\nAZSW2caKRMWoSJ9P/VuT1T/U670rdOjtF82tKI3qrN+1rb91s8Ast2FrsIzAjh3K\nLDKjJKmPMTDy1IWtGo7UuwEAVWIx/qUKQwuUir2mo6fs48L7RWeiKKqeIV2xH0/j\nyymwfIRaAwKBgEk2S4SijI4+Y2PA2nlWNLarzzVtVBRgjIrYt+y3FIYqzvw9jTK3\nMJ1AEjaqMUVSODHPEhet6Fx9U3L9dgctCNvFZkjkH8iVnxhVgc2FVOheud8Vre8A\nM5PJDItPypiE25O68Wb7rw9BaS/vp/1j96rSU1Yb8oL0rj1KBZmYp8SpAoGAFBK/\n9gCRiYUXb/erNDWY/wo8wXlx2RTccCLDXnI6tsZ1TF0e0rLX6SNwJ+SDBGk618+g\nTsohPNi9HkMTp/xnk27AdK6o0bwCfFHqY+gH6OOP9OkuSWK3EkWYxbL8nspTnejg\n0D0nVWfmexumTeaByhXH4u7jUJ84r9KQlUVAwocCgYAh6+YfLHVUO8zS7UGNHWuG\noihlSbRF3k1m9axPorn6nvlinMpOxTxsDYB1uLK5PsWqSj32p5J7iVsWzfvG9/xW\n+Pjhdi+DgJB3QVD/P9R5LORQrWTdRorMxtRjGTG53hVXwt1Fc8nbxyAkUnJ+BFwh\nuAvbaeheB2mdMR+Ak/VP1w==\n-----END PRIVATE KEY-----\n",
-              "client_email": "firebase-adminsdk-dpu42@prd-transport.iam.gserviceaccount.com",
-              "client_id": "115384259108610553271",
-              "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-              "token_uri": "https://oauth2.googleapis.com/token",
-              "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-              "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dpu42%40prd-transport.iam.gserviceaccount.com",
-              "universe_domain": "googleapis.com"
+ apiKey: "AIzaSyDgBbTBbjIo8hVD128y5TG9FswyZVO8XGE",
+  authDomain: "prd-transport.firebaseapp.com",
+  databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "prd-transport",
+  storageBucket: "prd-transport.appspot.com",
+  messagingSenderId: "824880668007",
+  appId: "1:824880668007:web:51fd327f9a2da5e4c0a3c2",
+  measurementId: "G-H6XHHDMSSH"
             }
