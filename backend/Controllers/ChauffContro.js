@@ -306,113 +306,104 @@ const getFacturesByChauffeurId = (req, res) => {
         .send({ message: "Erreur de récupération de la facture avec id=" + id });
     }
   };
-  const register = async (req, res) => {
-    const {
-      Nom,
-      Prenom,
-      email,
-      phone,
-      DateNaissance,
-      gender,
-      role,
-      cnicNo,
-      address,
-      ratingsAverage,
-      ratingsQuantity,
-      postalCode,
-    } = req.body;
-  
-    const photoAvatarUrl = req.uploadedFiles?.photoAvatar || "";
-    const photoPermisRecUrl = req.uploadedFiles?.photoPermisRec || "";
-    const photoPermisVerUrl = req.uploadedFiles?.photoPermisVer || "";
-    const photoVtcUrl = req.uploadedFiles?.photoVtc || "";
-    const photoCinUrl = req.uploadedFiles?.photoCin || "";
-  
-    const verifUtilisateur = await Chauffeur.findOne({ email });
-    if (verifUtilisateur) {
-      res.status(403).send({ message: "Chauffeur existe deja !" });
-    } else {
-      const nouveauUtilisateur = new Chauffeur();
-      const mdpEncrypted = bcrypt.hashSync(phone, 10);
-  
-      const nounIndex = Math.floor(Math.random() * Nom.length);
-      const preIndex = Math.floor(Math.random() * Prenom.length);
-      const randomNumber = Math.floor(Math.random() * 90000);
-  
-      nouveauUtilisateur.username = `${Nom[nounIndex]}${Prenom[preIndex]}${randomNumber}`;
-      nouveauUtilisateur.Nom = Nom;
-      nouveauUtilisateur.Prenom = Prenom;
-      nouveauUtilisateur.email = email;
-      nouveauUtilisateur.phone = phone;
-      nouveauUtilisateur.password = mdpEncrypted;
-  
-      nouveauUtilisateur.photoAvatar = photoAvatarUrl;
-      nouveauUtilisateur.photoCin = photoCinUrl;
-      nouveauUtilisateur.photoPermisRec = photoPermisRecUrl;
-      nouveauUtilisateur.photoPermisVer = photoPermisVerUrl;
-      nouveauUtilisateur.photoVtc = photoVtcUrl;
-      nouveauUtilisateur.gender = gender;
-      nouveauUtilisateur.role = "Chauffeur";
-      nouveauUtilisateur.Cstatus = "En_cours";
-      nouveauUtilisateur.DateNaissance = DateNaissance;
-      nouveauUtilisateur.cnicNo = cnicNo;
-      nouveauUtilisateur.address = address;
-      nouveauUtilisateur.postalCode = postalCode;
-      nouveauUtilisateur.isActive = true;
-  
-      try {
-        await nouveauUtilisateur.save();
-  
-        // Add driver to Firebase Realtime Database
-        const driverId = nouveauUtilisateur._id.toString();
-        const driverData = {
-          Nom,
-          Prenom,
-          email,
-          phone,
-          DateNaissance,
-          gender,
-          role: "Chauffeur",
-          cnicNo,
-          address,
-          postalCode,
-          isActive: true,
-          photoAvatarUrl,
-          photoCinUrl,
-          photoPermisRecUrl,
-          photoPermisVerUrl,
-          photoVtcUrl,
-        };
-  
-        await admin.database().ref(`Drivers/${driverId}`).set(driverData);
-  
-        const token = jwt.sign(
-          { _id: driverId },
-          config.token_secret,
-          { expiresIn: "120000" }
-        );
-  
-        try {
-          const response = await sendConfirmationEmail(
-            email,
-            Nom[nounIndex] + Prenom[preIndex] + randomNumber
-          );
-          console.log("Email sent successfully:", response);
-        } catch (error) {
-          console.error("Error sending email:", error);
+const register = async (req, res) => {
+  const {
+    Nom,
+    Prenom,
+    email,
+    phone,
+    DateNaissance,
+    gender,
+    role,
+    cnicNo,
+    address,
+    ratingsAverage,
+    ratingsQuantity,
+    postalCode,
+  } = req.body;
+
+  // const {firebaseUrl} =req.file ? req.file : "";
+
+  const photoAvatarUrl = req.uploadedFiles.photoAvatar || "";
+  const photoPermisRecUrl = req.uploadedFiles.photoPermisRec || "";
+  const photoPermisVerUrl = req.uploadedFiles.photoPermisVer || "";
+  const photoVtcUrl = req.uploadedFiles.photoVtc || "";
+  const photoCinUrl = req.uploadedFiles.photoCin || "";
+
+  const verifUtilisateur = await Chauffeur.findOne({ email });
+  if (verifUtilisateur) {
+    res.status(403).send({ message: "Chauffeur existe deja !" });
+  } else {
+    const nouveauUtilisateur = new Chauffeur();
+
+    mdpEncrypted = bcrypt.hashSync(phone, 10);
+
+    const nounIndex = Math.floor(Math.random() * Nom.length);
+    const preIndex = Math.floor(Math.random() * Prenom.length);
+    const randomNumber = Math.floor(Math.random() * 90000);
+
+    nouveauUtilisateur.username = `${
+      Nom[Math.floor(Math.random() * Nom.length)]
+    }${Prenom[Math.floor(Math.random() * Prenom.length)]}${Math.floor(
+      Math.random() * 90000
+    )}`;
+    nouveauUtilisateur.Nom = Nom;
+    nouveauUtilisateur.Prenom = Prenom;
+    nouveauUtilisateur.email = email;
+    nouveauUtilisateur.phone = phone;
+    nouveauUtilisateur.password = mdpEncrypted;
+
+    nouveauUtilisateur.photoAvatar = photoAvatarUrl;
+    nouveauUtilisateur.photoCin = photoCinUrl;
+    nouveauUtilisateur.photoPermisRec = photoPermisRecUrl;
+    nouveauUtilisateur.photoPermisVer = photoPermisVerUrl;
+    nouveauUtilisateur.photoVtc = photoVtcUrl;
+    nouveauUtilisateur.gender = gender;
+    nouveauUtilisateur.role = "Chauffeur";
+    nouveauUtilisateur.Cstatus = "En_cours";
+    nouveauUtilisateur.DateNaissance = DateNaissance;
+    nouveauUtilisateur.cnicNo = cnicNo;
+    nouveauUtilisateur.address = address;
+    // nouveauUtilisateur.ratingsAverage = ratingsAverage
+    // nouveauUtilisateur.ratingsQuantity = ratingsQuantity
+    nouveauUtilisateur.postalCode = postalCode;
+    nouveauUtilisateur.isActive = true;
+
+    console.log(nouveauUtilisateur);
+
+    try {
+      await nouveauUtilisateur.save();
+
+      console.log(mdpEncrypted);
+      // token creation
+      const token = jwt.sign(
+        { _id: nouveauUtilisateur._id },
+        config.token_secret,
+        {
+          expiresIn: "120000", // in Milliseconds (3600000 = 1 hour)
         }
-        
-        res.status(201).send({
-          message: "success",
-          user: nouveauUtilisateur,
-          Token: jwt.verify(token, config.token_secret),
-        });
+      );
+
+      try {
+        const response = await sendConfirmationEmail(
+          email,
+          Nom[nounIndex] + Prenom[preIndex] + randomNumber
+        );
+        console.log("Email sent successfully:", response);
       } catch (error) {
-        console.error("Error while saving user:", error);
-        res.status(500).send({ message: "Error while saving user." });
+        console.error("Error sending email:", error);
       }
+      res.status(201).send({
+        message: "success",
+        uses: nouveauUtilisateur,
+        Token: jwt.verify(token, config.token_secret),
+      });
+    } catch (error) {
+      console.error("Error while saving user:", error);
+      res.status(500).send({ message: "Error while saving user." });
     }
-  };
+  }
+};
 
 async function sendConfirmationEmail(Email, Password) {
   // create reusable transporter object using the default SMTP transport
@@ -995,8 +986,8 @@ const updatestatuss = async (req, res, next) => {
 
     // Récupération des informations du chauffeur mis à jour
     const updatedChauffeur = await Chauffeur.findById(id);
-    const chauffeurEmail = updatedChauffeur.email;
-    const chauffeurPassword = Math.random().toString(36).slice(-6);
+    const chauffeurEmail = updatedChauffeur.email; // Assurez-vous que la propriété email existe
+    const chauffeurPassword = Math.random().toString(36).slice(-6); // Génération d'un mot de passe temporaire
 
     console.log("chauffeurPassword:", chauffeurPassword);
     let firebaseUser;
@@ -1013,88 +1004,86 @@ const updatestatuss = async (req, res, next) => {
 
     // Gestion de l'utilisateur Firebase
     try {
-      let userRecord;
+      const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
+      console.log("Existing user:", userRecord);
+
+      // Mise à jour de l'utilisateur Firebase si déjà existant
+      await admin.auth().updateUser(userRecord.uid, {
+        email: chauffeurEmail,
+        disabled: false,
+      });
+
+      firebaseUser = userRecord;
+      console.log("User updated:", userRecord);
+
+      // Envoi d'un email de confirmation
       try {
-        userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
-        console.log("Existing user:", userRecord);
-
-        // Mise à jour de l'utilisateur Firebase si déjà existant
-        await admin.auth().updateUser(userRecord.uid, {
-          email: chauffeurEmail,
-          disabled: false,
+        await sendConfirmationEmail(chauffeurEmail, ""); // Envoi de l'email
+        return res.status(200).send({
+          message: "Chauffeur was successfully enabled!",
+          chauffeurEmail: chauffeurEmail,
         });
-
-        firebaseUser = userRecord;
-        console.log("User updated:", userRecord);
-      } catch (getUserError) {
-        console.error("Error getting existing user:", getUserError);
-
-        // Création d'un nouvel utilisateur Firebase si l'utilisateur n'existe pas
-        try {
-          firebaseUser = await admin.auth().createUser({
-            email: chauffeurEmail,
-            password: chauffeurPassword,
-          });
-          console.log("New Firebase user created:", firebaseUser);
-        } catch (createError) {
-          console.error("Error creating Firebase user:", createError);
-          return res.status(500).send({
-            message: "Error creating Firebase user",
-          });
-        }
-      }
-
-      // Préparation des données du chauffeur pour Firebase Realtime Database
-      const activeDriver = {
-        name: updatedChauffeur.Nom,
-        DateNaissance: updatedChauffeur.DateNaissance,
-        address: updatedChauffeur.address,
-        cnicNo: updatedChauffeur.cnicNo,
-        gender: updatedChauffeur.gender,
-        postalCode: updatedChauffeur.postalCode,
-        email: updatedChauffeur.email,
-        imageUrl: updatedChauffeur.photoAvatar,
-        phone: updatedChauffeur.phone,
-        Cstatus: true,
-        carDetails: car ? {
-          immatriculation: car.immatriculation,
-          modelle: car.modelle,
-        } : null,
-      };
-
-      // Ajout dans Firebase Realtime Database
-      if (firebaseUser) {
-        try {
-          const driversRef = realtimeDB.ref('Drivers');
-          await driversRef.child(firebaseUser.uid).set(activeDriver);
-          
-          console.log("Successfully added/updated chauffeur in Firebase Realtime Database");
-          
-          // Envoi d'un email de confirmation
-          try {
-            await sendConfirmationEmail(chauffeurEmail, "");
-            return res.status(200).send({
-              message: "Chauffeur was successfully enabled and added to Firebase!",
-              chauffeurEmail: chauffeurEmail,
-            });
-          } catch (emailError) {
-            console.error("Error sending email:", emailError);
-            return res.status(200).send({
-              message: "Chauffeur added to Firebase, but email sending failed",
-            });
-          }
-        } catch (firebaseError) {
-          console.error("Error writing to Firebase Realtime Database:", firebaseError);
-          return res.status(500).send({
-            message: "Error adding chauffeur to Firebase",
-          });
-        }
+      } catch (error) {
+        console.error("Error sending email:", error);
+        return res.status(500).send({
+          message: "Error sending confirmation email",
+        });
       }
     } catch (error) {
-      console.error("General Firebase user management error:", error);
-      return res.status(500).send({
-        message: "Error managing Firebase user",
-      });
+      console.error("Error getting existing user:", error);
+
+      // Création d'un nouvel utilisateur Firebase si l'utilisateur n'existe pas
+      try {
+        firebaseUser = await admin.auth().createUser({
+          email: chauffeurEmail,
+          password: chauffeurPassword,
+        });
+        console.log("New Firebase user created:", firebaseUser);
+      } catch (createError) {
+        console.error("Error creating Firebase user:", createError);
+        return res.status(500).send({
+          message: "Error creating Firebase user",
+        });
+      }
+    }
+
+    // Préparation des données du chauffeur pour Firebase Realtime Database
+    const activedriversRef = realtimeDB.ref("Drivers");
+    const activeDriver = {
+      name: chauffeurUpdated.Nom,
+      DateNaissance: chauffeurUpdated.DateNaissance,
+      address: chauffeurUpdated.address,
+      cnicNo: chauffeurUpdated.cnicNo,
+      gender: chauffeurUpdated.gender,
+      postalCode: chauffeurUpdated.postalCode,
+      email: chauffeurUpdated.email,
+      imageUrl: chauffeurUpdated.photoAvatar,
+      phone: chauffeurUpdated.phone,
+      Cstatus: true,
+      carDetails: {
+        immatriculation: car.immatriculation,
+        modelle: car.modelle,
+      },
+    };
+
+    // Vérification et mise à jour de Firebase Realtime Database
+    if (firebaseUser) {
+      const path = `Drivers/${firebaseUser.uid}`;
+      console.log("Writing to Firebase path:", path);
+      console.log("Driver data:", activeDriver);
+
+      try {
+        await activedriversRef.child(firebaseUser.uid).set(activeDriver);
+        console.log("Successfully updated chauffeur data in Firebase");
+        return res.status(200).send({
+          message: "Chauffeur updated successfully!",
+        });
+      } catch (error) {
+        console.error("Error writing to Firebase:", error);
+        return res.status(500).send({
+          message: "Error writing to Firebase",
+        });
+      }
     }
   } catch (error) {
     console.error("General error:", error);
