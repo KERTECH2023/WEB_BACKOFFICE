@@ -1,10 +1,13 @@
- {
- apiKey: "AIzaSyDgBbTBbjIo8hVD128y5TG9FswyZVO8XGE",
-  authDomain: "prd-transport.firebaseapp.com",
-  databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "prd-transport",
-  storageBucket: "prd-transport.appspot.com",
-  messagingSenderId: "824880668007",
-  appId: "1:824880668007:web:51fd327f9a2da5e4c0a3c2",
-  measurementId: "G-H6XHHDMSSH"
-            }
+{
+  "type": "service_account",
+  "project_id": "prd-transport",
+  "private_key_id": "REDACTED",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCbupLuepPtrwQ4\nxFtG5IXphwCSzXZi4X04k0nr8OjPAlNEP3O73hCisB6PZy10GJEM5gsDdkW80omC\nuEw28uOWI7Pzh9oMe8XsqWDGW0iYBflqNkgl/T4gnbo6MexP2jlYPtqLNK7kIwuV\nhZZ/+NP3z/BsVXGX3m2IP2gV+etZwcrRpnbKd89nIcsHRSooz28r+9RXHz3yKQOl\nblyTMGOBVU4AtadZAkFsRXuDv/6yE3yEs6fwbxq2Se4LIqQuYiBt8hGQcmkEfZhM\n/cxeqDU4y2idXaxIZY3bLgoCup3F3/2ee7qQyui/8hJhgWdH6KIqczhLD0GB7+vv\nACKPoAfbAgMBAAECggEACK4kpIBWoIgB3zwqrk/smvC4enZTY/2XokCrfShHgcpq\nY8J5q/4bxUW13l5s7Sy1YRetg3rjNjwyCARH00REpUjGLgvjfpCjnqZuS4ApErg6\nh84QxXVRMjY4fCfuOSE70wxl2B6OpQ7DBYmVsvpmrkh76T31//YY+uA16AuvL6iE\nZOO4h1+K6iRhLT5SVV1PfOxmcyk5x5n7CXy3o7zDYIV3mltdK6djJBsBZcuIpiEG\nUd34EnVZKpm10np3sX79RN37WE9RY3IV6Cjb9IFotujwkVGHyx5GgS6TpcTW94OI\nOgEawvJolLE04WQ/3iM50z/SLHkYg9vlC963KWX4gQKBgQDOuawx49t5ABbtAmSj\nOg/btcxektTUUEBXdWT8CdgN/nf9ylJGWJU7AXA8Bu34QKiA590zcfIOC80WH+80\nmM1DHYbKz3w9swSzraSk0whwIeGLU2UPNVlStDIoCRdBf/fFwj4ChK79Jfaw6x0T\ntiVdKcEfmYx7wWzWgxpiN+j8QQKBgQDA2Ru83sG9XwhkYz0zoVXoGeYPjTsjtJEZ\nRLotsnQT061M3GiZEF1pZ6tOJe1BQ2YLvQ3ScMsk6sJVIyyOWglIZ87YJeZIRxE4\nj3Tl2v+fgS2ZA3bjh1/uqeLyR4hCG9MSil17NvxY/QTfEqjqfkYuMZDZZB/SOrOn\nw4NtgDYtGwKBgC86A7iyEWWnO5WRwmP307+h3LqOWMjYPJq+Wv+pUA6CX+8+1WT0\nv8LnJTjRbHQWcWhhkAs8sMu8rnGrgf5GGj6G9FBI7l06FIzn0oFFJNxZISmvN5st\n2OYn/H1g9kskbPpk0b3JiiCTF7R7Qf1K02ZhL5mEfq+XFMI82T4u/68BAoGAGzdI\nq9oAG5qq04gR3hR5zDzDdBRpcTuNcrR5VfOmYBnyjjNY66kclcCUs320ww4g+60d\no0JZ2QbskBlbs2dPghFsZqLKog6thn7wb3P9uWQArGSJxciYKFV/etPPjgzhN++h\nC7+R03k508WNYzKY8vH50ERKHWA9dIKqLKz4eFsCgYADwF1CKQpBwpNrIuOJ1qte\nm8ym+kWuUcmvT1dYi//dIGy5iBFbyDc/Szdk7mL+xS1Sb0MVdeuRVe1005l5FVrk\nEstRBQ0nTgHEg/mYw2wjeE4pKNY8u92iIVFafU6gMS2w/HV+tILX5NFEKeaZviW9\nWkYwnzrOp1fwoCsVeid8ng==\n-----END PRIVATE KEY-----\n",
+  "client_email": "REDACTED",
+  "client_id": "REDACTED",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dpu42%40prd-transport.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
