@@ -153,6 +153,11 @@ exports.getFacturesForDriverThisMonth = async (driverId) => {
   return Facture.find({ chauffeurId: driverId, mois: month, annee: year });
 };
 
+// Récupérer toutes les factures pour un chauffeur spécifique ce mois-ci
+exports.getFacturesForDriver = async (driverId) => {  
+  return Facture.find({ chauffeurId: driverId});
+};
+
 // Générer ou récupérer une facture pour un chauffeur ce mois-ci
 exports.getFactureForDriverThisMonth = async (driverId) => {
   const month = moment().month() + 1;
