@@ -87,6 +87,17 @@ exports.getFacturesForDriverThisMonth = async (req, res) => {
   }
 };
 
+// Récupérer toutes les factures d'un chauffeur pour ce mois
+exports.getFacturesForDriver = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+    const factures = await factureService.getFacturesForDriverThisMonth(driverId);
+    res.json(factures);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 // Récupérer un PDF de la facture ou le générer s'il n'existe pas
 exports.getFacturePDF = async (req, res) => {
   try {
