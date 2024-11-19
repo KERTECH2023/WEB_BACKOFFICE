@@ -91,7 +91,7 @@ exports.getFacturesForDriverThisMonth = async (req, res) => {
 exports.getFacturesForDriver = async (req, res) => {
   try {
     const { driverId } = req.params;
-    const factures = await factureService.getFacturesForDriverThisMonth(driverId);
+    const factures = await factureService.getFacturesForDriver(driverId);
     res.json(factures);
   } catch (error) {
     res.status(500).send(error.message);
