@@ -18,6 +18,9 @@ router.get('/:driverId/generate/all', factureController.generateFacturesForChauf
 // Récupérer toutes les factures pour un chauffeur spécifique ce mois-ci
 router.get('/chauffeur/:driverId/mois', factureController.getFacturesForDriverThisMonth);
 
+// Récupérer toutes les factures pour un chauffeur 
+router.get('/chauffeur/:driverId', factureController.getFacturesForDriver);
+
 // Récupérer ou générer le PDF de la facture pour un chauffeur
 router.get('/chauffeur/:driverId/pdf', factureController.getFacturePDF);
 
