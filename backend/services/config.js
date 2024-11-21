@@ -55,6 +55,8 @@ async function initializeFirebase() {
       "firestoreApp"
     );
 
+    const realtimeDB = admin.database(); // Use admin.database() instead of firestoreApp.database()
+
     admin.initializeApp({
       credential: admin.credential.cert(firebaseConfig),
       storageBucket: BUCKET,
@@ -67,7 +69,8 @@ async function initializeFirebase() {
       admin, 
       firestoreApp, 
       db, 
-      bucket 
+      bucket,
+      realtimeDB 
     };
   } catch (error) {
     console.error("Firebase initialization error:", error);
