@@ -50,7 +50,7 @@ async function initializeFirebase() {
     const firestoreApp = admin.initializeApp(
       {
         credential: admin.credential.cert(firebaseConfig),
-        databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app/",
+        databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
       },
       "firestoreApp"
     );
