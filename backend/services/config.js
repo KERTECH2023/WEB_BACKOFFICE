@@ -1,132 +1,82 @@
-const admin = require("firebase-admin");
 const { MongoClient } = require("mongodb");
-const config = require("../config.json");
-require("dotenv").config();
+const admin = require("firebase-admin");
 
-// Constants and environment variables
-const BUCKET = process.env.FIREBASE_BUCKET || "prd-transport.appspot.com";
-const MONGODB_URI = process.env.MONGODB_URI || config.database;
-const REALTIME_DB_URL = process.env.FIREBASE_DB_URL || "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app";
-const TOKEN_SECRET = process.env.TOKEN_SECRET || "your-default-secret-key";
+// Variables de configuration directement dans le code
+const mongoUri = "mongodb+srv://user:gkU9KqbtQOAmodZK@cluster0.n0fr6tp.mongodb.net/PRD_TRANSPORT"; // URL MongoDB
+const tokenSecret = "token-secret !!"; // Secret des tokens
+const databaseName = "PRD_TRANSPORT"; // Nom de la base de données MongoDB
+const collectionName = "firebasekey"; // Nom de la collection Firebase
 
-// MongoDB connection options
-const mongoOptions = {
+const BUCKET = "prd-transport.appspot.com"; // Nom du bucket Firebase
+
+// Fonction pour récupérer la configuration Firebase depuis MongoDB
+async function getFirebaseConfigFromMongo() {
+  const client = new MongoClient(mongoUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    connectTimeoutMS: 5000,
-    serverSelectionTimeoutMS: 5000
-};
+  });
 
-/**
- * Récupère la clé Firebase depuis MongoDB
- * @returns {Promise<Object>} Firebase credentials
- */
-async function getFirebaseKey() {
-    const client = new MongoClient(MONGODB_URI, mongoOptions);
-    
-    try {
-        await client.connect();
-        console.log("Connected to MongoDB");
-        
-        const db = client.db();
-        const collection = db.collection("firebasekey");
-        const key = await collection.findOne({});
-        
-        if (!key) {
-            throw new Error("Firebase key not found in MongoDB");
-        }
-        
-        return key;
-    } catch (error) {
-        console.error("Error fetching Firebase key from MongoDB:", error);
-        throw error;
-    } finally {
-        try {
-            await client.close();
-            console.log("MongoDB connection closed");
-        } catch (error) {
-            console.error("Error closing MongoDB connection:", error);
-        }
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB");
+
+    const db = client.db(databaseName);
+    const collection = db.collection(collectionName);
+
+    const firebaseConfig = await collection.findOne();
+    if (!firebaseConfig) {
+      throw new Error("Firebase configuration not found in MongoDB");
     }
-}
 
-/**
- * Formate la configuration Firebase
- * @param {Object} firebaseKey - Les credentials Firebase bruts
- * @returns {Object} Configuration Firebase formatée
- */
-function formatFirebaseConfig(firebaseKey) {
     return {
-        type: firebaseKey.type,
-        projectId: firebaseKey.project_id,
-        privateKeyId: firebaseKey.private_key_id,
-        privateKey: firebaseKey.private_key.replace(/\\n/g, '\n'),
-        clientEmail: firebaseKey.client_email,
-        clientId: firebaseKey.client_id,
-        authUri: firebaseKey.auth_uri,
-        tokenUri: firebaseKey.token_uri,
-        authProviderCertUrl: firebaseKey.auth_provider_x509_cert_url,
-        clientCertUrl: firebaseKey.client_x509_cert_url
+      type: firebaseConfig.type,
+      projectId: firebaseConfig.project_id,
+      privateKeyId: firebaseConfig.private_key_id,
+      privateKey: firebaseConfig.private_key.replace(/\\n/g, "\n"),
+      clientEmail: firebaseConfig.client_email,
+      clientId: firebaseConfig.client_id,
+      authUri: firebaseConfig.auth_uri,
+      tokenUri: firebaseConfig.token_uri,
+      authProviderCertUrl: firebaseConfig.auth_provider_x509_cert_url,
+      clientCertUrl: firebaseConfig.client_x509_cert_url,
     };
+  } catch (error) {
+    console.error("Error fetching Firebase configuration from MongoDB:", error);
+    throw error;
+  } finally {
+    await client.close();
+  }
 }
 
-/**
- * Initialise Firebase avec tous les services nécessaires
- * @returns {Promise<Object>} Les instances Firebase initialisées
- */
+// Fonction pour initialiser Firebase
 async function initializeFirebase() {
-    try {
-        // Récupération et vérification des credentials Firebase
-        const firebaseKey = await getFirebaseKey();
-        const firebaseConfig = formatFirebaseConfig(firebaseKey);
+  try {
+    const firebaseConfig = await getFirebaseConfigFromMongo();
 
-        // Initialisation de l'application Firebase principale
-        const app = admin.initializeApp({
-            credential: admin.credential.cert(firebaseConfig),
-            databaseURL: REALTIME_DB_URL,
-            storageBucket: BUCKET
-        });
+    const firestoreApp = admin.initializeApp(
+      {
+        credential: admin.credential.cert(firebaseConfig),
+        databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
+      },
+      "firestoreApp"
+    );
 
-        // Initialisation des services
-        const bucket = admin.storage().bucket();
-        const db = admin.firestore();
-        const realtimeDB = admin.database();
-        const auth = admin.auth();
+    admin.initializeApp({
+      credential: admin.credential.cert(firebaseConfig),
+      storageBucket: BUCKET,
+    });
 
-        console.log("Firebase initialized successfully");
+    const bucket = admin.storage().bucket();
+    const db = admin.firestore();
+    const realtimeDB = admin.database();
 
-        return {
-            app,
-            admin,
-            db,
-            realtimeDB,
-            bucket,
-            auth,
-            tokenSecret: TOKEN_SECRET
-        };
-    } catch (error) {
-        console.error("Error initializing Firebase:", error);
-        throw new Error(`Firebase initialization failed: ${error.message}`);
-    }
+    console.log("Firebase initialized successfully");
+
+    return { admin, firestoreApp, db, realtimeDB, bucket, tokenSecret }; // Inclure le tokenSecret dans la réponse
+  } catch (error) {
+    console.error("Error initializing Firebase:", error);
+    throw error;
+  }
 }
 
-/**
- * Vérifie l'état de la connexion Firebase
- * @returns {boolean} État de la connexion
- */
-function checkFirebaseConnection() {
-    try {
-        const apps = admin.apps;
-        return apps.length > 0 && apps[0] !== null;
-    } catch (error) {
-        console.error("Error checking Firebase connection:", error);
-        return false;
-    }
-}
-
-// Export des fonctionnalités
-module.exports = {
-    initializeFirebase,
-    checkFirebaseConnection,
-    getFirebaseKey
-};
+module.exports = initializeFirebase;
