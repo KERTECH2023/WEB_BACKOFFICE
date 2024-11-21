@@ -35,13 +35,19 @@ async function getFirebaseKey() {
 
 // Firebase configuration (use MongoDB fetched data here if needed)
 const firebaseKey = getFirebaseKey(); // Assuming you might want to fetch the key dynamically
+const privateKey = firebaseKey?.private_key
+    ? firebaseKey.private_key.replace(/\\n/g, "\n")
+    : null;
 
+if (!privateKey) {
+    throw new Error("La clé privée (private_key) est introuvable ou invalide.");
+}
 const firebaseConfig = {
 
     type: firebaseKey.type,
     projectId: firebaseKey.project_id,
     privateKeyId: firebaseKey.private_key_id,
-    privateKey: firebaseKey.private_key.replace(/\\n/g, "\n"), // Handle line breaks
+    privateKey: privateKey, // Handle line breaks
     clientEmail: firebaseKey.client_email,
     clientId: firebaseKey.client_id,
     authUri: firebaseKey.auth_uri,
