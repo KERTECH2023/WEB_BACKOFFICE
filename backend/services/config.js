@@ -7,6 +7,7 @@ const mongoUri = config.database; // URL MongoDB
 const tokenSecret = config.token_secret; // Secret des tokens
 const databaseName = "PRD_TRANSPORT"; // Nom de la base de données MongoDB
 const collectionName = "firebaseConfig"; // Nom de la collection Firebase
+require('dotenv').config();
 
 const BUCKET = "transport-app-36443.appspot.com"; // Nom du bucket Firebase
 
