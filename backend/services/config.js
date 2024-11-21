@@ -1,37 +1,30 @@
-const { initializeApp } = require("firebase/app");
 const admin = require("firebase-admin");
 const { MongoClient } = require("mongodb");
 const config = require("../config.json");
 require("dotenv").config();
 
-const BUCKET = "prd-transport.appspot.com";
-const DATABASE_URL = "https://prd-transport-default-rtdb.firebaseio.com";
+const BUCKET = process.env.FIREBASE_BUCKET || "prd-transport.appspot.com";
 
 // Fonction pour récupérer la clé Firebase depuis MongoDB
-async function getFirebaseKeyFromMongoDB() {
-    const databaseUri = config.database;
-    if (!databaseUri) {
-        throw new Error("MongoDB connection URI is not defined in config.js");
-    }
-
-    const client = new MongoClient(databaseUri, { 
-        useNewUrlParser: true, 
-        useUnifiedTopology: true 
+async function getFirebaseKey() {
+    const client = new MongoClient(config.database, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
     });
 
     try {
         await client.connect();
         console.log("Connected to MongoDB");
 
-        const db = client.db(); 
+        const db = client.db();
         const collection = db.collection("firebasekey");
 
-        const firebaseKey = await collection.findOne({});
-        if (!firebaseKey) {
+        const key = await collection.findOne();
+        if (!key) {
             throw new Error("Firebase key not found in MongoDB");
         }
 
-        return firebaseKey;
+        return key;
     } catch (error) {
         console.error("Error fetching Firebase key from MongoDB:", error);
         throw error;
@@ -40,11 +33,10 @@ async function getFirebaseKeyFromMongoDB() {
     }
 }
 
-// Fonction d'initialisation de Firebase Admin
-async function initFirebaseAdmin() {
+// Fonction pour initialiser Firebase avec la clé récupérée
+async function initializeFirebase() {
     try {
-        // Récupérer la clé Firebase depuis MongoDB
-        const firebaseKey = await getFirebaseKeyFromMongoDB();
+        const firebaseKey = await getFirebaseKey();
 
         // Configuration Firebase
         const firebaseConfig = {
@@ -60,41 +52,35 @@ async function initFirebaseAdmin() {
             clientCertUrl: firebaseKey.client_x509_cert_url,
         };
 
-        // Première initialisation pour Firestore
+        // Initialisation de Firebase Admin pour Firestore
         const firestoreApp = admin.initializeApp(
             {
                 credential: admin.credential.cert(firebaseConfig),
-                databaseURL: DATABASE_URL,
+                databaseURL: `https://${firebaseKey.project_id}-default-rtdb.firebaseio.com`,
             },
             "firestoreApp"
         );
 
-        // Deuxième initialisation pour Storage
-        admin.initializeApp({
-            credential: admin.credential.cert(firebaseConfig),
-            storageBucket: BUCKET,
-        }, "storageApp");
+        // Initialisation de Firebase Admin pour Storage
+        admin.initializeApp(
+            {
+                credential: admin.credential.cert(firebaseConfig),
+                storageBucket: BUCKET,
+            },
+            "storageApp"
+        );
 
-        // Récupérer les instances
         const bucket = admin.storage().bucket();
-        const db = admin.firestore;
+        const db = admin.firestore();
 
-        console.log("Firebase Admin initialized successfully from MongoDB key");
+        console.log("Firebase Admin SDK initialized successfully.");
 
-        return {
-            admin,
-            firestoreApp,
-            db,
-            bucket,
-        };
+        return { admin, firestoreApp, db, bucket };
     } catch (error) {
-        console.error("Firebase Admin initialization error:", error);
-        throw error;
+        console.error("Error initializing Firebase Admin SDK:", error);
+        process.exit(1); // Arrêter l'application si l'initialisation échoue
     }
 }
 
-// Exporter la fonction d'initialisation
-module.exports = initFirebaseAdmin;
-
-// Pour une initialisation immédiate, décommentez la ligne suivante :
-// module.exports = initFirebaseAdmin();
+// Exporter la fonction et les objets
+module.exports = initializeFirebase;
