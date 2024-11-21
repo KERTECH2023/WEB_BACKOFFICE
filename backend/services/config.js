@@ -1,82 +1,40 @@
-const { MongoClient } = require("mongodb");
+const { initializeApp } = require("firebase/app");
 const admin = require("firebase-admin");
+const firebaseServiceAccount = require("../firebase.json");
+const { getAuth } = require("firebase-admin/auth");
+const BUCKET = "prd-transport.appspot.com";
+require("dotenv").config();
+const config = {
+  type: process.env.TYPE,
+  projectId: process.env.PROJECT_ID,
+  privateKeyId: process.env.PRIVATE_KEY_ID,
+  privateKey: process.env.PRIVATE_KEY, // Replace literal \n with actual new lines
+  clientEmail: process.env.CLIENT_EMAIL,
+  clientId: process.env.CLIENT_ID,
+  authUri: process.env.AUTH_URI,
+  tokenUri: process.env.TOKEN_URI,
+  authProviderCertUrl: process.env.AUTH_PROVIDER_X509_CERT_URL,
+  clientCertUrl: process.env.CLIENT_X509_CERT_URL,
+  universeDomain: process.env.UNIVERSE_DOMAIN,
+};
+const firestoreApp = admin.initializeApp(
+  {
+    credential:  admin.credential.cert(config),
+    databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
+  },
+  "firestoreApp"
+);
+admin.initializeApp({
+  credential: admin.credential.cert(config),
+  storageBucket: BUCKET,
+});
 
-// Variables de configuration directement dans le code
-const mongoUri = "mongodb+srv://user:gkU9KqbtQOAmodZK@cluster0.n0fr6tp.mongodb.net/PRD_TRANSPORT"; // URL MongoDB
-const tokenSecret = "token-secret !!"; // Secret des tokens
-const databaseName = "PRD_TRANSPORT"; // Nom de la base de données MongoDB
-const collectionName = "firebasekey"; // Nom de la collection Firebase
+const bucket = admin.storage().bucket();
 
-const BUCKET = "prd-transport.appspot.com"; // Nom du bucket Firebase
-
-// Fonction pour récupérer la configuration Firebase depuis MongoDB
-async function getFirebaseConfigFromMongo() {
-  const client = new MongoClient(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-
-  try {
-    await client.connect();
-    console.log("Connected to MongoDB");
-
-    const db = client.db(databaseName);
-    const collection = db.collection(collectionName);
-
-    const firebaseConfig = await collection.findOne();
-    if (!firebaseConfig) {
-      throw new Error("Firebase configuration not found in MongoDB");
-    }
-
-    return {
-      type: firebaseConfig.type,
-      projectId: firebaseConfig.project_id,
-      privateKeyId: firebaseConfig.private_key_id,
-      privateKey: firebaseConfig.private_key.replace(/\\n/g, "\n"),
-      clientEmail: firebaseConfig.client_email,
-      clientId: firebaseConfig.client_id,
-      authUri: firebaseConfig.auth_uri,
-      tokenUri: firebaseConfig.token_uri,
-      authProviderCertUrl: firebaseConfig.auth_provider_x509_cert_url,
-      clientCertUrl: firebaseConfig.client_x509_cert_url,
-    };
-  } catch (error) {
-    console.error("Error fetching Firebase configuration from MongoDB:", error);
-    throw error;
-  } finally {
-    await client.close();
-  }
-}
-
-// Fonction pour initialiser Firebase
-async function initializeFirebase() {
-  try {
-    const firebaseConfig = await getFirebaseConfigFromMongo();
-
-    const firestoreApp = admin.initializeApp(
-      {
-        credential: admin.credential.cert(firebaseConfig),
-        databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
-      },
-      "firestoreApp"
-    );
-
-    admin.initializeApp({
-      credential: admin.credential.cert(firebaseConfig),
-      storageBucket: BUCKET,
-    });
-
-    const bucket = admin.storage().bucket();
-    const db = admin.firestore();
-    const realtimeDB = admin.database();
-
-    console.log("Firebase initialized successfully");
-
-    return { admin, firestoreApp, db, realtimeDB, bucket, tokenSecret }; // Inclure le tokenSecret dans la réponse
-  } catch (error) {
-    console.error("Error initializing Firebase:", error);
-    throw error;
-  }
-}
-
-module.exports = initializeFirebase;
+const db = admin.firestore;
+module.exports = {
+  admin,
+  firestoreApp,
+  db,
+  bucket,
+};
