@@ -45,7 +45,7 @@ const configs = {
   type: firebaseKey.type,
   projectId: firebaseKey.project_id,
   privateKeyId: firebaseKey.private_key_id,
-  privateKey: firebaseKey.private_key.replace(/\\n/g, '\n'),
+  privateKey: firebaseKey.private_key,
   clientEmail: firebaseKey.client_email,
   clientId: firebaseKey.client_id,
   authUri: firebaseKey.auth_uri,
