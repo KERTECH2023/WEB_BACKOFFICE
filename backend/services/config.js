@@ -41,7 +41,7 @@ const firebaseConfig = {
     type: firebaseKey.type,
     projectId: firebaseKey.project_id,
     privateKeyId: firebaseKey.private_key_id,
-    privateKey:firebaseKey.private_key,
+    privateKey: firebaseKey.private_key.replace(/\\n/g, "\n"), // Handle line breaks
     clientEmail: firebaseKey.client_email,
     clientId: firebaseKey.client_id,
     authUri: firebaseKey.auth_uri,
