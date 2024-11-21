@@ -3,7 +3,7 @@ const { MongoClient } = require("mongodb");
 const config = require("../config.json");
 require("dotenv").config();
 
-const BUCKET = process.env.FIREBASE_BUCKET || "prd-transport.appspot.com";
+const BUCKET = "prd-transport.appspot.com";
 
 // Fonction pour récupérer la clé Firebase depuis MongoDB
 async function getFirebaseKey() {
