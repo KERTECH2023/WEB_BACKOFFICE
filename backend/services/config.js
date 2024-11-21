@@ -9,7 +9,7 @@ const databaseName = "PRD_TRANSPORT"; // Nom de la base de données MongoDB
 const collectionName = "firebaseConfig"; // Nom de la collection Firebase
 require('dotenv').config();
 
-const BUCKET = "transport-app-36443.appspot.com"; // Nom du bucket Firebase
+const BUCKET = "prd-transport.appspot.com"; // Nom du bucket Firebase
 
 // Fonction pour récupérer la configuration Firebase depuis MongoDB
 async function getFirebaseConfigFromMongo() {
