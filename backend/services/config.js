@@ -31,23 +31,17 @@ async function initializeServices() {
     clientCertUrl: firebaseKey.client_x509_cert_url,
   };
 
-  const firestoreApp = admin.initializeApp(
-    {
-      credential: admin.credential.cert(firebaseConfig),
-      databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
-    },
-    "firestoreApp"
-  );
-
-  admin.initializeApp({
+  const app = admin.initializeApp({
     credential: admin.credential.cert(firebaseConfig),
+    databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
     storageBucket: BUCKET,
   });
 
-  const bucket = admin.storage().bucket();
   const firestore = admin.firestore();
+  const bucket = admin.storage().bucket();
+  const realtimeDB = admin.database(); // Access Realtime Database here
 
-  return { admin, firestoreApp, db, bucket };
+  return { admin, app, firestore, bucket, realtimeDB, db };
 }
 
 initializeServices()
