@@ -22,7 +22,7 @@ async function getFirebaseConfigFromMongo() {
     await client.connect();
     console.log("Connected to MongoDB");
 
-    const db = client.db(databaseName);
+    const db = client.db();
     const collection = db.collection(collectionName);
 
     const firebaseConfig = await collection.findOne();
