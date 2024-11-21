@@ -5,7 +5,6 @@ require("dotenv").config();
 
 const BUCKET = "prd-transport.appspot.com";
 
-// Fonction pour récupérer la clé Firebase depuis MongoDB
 async function getFirebaseKey() {
   const client = new MongoClient(config.database, { 
     useNewUrlParser: true, 
@@ -14,8 +13,6 @@ async function getFirebaseKey() {
 
   try {
     await client.connect();
-    console.log("Connected to MongoDB");
-
     const db = client.db(); 
     const collection = db.collection("firebasekey");
 
@@ -33,7 +30,6 @@ async function getFirebaseKey() {
   }
 }
 
-// Main initialization function
 async function initializeFirebase() {
   try {
     const firebaseKey = await getFirebaseKey();
@@ -67,7 +63,12 @@ async function initializeFirebase() {
     const bucket = admin.storage().bucket();
     const db = admin.firestore;
 
-    return { admin, firestoreApp, db, bucket };
+    return { 
+      admin, 
+      firestoreApp, 
+      db, 
+      bucket 
+    };
   } catch (error) {
     console.error("Firebase initialization error:", error);
     throw error;
