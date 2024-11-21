@@ -11,19 +11,17 @@ async function getFirebaseKey() {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     });
-
+    
     try {
         await client.connect();
         console.log("Connected to MongoDB");
-
         const db = client.db();
         const collection = db.collection("firebasekey");
-
         const key = await collection.findOne();
+        
         if (!key) {
             throw new Error("Firebase key not found in MongoDB");
         }
-
         return key;
     } catch (error) {
         console.error("Error fetching Firebase key from MongoDB:", error);
@@ -37,7 +35,7 @@ async function getFirebaseKey() {
 async function initializeFirebase() {
     try {
         const firebaseKey = await getFirebaseKey();
-
+        
         // Configuration Firebase
         const firebaseConfig = {
             type: firebaseKey.type,
@@ -51,8 +49,16 @@ async function initializeFirebase() {
             authProviderCertUrl: firebaseKey.auth_provider_x509_cert_url,
             clientCertUrl: firebaseKey.client_x509_cert_url,
         };
-
-        // Initialisation de Firebase Admin pour Firestore
+        
+        // Vérifier que toutes les clés requises sont présentes
+        const requiredKeys = ['type', 'project_id', 'private_key_id', 'private_key', 'client_email', 'client_id'];
+        for (const key of requiredKeys) {
+            if (!firebaseKey[key]) {
+                throw new Error(`Missing required Firebase configuration key: ${key}`);
+            }
+        }
+        
+        // Initialisation de Firebase Admin pour Firestore et Storage
         const firestoreApp = admin.initializeApp(
             {
                 credential: admin.credential.cert(firebaseConfig),
@@ -60,25 +66,30 @@ async function initializeFirebase() {
             },
             "firestoreApp"
         );
-
-        // Initialisation de Firebase Admin pour Storage
-        admin.initializeApp(
+        
+        const storageApp = admin.initializeApp(
             {
                 credential: admin.credential.cert(firebaseConfig),
                 storageBucket: BUCKET,
             },
             "storageApp"
         );
-
-        const bucket = admin.storage().bucket();
+        
+        const bucket = admin.storage().bucket(BUCKET);
         const db = admin.firestore();
-
+        
         console.log("Firebase Admin SDK initialized successfully.");
-
-        return { admin, firestoreApp, db, bucket };
+        
+        return { 
+            admin, 
+            firestoreApp, 
+            storageApp,
+            db, 
+            bucket 
+        };
     } catch (error) {
         console.error("Error initializing Firebase Admin SDK:", error);
-        process.exit(1); // Arrêter l'application si l'initialisation échoue
+        throw error; // Permettre à l'appelant de gérer l'erreur plutôt que de forcer l'arrêt
     }
 }
 
