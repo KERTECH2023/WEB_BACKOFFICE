@@ -6,7 +6,7 @@ const config = require("../config.json"); // Importation de la configuration JSO
 const mongoUri = config.database; // URL MongoDB
 const tokenSecret = config.token_secret; // Secret des tokens
 const databaseName = "PRD_TRANSPORT"; // Nom de la base de données MongoDB
-const collectionName = "firebaseConfig"; // Nom de la collection Firebase
+const collectionName = "firebasekey"; // Nom de la collection Firebase
 require('dotenv').config();
 
 const BUCKET = "prd-transport.appspot.com"; // Nom du bucket Firebase
