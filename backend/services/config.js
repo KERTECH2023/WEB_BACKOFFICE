@@ -3,7 +3,7 @@ const { MongoClient } = require("mongodb");
 const config = require("../config.json");
 require("dotenv").config();
 
-const BUCKET = "prd-transport.appspot.com";
+const BUCKET = "transport-app-36443.appspot.com";
 
 async function getFirebaseKey() {
   const client = new MongoClient(config.database, { 
