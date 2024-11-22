@@ -183,7 +183,7 @@ const sendFactureEmail = async (req, res) => {
   }
 
   const mailOptions = {
-    from: "TunisieUber <noreplyflashdriver@gmail.com>",
+    from: "Flash Driver <noreplyflashdriver@gmail.com>",
     to: email,
     subject: `Facture de ${mois}`,
     text: "Veuillez trouver la facture en pièce jointe.",
@@ -425,9 +425,9 @@ async function sendConfirmationEmail(Email, Password) {
   });
 
   const mailOptions = {
-    from: "TunisieUber<testrapide45@gmail.com>",
+    from: "Flash Driver<testrapide45@gmail.com>",
     to: Email,
-    subject: "TunisieUber Nouveau Compte ",
+    subject: "Flash Driver Nouveau Compte ",
     html:
       `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
@@ -473,7 +473,7 @@ async function sendConfirmationEmail(Email, Password) {
                         <tr>
                           <td valign="top" align="center" style="width:241px">
                             <a href="https://viewstripo.email" target="_blank" style="text-decoration:none;color:#3B8026">
-                              <img src="https://ymjipk.stripocdn.email/content/guids/CABINET_20717d2a5fbd1820851bfff00c852e41c24f3af725e1d147e89a5d094d4f0aeb/images/logof.png" alt="Logo" title="Logo" width="193" height="127" style="display:block;border:0;outline:none;text-decoration:none">
+                              <img src="https://firebasestorage.googleapis.com/v0/b/prd-transport.appspot.com/o/logoc.png?alt=media&token=6a225136-94c5-407b-8501-c233e9aa721f" alt="Logo" title="Logo" width="193" height="127" style="display:block;border:0;outline:none;text-decoration:none">
                             </a>
                           </td>
                         </tr>
@@ -529,7 +529,7 @@ async function sendConfirmationEmail(Email, Password) {
                         <tr>
                           <td align="left" style="padding-top:5px;padding-bottom:5px">
                             <h3 style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:20px;color:#2D033A">Cher(e) ` + Email + `,</h3>
-                            <p style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:14px;color:#38363A">Nous sommes ravis de vous accueillir sur TunisieUber ! Votre compte a été créé avec succès. Vous pouvez désormais profiter de tous nos services.</p>
+                            <p style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:14px;color:#38363A">Nous sommes ravis de vous accueillir sur Flash Driver ! Votre compte a été créé avec succès. Vous pouvez désormais profiter de tous nos services.</p>
                           </td>
                         </tr>
                       </table>
@@ -754,9 +754,9 @@ const sendActivatedEmail = async (Email, Nom, password) => {
   });
 
   const mailOptions = {
-    from: 'TunisieUber<testrapide45@gmail.com>',
+    from: 'Flash Driver<testrapide45@gmail.com>',
     to: Email,
-    subject: 'TunisieUber Compte Activé',
+    subject: 'Flash Driver Compte Activé',
     text: `
     email: ${Email}
     mot de passe: ${password}
@@ -1108,9 +1108,9 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
   });
 
   const mailOptions = {
-    from: "Tunisie Uber <noreplyflashdriver@gmail.com>",
+    from: "Flash Driver <noreplyflashdriver@gmail.com>",
     to: Email,
-    subject: "TunisieUber Compte Validé ",
+    subject: "Flash Driver Compte Validé ",
   html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
         <head>
@@ -1245,7 +1245,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
         <td align="left" style="padding:0;Margin:0;width:470px">
         <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
         <tr>
-        <td align="center" style="padding:0;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:21px;color:#5D541D;font-size:14px">Merci,<br>tunisieUber Team!&nbsp;</p></td>
+        <td align="center" style="padding:0;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:21px;color:#5D541D;font-size:14px">Merci,<br>Flash Driver Team!&nbsp;</p></td>
         </tr>
         </table></td>
         </tr>
