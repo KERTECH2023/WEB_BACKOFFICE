@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const config = require("../config.json");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");s
+const nodemailer = require("nodemailer");
 const { Buffer } = require("node:buffer");
 const firestoreModule = require("../services/config");
 const db = require("../services/config");
