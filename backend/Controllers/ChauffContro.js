@@ -971,12 +971,16 @@ const updatestatuss = async (req, res, next) => {
 
   try {
     // Mise à jour du chauffeur avec isActive et Cstatus
-    const chauffeurUpdated = await Chauffeur.findByIdAndUpdate(id, {
-      $set: {
-        isActive: true,
-        Cstatus: "Validé",
+    const chauffeurUpdated = await Chauffeur.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isActive: true,
+          Cstatus: "Validé",
+        },
       },
-    });
+      { new: true }
+    );
 
     if (!chauffeurUpdated) {
       return res.status(404).send({
@@ -984,111 +988,97 @@ const updatestatuss = async (req, res, next) => {
       });
     }
 
-    // Récupération des informations du chauffeur mis à jour
-    const updatedChauffeur = await Chauffeur.findById(id);
-    const chauffeurEmail = updatedChauffeur.email; // Assurez-vous que la propriété email existe
-    const chauffeurPassword = Math.random().toString(36).slice(-6); // Génération d'un mot de passe temporaire
+    const chauffeurEmail = chauffeurUpdated.email;
+    const chauffeurPassword = Math.random().toString(36).slice(-6);
 
-    console.log("chauffeurPassword:", chauffeurPassword);
-    let firebaseUser;
+    console.log("Generated password:", chauffeurPassword);
+
+    // Récupérer les informations de voiture associées
     let car;
-
     try {
-      car = await Car.findOne({ chauffeur: updatedChauffeur.id });
+      car = await Car.findOne({ chauffeur: chauffeurUpdated.id });
     } catch (error) {
-      console.error(`Error finding car by chauffeur ID: ${updatedChauffeur.id}`, error);
+      console.error(`Error finding car by chauffeur ID: ${chauffeurUpdated.id}`, error);
       return res.status(500).send({
         message: "Error finding car by chauffeur ID",
       });
     }
 
-    // Gestion de l'utilisateur Firebase
+    // Gestion Firebase
+    let firebaseUser;
     try {
-      const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
-      console.log("Existing user:", userRecord);
-
-      // Mise à jour de l'utilisateur Firebase si déjà existant
-      await admin.auth().updateUser(userRecord.uid, {
-        email: chauffeurEmail,
-        disabled: false,
-      });
-
-      firebaseUser = userRecord;
-      console.log("User updated:", userRecord);
-
-      // Envoi d'un email de confirmation
       try {
-        await sendConfirmationEmail(chauffeurEmail, ""); // Envoi de l'email
-        return res.status(200).send({
-          message: "Chauffeur was successfully enabled!",
-          chauffeurEmail: chauffeurEmail,
-        });
-      } catch (error) {
-        console.error("Error sending email:", error);
-        return res.status(500).send({
-          message: "Error sending confirmation email",
-        });
-      }
-    } catch (error) {
-      console.error("Error getting existing user:", error);
+        // Vérification si l'utilisateur existe déjà
+        const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
+        console.log("Existing Firebase user:", userRecord);
 
-      // Création d'un nouvel utilisateur Firebase si l'utilisateur n'existe pas
-      try {
+        // Mise à jour de l'utilisateur
+        await admin.auth().updateUser(userRecord.uid, {
+          email: chauffeurEmail,
+          disabled: false,
+        });
+
+        firebaseUser = userRecord;
+      } catch (getUserError) {
+        console.warn("User does not exist, creating a new one.");
+
+        // Création d'un nouvel utilisateur Firebase
         firebaseUser = await admin.auth().createUser({
           email: chauffeurEmail,
           password: chauffeurPassword,
         });
+
         console.log("New Firebase user created:", firebaseUser);
-      } catch (createError) {
-        console.error("Error creating Firebase user:", createError);
-        return res.status(500).send({
-          message: "Error creating Firebase user",
-        });
       }
-    }
 
-    // Préparation des données du chauffeur pour Firebase Realtime Database
-    const activedriversRef = realtimeDB.ref("Drivers");
-    const activeDriver = {
-      name: chauffeurUpdated.Nom,
-      DateNaissance: chauffeurUpdated.DateNaissance,
-      address: chauffeurUpdated.address,
-      cnicNo: chauffeurUpdated.cnicNo,
-      gender: chauffeurUpdated.gender,
-      postalCode: chauffeurUpdated.postalCode,
-      email: chauffeurUpdated.email,
-      imageUrl: chauffeurUpdated.photoAvatar,
-      phone: chauffeurUpdated.phone,
-      Cstatus: true,
-      carDetails: {
-        immatriculation: car.immatriculation,
-        modelle: car.modelle,
-      },
-    };
+      // Ajouter/mettre à jour les données dans Firebase Realtime Database
+      const activeDriver = {
+        name: chauffeurUpdated.Nom,
+        DateNaissance: chauffeurUpdated.DateNaissance,
+        address: chauffeurUpdated.address,
+        cnicNo: chauffeurUpdated.cnicNo,
+        gender: chauffeurUpdated.gender,
+        postalCode: chauffeurUpdated.postalCode,
+        email: chauffeurUpdated.email,
+        imageUrl: chauffeurUpdated.photoAvatar,
+        phone: chauffeurUpdated.phone,
+        Cstatus: true,
+        carDetails: car
+          ? {
+              immatriculation: car.immatriculation,
+              modelle: car.modelle,
+            }
+          : null,
+      };
 
-    // Vérification et mise à jour de Firebase Realtime Database
-    if (firebaseUser) {
-      const path = `Drivers/${firebaseUser.uid}`;
-      console.log("Writing to Firebase path:", path);
-      console.log("Driver data:", activeDriver);
+      const driversRef = realtimeDB.ref("Drivers");
+      await driversRef.child(firebaseUser.uid).set(activeDriver);
 
+      console.log("Chauffeur successfully added to Firebase Database.");
+
+      // Envoi de l'email de confirmation
       try {
-        await activedriversRef.child(firebaseUser.uid).set(activeDriver);
-        console.log("Successfully updated chauffeur data in Firebase");
+        await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
         return res.status(200).send({
-          message: "Chauffeur updated successfully!",
+          message: "Chauffeur enabled and email sent successfully!",
+          chauffeurEmail,
         });
-      } catch (error) {
-        console.error("Error writing to Firebase:", error);
-        return res.status(500).send({
-          message: "Error writing to Firebase",
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+        return res.status(200).send({
+          message: "Chauffeur enabled, but email could not be sent.",
         });
       }
+    } catch (firebaseError) {
+      console.error("Error managing Firebase user:", firebaseError);
+      return res.status(500).send({
+        message: "Error managing Firebase user",
+      });
     }
   } catch (error) {
     console.error("General error:", error);
     return res.status(500).send({
-      message: "An error occurred while updating the chauffeur",
+      message: "An error occurred while updating the chauffeur.",
     });
   }
 };
