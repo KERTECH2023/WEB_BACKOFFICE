@@ -1200,7 +1200,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
         <td class="es-m-p0r" valign="top" align="center" style="padding:0;Margin:0;width:510px">
         <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
         <tr>
-        <td align="center" style="padding:0;Margin:0;position:relative"><img class="adapt-img" src="https://ymjipk.stripocdn.email/content/guids/bannerImgGuid/images/image16934700588243507.png" alt title width="100%" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic"></td>
+        <td align="center" style="padding:0;Margin:0;position:relative"><img class="adapt-img" src="https://firebasestorage.googleapis.com/v0/b/prd-transport.appspot.com/o/image16934700588243507%20(1).png?alt=media&token=d1f81748-0b47-48fd-a2fd-72c73ea094c8" alt title width="100%" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic"></td>
         </tr>
         </table></td>
         </tr>
