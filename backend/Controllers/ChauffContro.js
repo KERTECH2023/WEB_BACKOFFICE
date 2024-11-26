@@ -1020,11 +1020,12 @@ const updatestatuss = async (req, res, next) => {
         id,
         {
           $set: {
-            firebaseUID: firebaseUser.uid, // Ajout de l'UID Firebase dans MongoDB après la création
+            firebaseUID: firebaseUser.uid, // Ajouter le champ firebaseUID
           },
         },
-        { new: true }
+        { new: true, strict: false }
       );
+      
 
       console.log("Firebase UID saved in MongoDB.");
 
