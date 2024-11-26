@@ -38,6 +38,10 @@ const ChauffSchema = new mongoose.Schema(
             type: String,
             
         },
+        firebaseUID: {
+            type: String,
+            
+        },
         DateNaissance: {
             type: Date,
             required: [true, 'Please provide a DateNaissance'],
