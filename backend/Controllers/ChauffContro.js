@@ -1054,6 +1054,25 @@ const updatestatuss = async (req, res, next) => {
       const driversRef = realtimeDB.ref("Drivers");
       await driversRef.child(firebaseUser.uid).set(activeDriver);
 
+
+      //ajouter id user firebase dans mongodb
+
+      const chauffeurUpdatedfirebase = await Chauffeur.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            useridfirebase: firebaseUser.uid,
+          },
+        },
+        { new: true }
+      );
+
+      if (!chauffeurUpdatedfirebase) {
+        return res.status(404).send({
+          message: "Chauffeur not found!",
+        });
+      }
+
       console.log("Chauffeur successfully added to Firebase Database.");
 
       // Envoi de l'email de confirmation
