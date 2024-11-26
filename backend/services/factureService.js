@@ -115,6 +115,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
         nbTrajet,
         montantTTC,
         fraisDeService,
+        firebaseUID: chauffeur.firebaseUID,
         chauffeurId: chauffeur._id,
         nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
         dateEcheance,
@@ -153,10 +154,22 @@ exports.getFacturesForDriverThisMonth = async (driverId) => {
   return Facture.find({ chauffeurId: driverId, mois: month, annee: year });
 };
 
-// Récupérer toutes les factures pour un chauffeur spécifique ce mois-ci
-exports.getFacturesForDriver = async (driverId) => {  
-  return Facture.find({ chauffeurId: driverId});
+
+
+// Récupérer toutes les factures pour un chauffeur spécifique ce mois-ci pour l'application chauffeur
+exports.getFacturesForDriverThisMonthappchauffeur = async (driverId) => {
+  const month = moment().month() + 1;
+  const year = moment().year();
+  
+  return Facture.find({ firebaseUID: driverId, mois: month, annee: year });
 };
+
+// Récupérer toutes les factures pour un chauffeur spécifique ce mois-ci pour l'application chauffeur
+exports.getFacturesForDriverappchauffeur = async (driverId) => {  
+  return Facture.find({ firebaseUID: driverId});
+};
+
+
 
 // Générer ou récupérer une facture pour un chauffeur ce mois-ci
 exports.getFactureForDriverThisMonth = async (driverId) => {
@@ -215,6 +228,7 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
       nbTrajet: nbTrajet,
       montantTTC: totalAmount,
       fraisDeService: fraisDeService,
+      firebaseUID: chauffeur.firebaseUID,
       chauffeurId: chauffeur._id,
       nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
       dateEcheance: dateEcheance,
