@@ -68,7 +68,7 @@ exports.getFactureById = async (factureId) => {
 
 
 
-exports.generateFacturesForAllChauffeurs = async () => { 
+exports.generateFacturesForAllChauffeurs = async () => {
   try {
     const mois = moment().month() + 1;
     const annee = moment().year();
@@ -85,7 +85,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
 
       // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
-        driverPhone: chauffeur.phone,
+        driverPhone: chauffeur.phone, // Filtre par chauffeurId
         status: 'completed',
         time: {
           $gte: moment([annee, mois - 1]).startOf('month').toDate(),
@@ -99,20 +99,10 @@ exports.generateFacturesForAllChauffeurs = async () => {
       const fraisDeService = montantTTC * 0.15;  // 15% de frais de service
       const montantNet = montantTTC - fraisDeService;
 
-      // Générer un numéro de facture unique
-      let numeroFacture;
-      let factureUnique = false;
-      while (!factureUnique) {
-        const chauffeurIdStr = chauffeur._id.toString().substr(0, 4);
-        const nomPrenom = `${chauffeur.Nom.substr(0, 2)}${chauffeur.Prenom.substr(0, 2)}`.toUpperCase();
-        numeroFacture = `${chauffeurIdStr}_${nomPrenom}_${mois.toString().padStart(2, '0')}_${annee}`;
-        
-        // Vérifier si le numéro de facture existe déjà
-        const factureExistanteNumero = await Facture.findOne({ numero: numeroFacture });
-        if (!factureExistanteNumero) {
-          factureUnique = true; // Si le numéro est unique, sortir de la boucle
-        }
-      }
+      // Générer un nouveau numéro de facture
+      const chauffeurIdStr = chauffeur._id.toString().substr(0, 4);
+      const nomPrenom = `${chauffeur.Nom.substr(0, 2)}${chauffeur.Prenom.substr(0, 2)}`.toUpperCase();
+      const numeroFacture = `${chauffeurIdStr}_${nomPrenom}_${mois.toString().padStart(2, '0')}_${annee}`;
 
       // Générer la date d'échéance
       const dateEcheance = moment([annee, mois - 1]).add(1, 'month').date(15).toDate();
