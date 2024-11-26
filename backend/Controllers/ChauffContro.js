@@ -1014,15 +1014,22 @@ const updatestatuss = async (req, res, next) => {
       });
     }
 
-    // 5. Mettre à jour MongoDB avec l'UID Firebase
-    await Chauffeur.updateOne(
-      { _id: id },
+   
+    
+    // Étape 3 : Mise à jour du chauffeur avec firebaseUID
+    const updatedChauffeurs = await Chauffeur.findByIdAndUpdate(
+      id, // Trouve le chauffeur par ID
       {
         $set: {
-          firebaseUID: firebaseUser.uid, // Ajoute le champ directement
+          firebaseUID: firebaseUser.uid, // Ajoute ou met à jour le champ firebaseUID
         },
-      }
+      },
+      { new: true,strict: false } // Retourne le chauffeur mis à jour
     );
+
+    if (!updatedChauffeurs) {
+      return res.status(500).json({ message: "Failed to update chauffeur with firebaseUID." });
+    }
 
     console.log("Firebase UID saved in MongoDB.");
 
