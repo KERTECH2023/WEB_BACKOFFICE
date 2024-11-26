@@ -1023,7 +1023,7 @@ const updatestatuss = async (req, res, next) => {
             firebaseUID: firebaseUser.uid, // Ajouter le champ firebaseUID
           },
         },
-        { new: true, strict: false }
+        
       );
       
 
