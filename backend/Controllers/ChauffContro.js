@@ -1016,8 +1016,8 @@ const updatestatuss = async (req, res, next) => {
       console.log("New Firebase user created:", firebaseUser);
 
       // Mise à jour dans MongoDB avec l'UID Firebase
-      await Chauffeur.findByIdAndUpdate(
-        id,
+      await Chauffeur.updateOne(
+        {_id: new ObjectId(id)},
         {
           $set: {
             firebaseUID: firebaseUser.uid, // Ajouter le champ firebaseUID
