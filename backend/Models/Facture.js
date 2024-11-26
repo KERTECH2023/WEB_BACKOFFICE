@@ -48,6 +48,9 @@ const FactureSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    firebaseUID: {
+      type: String,
+    },
     chauffeurId: {
       type: Schema.Types.ObjectId,
       ref: "Chauffeur",
