@@ -1015,8 +1015,14 @@ const updatestatuss = async (req, res, next) => {
     }
 
     // 5. Mettre à jour MongoDB avec l'UID Firebase
-    chauffeurUpdated.firebaseUID = firebaseUser.uid;
-    await chauffeurUpdated.save();
+    await Chauffeur.updateOne(
+      { _id: id },
+      {
+        $set: {
+          firebaseUID: firebaseUser.uid, // Ajoute le champ directement
+        },
+      }
+    );
 
     console.log("Firebase UID saved in MongoDB.");
 
