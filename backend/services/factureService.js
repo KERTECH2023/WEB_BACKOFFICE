@@ -119,7 +119,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
         chauffeurId: chauffeur._id,
         nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
         dateEcheance,
-        notes: `Montant net à payer: ${montantNet.toFixed(2)} €`
+        notes: `Montant net à payer: ${montantNet.toFixed(2)}`
       });
 
       // Sauvegarder la nouvelle facture
@@ -232,7 +232,7 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
       chauffeurId: chauffeur._id,
       nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
       dateEcheance: dateEcheance,
-      notes: `Montant net à payer: ${montantNet.toFixed(2)} €`
+      notes: `Montant net à payer: ${montantNet.toFixed(2)}`
     });
 
     // Sauvegarder la facture
