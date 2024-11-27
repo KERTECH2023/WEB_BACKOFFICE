@@ -84,7 +84,19 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
   const { baseFare, farePerKm, farePerMinute } = req.body;
 
   try {
-    const existingTarif = await Tarifs.findOne();
+    // Validation des données
+    if (
+      baseFare === undefined ||
+      farePerKm === undefined ||
+      farePerMinute === undefined
+    ) {
+      return res.status(400).send({
+        message: "Veuillez fournir baseFare, farePerKm et farePerMinute.",
+      });
+    }
+
+    // Rechercher un tarif existant dans MongoDB
+    let existingTarif = await Tarifs.findOne();
 
     if (existingTarif) {
       // Mise à jour du tarif existant
@@ -93,22 +105,43 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       existingTarif.farePerMinute = farePerMinute;
 
       const updatedTarif = await existingTarif.save();
+
+      // Mise à jour dans Firebase
+      const firebaseRef = realtimeDB.ref("tarifs");
+      await firebaseRef.update({
+        baseFare,
+        farePerKm,
+        farePerMinute,
+      });
+
+      // Mise à jour des chauffeurs avec le tarif mis à jour
       await updateAllChauffeursWithTarif(updatedTarif._id);
 
       return res.status(200).send({
         message: "Tarif existant mis à jour et chauffeurs mis à jour !",
+        tarif: updatedTarif,
       });
     }
 
     // Création d'un nouveau tarif
     const newTarif = new Tarifs({ baseFare, farePerKm, farePerMinute });
     const savedTarif = await newTarif.save();
-    await updateAllChauffeursWithTarif(savedTarif._id);
 
-    return res.status(200).send({
-      message: "Nouveau tarif ajouté et chauffeurs mis à jour !",
+    // Ajout dans Firebase
+    const firebaseRef = realtimeDB.ref("tarifs");
+    await firebaseRef.set({
+      baseFare,
+      farePerKm,
+      farePerMinute,
     });
 
+    // Mise à jour des chauffeurs avec le nouveau tarif
+    await updateAllChauffeursWithTarif(savedTarif._id);
+
+    return res.status(201).send({
+      message: "Nouveau tarif ajouté et chauffeurs mis à jour !",
+      tarif: savedTarif,
+    });
   } catch (error) {
     return res.status(500).send({ error: error.message });
   }
