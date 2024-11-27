@@ -83,7 +83,7 @@ async function saveRide(req, res) {
 
 
 
-async function saveRideFirebaseToMongoDB() {
+async function saveRideFirebaseToMongoDB(req, res) {
   try {
     // Récupérer toutes les RideRequests depuis Firebase
     const snapshot = await realtimeDB.ref("AllRideRequests").once("value");
@@ -91,8 +91,10 @@ async function saveRideFirebaseToMongoDB() {
 
     if (!rideRequests) {
       console.log("Aucune donnée trouvée dans Firebase.");
-      return;
+      return res.status(404).json({ message: "Aucune donnée trouvée dans Firebase." });
     }
+
+    let savedCount = 0; // Compteur pour suivre le nombre d'insertions
 
     // Parcourir les rideRequests et sauvegarder dans MongoDB
     for (const [firebaseRiderRequestsID, rideRequest] of Object.entries(rideRequests)) {
@@ -140,12 +142,21 @@ async function saveRideFirebaseToMongoDB() {
 
       // Sauvegarder dans MongoDB
       await newRideRequest.save();
+      savedCount++;
       console.log(`RideRequest ${firebaseRiderRequestsID} sauvegardée avec succès.`);
     }
 
     console.log("Synchronisation terminée.");
+    res.status(200).json({
+      message: "Synchronisation terminée.",
+      savedCount,
+    });
   } catch (error) {
     console.error("Erreur lors de la synchronisation des données Firebase vers MongoDB :", error);
+    res.status(500).json({
+      message: "Erreur lors de la synchronisation des données Firebase vers MongoDB.",
+      error: error.message,
+    });
   }
 }
 
