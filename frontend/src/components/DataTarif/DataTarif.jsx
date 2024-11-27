@@ -1,143 +1,214 @@
-const Chauffeur = require("../Models/Chauffeur");
-const Tarifs = require("../Models/Tarifs");
-const cron = require('node-cron');
-const moment = require('moment-timezone');
+import React, { useState, useEffect } from "react";
+import "./datatarif.scss";
+import { DataGrid } from "@mui/x-data-grid";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
-// Fonction générique pour mettre à jour tous les chauffeurs avec un tarif
-const updateAllChauffeursWithTarif = async (tariffId) => {
-  try {
-    await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
-    console.log("Tous les chauffeurs ont été mis à jour avec le tarif ID:", tariffId);
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour des chauffeurs :", error.message);
-  }
-};
+const DataTarif = () => {
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [selectedTarif, setSelectedTarif] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newTarif, setNewTarif] = useState({ baseFare: "", farePerKm: "", farePerMinute: "" });
+  const [isAddingTarif, setIsAddingTarif] = useState(false);
 
+  useEffect(() => {
+    getUsers();
+  }, []);
 
+  const getUsers = async () => {
+    const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Tar/show");
+    if (response.status === 200) {
+      setData(response.data);
+    }
+  };
 
-// Mise à jour du tarif automatiquement à une heure précise
-function updateTariff() {
-  const tunisiaTime = moment().tz('Africa/Tunis');
-  const currentHour = tunisiaTime.hour();
-  const currentMinute = tunisiaTime.minute();
+  const handleSearchTerm = (e) => {
+    setSearch(e.target.value);
+  };
 
-  console.log('Heure actuelle (Tunisie) :', currentHour + ':' + currentMinute);
-
-  // Exemple : mise à jour à 20:44
-  if (currentHour === 20 && currentMinute === 44) {
-    Tarifs.findOne({}, async (err, tariff) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-
-      if (!tariff) {
-        console.error('Aucun tarif trouvé');
-        return;
-      }
-
-      // Mise à jour des tarifs avec une majoration de 50% sur les bases
-      tariff.baseFare = (parseFloat(tariff.baseFare) * 1.5).toFixed(2);
-      tariff.farePerKm = (parseFloat(tariff.farePerKm) * 1.5).toFixed(2);
-      tariff.farePerMinute = (parseFloat(tariff.farePerMinute) * 1.5).toFixed(2);
-
-      try {
-        await tariff.save();
-        console.log("Tarifs mis à jour automatiquement avec majoration.");
-      } catch (error) {
-        console.error("Erreur lors de la mise à jour des tarifs :", error.message);
-      }
+  const handleEdit = (tarif) => {
+    setSelectedTarif(tarif);
+    setNewTarif({
+      baseFare: tarif.baseFare,
+      farePerKm: tarif.farePerKm,
+      farePerMinute: tarif.farePerMinute,
     });
-  }
-}
+    setIsModalOpen(true);
+  };
 
-// Planification de la mise à jour automatique des tarifs
-cron.schedule('44 20 * * *', () => {
-  updateTariff();
-}, {
-  scheduled: true,
-  timezone: "Africa/Tunis",
-});
-
-
-
-
-
-
-//lksdjfkjdsfjhddjdfjhfdhjdsfjjfdhjhksfdjdfj
-
-// Afficher tous les tarifs
-exports.showtarifs = async (req, res) => {
-  try {
-    const data = await Tarifs.find();
-    res.json(data);
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-};
-
-
-// Ajouter ou mettre à jour un tarif, et mettre à jour les chauffeurs
-exports.addTarifAndUpdateChauffeurs = async (req, res) => {
-  const { baseFare, farePerKm, farePerMinute } = req.body;
-
-  try {
-    const existingTarif = await Tarifs.findOne();
-
-    if (existingTarif) {
-      // Mise à jour du tarif existant
-      existingTarif.baseFare = baseFare;
-      existingTarif.farePerKm = farePerKm;
-      existingTarif.farePerMinute = farePerMinute;
-
-      const updatedTarif = await existingTarif.save();
-      await updateAllChauffeursWithTarif(updatedTarif._id);
-
-      return res.status(200).send({
-        message: "Tarif existant mis à jour et chauffeurs mis à jour !",
+  const handleUpdate = async () => {
+    try {
+      const response = await axios.put(process.env.REACT_APP_BASE_URL + `/Tar/update`, {
+        tarifId: selectedTarif.id,
+        ...newTarif,
       });
+      if (response.status === 200) {
+        toast.success("Tarif mis à jour avec succès !");
+        setIsModalOpen(false);
+        getUsers();
+      }
+    } catch (error) {
+      toast.error("Échec de la mise à jour du tarif.");
     }
+  };
 
-    // Création d'un nouveau tarif
-    const newTarif = new Tarifs({ baseFare, farePerKm, farePerMinute });
-    const savedTarif = await newTarif.save();
-    await updateAllChauffeursWithTarif(savedTarif._id);
+  const handleAddTarif = async () => {
+    if (isAddingTarif) {
+      try {
+        const response = await axios.post(process.env.REACT_APP_BASE_URL + `/Tar/tarif`, {
+          ...newTarif,
+        });
+        if (response.status === 200) {
+          toast.success("Nouveau tarif ajouté avec succès !");
+          setIsAddingTarif(false);
+          setNewTarif({ baseFare: "", farePerKm: "", farePerMinute: "" });
+          getUsers();
+        }
+      } catch (error) {
+        toast.error("Échec de l'ajout du nouveau tarif.");
+      }
+    } else {
+      setIsAddingTarif(true);
+    }
+  };
 
-    return res.status(200).send({
-      message: "Nouveau tarif ajouté et chauffeurs mis à jour !",
-    });
+  return (
+    <div className="datatable">
+      <div className="search mb-3">
+        <input
+          type="text"
+          placeholder="Rechercher..."
+          onChange={handleSearchTerm}
+          name="Search"
+          id="Search"
+          className="form-control"
+        />
+      </div>
+      <div className="mb-3 d-flex">
+        {isAddingTarif && (
+          <>
+            <input
+              type="text"
+              placeholder="Base Fare"
+              value={newTarif.baseFare}
+              onChange={(e) => setNewTarif({ ...newTarif, baseFare: e.target.value })}
+              className="form-control me-2"
+            />
+            <input
+              type="text"
+              placeholder="Fare Per Km"
+              value={newTarif.farePerKm}
+              onChange={(e) => setNewTarif({ ...newTarif, farePerKm: e.target.value })}
+              className="form-control me-2"
+            />
+            <input
+              type="text"
+              placeholder="Fare Per Minute"
+              value={newTarif.farePerMinute}
+              onChange={(e) => setNewTarif({ ...newTarif, farePerMinute: e.target.value })}
+              className="form-control me-2"
+            />
+          </>
+        )}
+        <button className="btn btn-primary" onClick={handleAddTarif}>
+          {isAddingTarif ? "Soumettre" : "Ajouter un tarif"}
+        </button>
+      </div>
+      <DataGrid
+        className="datagrid"
+        rows={data.filter((val) =>
+          `${val.baseFare}${val.farePerKm}${val.farePerMinute}`.includes(search)
+        )}
+        columns={[
+          { field: "baseFare", headerName: "Base Fare", width: 120 },
+          { field: "farePerKm", headerName: "Fare Per Km", width: 120 },
+          { field: "farePerMinute", headerName: "Fare Per Minute", width: 150 },
+          {
+            field: "action",
+            headerName: "Action",
+            width: 150,
+            renderCell: (params) => (
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => handleEdit(params.row)}
+              >
+                Modifier
+              </button>
+            ),
+          },
+        ]}
+        pageSize={9}
+        rowsPerPageOptions={[9]}
+        checkboxSelection
+      />
 
-  } catch (error) {
-    return res.status(500).send({ error: error.message });
-  }
+      {isModalOpen && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Modifier le tarif</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Close"
+                  onClick={() => setIsModalOpen(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Base Fare :</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newTarif.baseFare}
+                    onChange={(e) => setNewTarif({ ...newTarif, baseFare: e.target.value })}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Fare Per Km :</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newTarif.farePerKm}
+                    onChange={(e) => setNewTarif({ ...newTarif, farePerKm: e.target.value })}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Fare Per Minute :</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newTarif.farePerMinute}
+                    onChange={(e) => setNewTarif({ ...newTarif, farePerMinute: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleUpdate}
+                >
+                  Mettre à jour
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer />
+    </div>
+  );
 };
 
-
-
-
-// Mise à jour manuelle d'un tarif spécifique
-exports.updateTarifAndMajoration = async (req, res) => {
-  const { tarifId, baseFare, farePerKm, farePerMinute } = req.body;
-
-  try {
-    const existingTarif = await Tarifs.findById(tarifId);
-
-    if (!existingTarif) {
-      return res.status(404).send({ message: "Tarif non trouvé" });
-    }
-
-    existingTarif.baseFare = baseFare;
-    existingTarif.farePerKm = farePerKm;
-    existingTarif.farePerMinute = farePerMinute;
-
-    const updatedTarif = await existingTarif.save();
-
-    return res.status(200).send({
-      message: "Tarif mis à jour avec succès !",
-      updatedTarif,
-    });
-
-  } catch (error) {
-    return res.status(500).send({ error: error.message });
-  }
-};
+export default DataTarif;
