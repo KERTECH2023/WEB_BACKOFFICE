@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./datatarif.scss";
 import { DataGrid } from "@mui/x-data-grid";
-import { TarifColumns } from "../../datatarif";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -10,8 +9,7 @@ const DataTarif = () => {
   const [search, setSearch] = useState("");
   const [selectedTarif, setSelectedTarif] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTarif, setNewTarif] = useState("");
-  const [newTarifMaj, setNewTarifMaj] = useState("");
+  const [newTarif, setNewTarif] = useState({ baseFare: "", farePerKm: "", farePerMinute: "" });
   const [isAddingTarif, setIsAddingTarif] = useState(false);
 
   useEffect(() => {
@@ -31,8 +29,11 @@ const DataTarif = () => {
 
   const handleEdit = (tarif) => {
     setSelectedTarif(tarif);
-    setNewTarif(tarif.tarif);
-    setNewTarifMaj(tarif.tarifmaj);
+    setNewTarif({
+      baseFare: tarif.baseFare,
+      farePerKm: tarif.farePerKm,
+      farePerMinute: tarif.farePerMinute,
+    });
     setIsModalOpen(true);
   };
 
@@ -40,8 +41,7 @@ const DataTarif = () => {
     try {
       const response = await axios.put(process.env.REACT_APP_BASE_URL + `/Tar/update`, {
         tarifId: selectedTarif.id,
-        newTarif,
-        newTarifMaj,
+        ...newTarif,
       });
       if (response.status === 200) {
         toast.success("Tarif mis à jour avec succès !");
@@ -57,14 +57,12 @@ const DataTarif = () => {
     if (isAddingTarif) {
       try {
         const response = await axios.post(process.env.REACT_APP_BASE_URL + `/Tar/tarif`, {
-          tarif: newTarif,
-          tarifMaj: newTarifMaj,
+          ...newTarif,
         });
         if (response.status === 200) {
           toast.success("Nouveau tarif ajouté avec succès !");
           setIsAddingTarif(false);
-          setNewTarif("");
-          setNewTarifMaj("");
+          setNewTarif({ baseFare: "", farePerKm: "", farePerMinute: "" });
           getUsers();
         }
       } catch (error) {
@@ -92,16 +90,23 @@ const DataTarif = () => {
           <>
             <input
               type="text"
-              placeholder="Entrer le tarif du jour"
-              value={newTarif}
-              onChange={(e) => setNewTarif(e.target.value)}
+              placeholder="Base Fare"
+              value={newTarif.baseFare}
+              onChange={(e) => setNewTarif({ ...newTarif, baseFare: e.target.value })}
               className="form-control me-2"
             />
             <input
               type="text"
-              placeholder="Entrer le tarif après majoration"
-              value={newTarifMaj}
-              onChange={(e) => setNewTarifMaj(e.target.value)}
+              placeholder="Fare Per Km"
+              value={newTarif.farePerKm}
+              onChange={(e) => setNewTarif({ ...newTarif, farePerKm: e.target.value })}
+              className="form-control me-2"
+            />
+            <input
+              type="text"
+              placeholder="Fare Per Minute"
+              value={newTarif.farePerMinute}
+              onChange={(e) => setNewTarif({ ...newTarif, farePerMinute: e.target.value })}
               className="form-control me-2"
             />
           </>
@@ -112,9 +117,13 @@ const DataTarif = () => {
       </div>
       <DataGrid
         className="datagrid"
-        rows={data.filter((val) => val.tarif.includes(search))}
+        rows={data.filter((val) =>
+          `${val.baseFare}${val.farePerKm}${val.farePerMinute}`.includes(search)
+        )}
         columns={[
-          ...TarifColumns,
+          { field: "baseFare", headerName: "Base Fare", width: 120 },
+          { field: "farePerKm", headerName: "Fare Per Km", width: 120 },
+          { field: "farePerMinute", headerName: "Fare Per Minute", width: 150 },
           {
             field: "action",
             headerName: "Action",
@@ -149,27 +158,30 @@ const DataTarif = () => {
               </div>
               <div className="modal-body">
                 <div className="mb-3">
-                  <label htmlFor="tarif" className="form-label">
-                    Tarif du jour :
-                  </label>
+                  <label className="form-label">Base Fare :</label>
                   <input
                     type="text"
                     className="form-control"
-                    id="tarif"
-                    value={newTarif}
-                    onChange={(e) => setNewTarif(e.target.value)}
+                    value={newTarif.baseFare}
+                    onChange={(e) => setNewTarif({ ...newTarif, baseFare: e.target.value })}
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="tarifMaj" className="form-label">
-                    Tarif après majoration :
-                  </label>
+                  <label className="form-label">Fare Per Km :</label>
                   <input
                     type="text"
                     className="form-control"
-                    id="tarifMaj"
-                    value={newTarifMaj}
-                    onChange={(e) => setNewTarifMaj(e.target.value)}
+                    value={newTarif.farePerKm}
+                    onChange={(e) => setNewTarif({ ...newTarif, farePerKm: e.target.value })}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Fare Per Minute :</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newTarif.farePerMinute}
+                    onChange={(e) => setNewTarif({ ...newTarif, farePerMinute: e.target.value })}
                   />
                 </div>
               </div>
