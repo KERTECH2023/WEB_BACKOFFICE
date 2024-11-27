@@ -3,93 +3,121 @@ const Tarifs = require("../Models/Tarifs");
 const cron = require('node-cron');
 const moment = require('moment-timezone');
 
-exports.addTarifAndUpdateChauffeurs = async (req, res, next) => {
-    const { tarif, tarifMaj } = req.body;
-
-    try {
-        const existingTarif = await Tarifs.findOne();
-
-        if (existingTarif) {
-            existingTarif.tarif = tarif;
-            existingTarif.tarifmaj = tarifMaj;
-            const updatedTarif = await existingTarif.save();
-
-            const tariffId = updatedTarif._id;
-            await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
-
-            return res.status(200).send({
-                message: "Tarif existant mis à jour et chauffeurs mis à jour !"
-            });
-        }
-
-        const newTarif = new Tarifs({ tarif, tarifmaj:tarifMaj });
-        const savedTarif = await newTarif.save();
-
-        const tariffId = savedTarif._id;
-        await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
-
-        return res.status(200).send({
-            message: "Nouveau tarif ajouté et chauffeurs mis à jour !"
-        });
-
-    } catch (error) {
-        return res.status(500).send({ error: error.message });
-    }
+// Fonction générique pour mettre à jour tous les chauffeurs avec un tarif
+const updateAllChauffeursWithTarif = async (tariffId) => {
+  try {
+    await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
+    console.log("Tous les chauffeurs ont été mis à jour avec le tarif ID:", tariffId);
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des chauffeurs :", error.message);
+  }
 };
 
+
+
+// Mise à jour du tarif automatiquement à une heure précise
 function updateTariff() {
   const tunisiaTime = moment().tz('Africa/Tunis');
   const currentHour = tunisiaTime.hour();
   const currentMinute = tunisiaTime.minute();
-  console.log('Heure:', currentHour + ':' + currentMinute);
 
+  console.log('Heure actuelle (Tunisie) :', currentHour + ':' + currentMinute);
+
+  // Exemple : mise à jour à 20:44
   if (currentHour === 20 && currentMinute === 44) {
-    Tarifs.findOne({}, (err, tariff) => {
+    Tarifs.findOne({}, async (err, tariff) => {
       if (err) {
         console.error(err);
         return;
       }
-      
+
       if (!tariff) {
         console.error('Aucun tarif trouvé');
         return;
       }
 
-      const oldTariff = parseFloat(tariff.tarif);
-      console.log('Ancien Tarif:', oldTariff);
-      const newTariff = oldTariff + (oldTariff * 0.5);
-      const roundedNewTariff = Number(newTariff.toFixed(2));
+      // Mise à jour des tarifs avec une majoration de 50% sur les bases
+      tariff.baseFare = (parseFloat(tariff.baseFare) * 1.5).toFixed(2);
+      tariff.farePerKm = (parseFloat(tariff.farePerKm) * 1.5).toFixed(2);
+      tariff.farePerMinute = (parseFloat(tariff.farePerMinute) * 1.5).toFixed(2);
 
-      tariff.tarifmaj = roundedNewTariff.toString();
-      tariff.save((err) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log("Tarif après majoration mis à jour :", newTariff);
-      });
+      try {
+        await tariff.save();
+        console.log("Tarifs mis à jour automatiquement avec majoration.");
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour des tarifs :", error.message);
+      }
     });
   }
 }
 
+// Planification de la mise à jour automatique des tarifs
 cron.schedule('44 20 * * *', () => {
   updateTariff();
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Africa/Tunis",
 });
 
+
+
+
+
+
+//lksdjfkjdsfjhddjdfjhfdhjdsfjjfdhjhksfdjdfj
+
+// Afficher tous les tarifs
 exports.showtarifs = async (req, res) => {
-  Tarifs.find((err, data) => {
-    if (err) {
-      return res.status(500).send({ error: err.message });
-    }
+  try {
+    const data = await Tarifs.find();
     res.json(data);
-  });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 };
 
-exports.updateTarifAndMajoration = async (req, res, next) => {
-  const { tarifId, newTarif, newTarifMaj } = req.body;
+
+// Ajouter ou mettre à jour un tarif, et mettre à jour les chauffeurs
+exports.addTarifAndUpdateChauffeurs = async (req, res) => {
+  const { baseFare, farePerKm, farePerMinute } = req.body;
+
+  try {
+    const existingTarif = await Tarifs.findOne();
+
+    if (existingTarif) {
+      // Mise à jour du tarif existant
+      existingTarif.baseFare = baseFare;
+      existingTarif.farePerKm = farePerKm;
+      existingTarif.farePerMinute = farePerMinute;
+
+      const updatedTarif = await existingTarif.save();
+      await updateAllChauffeursWithTarif(updatedTarif._id);
+
+      return res.status(200).send({
+        message: "Tarif existant mis à jour et chauffeurs mis à jour !",
+      });
+    }
+
+    // Création d'un nouveau tarif
+    const newTarif = new Tarifs({ baseFare, farePerKm, farePerMinute });
+    const savedTarif = await newTarif.save();
+    await updateAllChauffeursWithTarif(savedTarif._id);
+
+    return res.status(200).send({
+      message: "Nouveau tarif ajouté et chauffeurs mis à jour !",
+    });
+
+  } catch (error) {
+    return res.status(500).send({ error: error.message });
+  }
+};
+
+
+
+
+// Mise à jour manuelle d'un tarif spécifique
+exports.updateTarifAndMajoration = async (req, res) => {
+  const { tarifId, baseFare, farePerKm, farePerMinute } = req.body;
 
   try {
     const existingTarif = await Tarifs.findById(tarifId);
@@ -98,14 +126,15 @@ exports.updateTarifAndMajoration = async (req, res, next) => {
       return res.status(404).send({ message: "Tarif non trouvé" });
     }
 
-    existingTarif.tarif = newTarif;
-    existingTarif.tarifmaj = newTarifMaj;
+    existingTarif.baseFare = baseFare;
+    existingTarif.farePerKm = farePerKm;
+    existingTarif.farePerMinute = farePerMinute;
 
     const updatedTarif = await existingTarif.save();
 
     return res.status(200).send({
-      message: "Tarif et tarif après majoration mis à jour !",
-      updatedTarif
+      message: "Tarif mis à jour avec succès !",
+      updatedTarif,
     });
 
   } catch (error) {
