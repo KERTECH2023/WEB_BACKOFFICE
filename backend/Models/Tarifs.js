@@ -3,15 +3,15 @@ const mongoose = require('mongoose');
 const tarifSchema = new mongoose.Schema({
   
   baseFare: {
-    type: String,
+    type: Number,
     required: true
   },
   farePerKm: {
-    type: String,
+    type: Number,
     
   },
   farePerMinute: {
-    type: String,
+    type: Number,
     
   },
   
