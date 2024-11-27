@@ -2,6 +2,8 @@ const Chauffeur = require("../Models/Chauffeur");
 const Tarifs = require("../Models/Tarifs");
 const cron = require('node-cron');
 const moment = require('moment-timezone');
+const firestoreModule = require("../services/config");
+const realtimeDB = firestoreModule.firestoreApp.database();
 
 // Fonction générique pour mettre à jour tous les chauffeurs avec un tarif
 const updateAllChauffeursWithTarif = async (tariffId) => {
@@ -115,15 +117,26 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
 
 
 
-// Mise à jour manuelle d'un tarif spécifique
 exports.updateTarifAndMajoration = async (req, res) => {
   const { tarifId, baseFare, farePerKm, farePerMinute } = req.body;
 
   try {
-    const existingTarif = await Tarifs.findById(tarifId);
+    // Vérifier si les données nécessaires sont fournies
+    if (
+      !tarifId ||
+      baseFare === undefined ||
+      farePerKm === undefined ||
+      farePerMinute === undefined
+    ) {
+      return res.status(400).send({
+        message: "Veuillez fournir tarifId, baseFare, farePerKm et farePerMinute.",
+      });
+    }
 
+    // Mise à jour dans MongoDB
+    const existingTarif = await Tarifs.findById(tarifId);
     if (!existingTarif) {
-      return res.status(404).send({ message: "Tarif non trouvé" });
+      return res.status(404).send({ message: "Tarif non trouvé dans MongoDB." });
     }
 
     existingTarif.baseFare = baseFare;
@@ -132,12 +145,24 @@ exports.updateTarifAndMajoration = async (req, res) => {
 
     const updatedTarif = await existingTarif.save();
 
-    return res.status(200).send({
-      message: "Tarif mis à jour avec succès !",
-      updatedTarif,
+    // Mise à jour dans Firebase Realtime Database
+    const firebaseRef = realtimeDB.ref("tarifs");
+    await firebaseRef.update({
+      baseFare,
+      farePerKm,
+      farePerMinute,
     });
 
+    // Réponse de succès
+    return res.status(200).send({
+      message: "Tarif mis à jour avec succès dans MongoDB et Firebase !",
+      updatedTarif,
+    });
   } catch (error) {
-    return res.status(500).send({ error: error.message });
+    // Gestion des erreurs
+    return res.status(500).send({
+      message: "Une erreur s'est produite lors de la mise à jour.",
+      error: error.message,
+    });
   }
 };
