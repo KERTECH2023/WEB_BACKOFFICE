@@ -95,23 +95,39 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       });
     }
 
+    // Conversion explicite en nombres
+    const baseFareNum = Number(baseFare);
+    const farePerKmNum = Number(farePerKm);
+    const farePerMinuteNum = Number(farePerMinute);
+
+    // Vérification des valeurs après conversion
+    if (
+      isNaN(baseFareNum) ||
+      isNaN(farePerKmNum) ||
+      isNaN(farePerMinuteNum)
+    ) {
+      return res.status(400).send({
+        message: "Les valeurs baseFare, farePerKm et farePerMinute doivent être des nombres valides.",
+      });
+    }
+
     // Rechercher un tarif existant dans MongoDB
     let existingTarif = await Tarifs.findOne();
 
     if (existingTarif) {
       // Mise à jour du tarif existant
-      existingTarif.baseFare = baseFare;
-      existingTarif.farePerKm = farePerKm;
-      existingTarif.farePerMinute = farePerMinute;
+      existingTarif.baseFare = baseFareNum;
+      existingTarif.farePerKm = farePerKmNum;
+      existingTarif.farePerMinute = farePerMinuteNum;
 
       const updatedTarif = await existingTarif.save();
 
       // Mise à jour dans Firebase
       const firebaseRef = realtimeDB.ref("tarifs");
       await firebaseRef.update({
-        baseFare,
-        farePerKm,
-        farePerMinute,
+        baseFare: baseFareNum,
+        farePerKm: farePerKmNum,
+        farePerMinute: farePerMinuteNum,
       });
 
       // Mise à jour des chauffeurs avec le tarif mis à jour
@@ -124,15 +140,19 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
     }
 
     // Création d'un nouveau tarif
-    const newTarif = new Tarifs({ baseFare, farePerKm, farePerMinute });
+    const newTarif = new Tarifs({
+      baseFare: baseFareNum,
+      farePerKm: farePerKmNum,
+      farePerMinute: farePerMinuteNum,
+    });
     const savedTarif = await newTarif.save();
 
     // Ajout dans Firebase
     const firebaseRef = realtimeDB.ref("tarifs");
     await firebaseRef.set({
-      baseFare,
-      farePerKm,
-      farePerMinute,
+      baseFare: baseFareNum,
+      farePerKm: farePerKmNum,
+      farePerMinute: farePerMinuteNum,
     });
 
     // Mise à jour des chauffeurs avec le nouveau tarif
@@ -146,6 +166,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
     return res.status(500).send({ error: error.message });
   }
 };
+
 
 
 
