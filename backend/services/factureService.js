@@ -70,28 +70,26 @@ exports.getFactureById = async (factureId) => {
 
 exports.generateFacturesForAllChauffeurs = async () => {
   try {
-    // Récupérer le mois et l'année en cours
-    const mois = moment().month() + 1;  // Mois actuel
-    const annee = moment().year();     // Année actuelle
-
+    const mois = moment().month() + 1;
+    const annee = moment().year();
+    
     // Récupérer tous les chauffeurs
     const chauffeurs = await Chauffeur.find();
 
-    // Récupérer les factures pour chaque chauffeur
     const factures = await Promise.all(chauffeurs.map(async (chauffeur) => {
-      // Vérifier si la facture existe déjà pour ce mois et cette année
+      // Vérifier si la facture existe déjà
       const factureExistante = await Facture.findOne({ chauffeurId: chauffeur._id, mois, annee });
       if (factureExistante) {
-        return factureExistante;  // Retourner la facture existante si elle existe
+        return factureExistante; // Retourner la facture existante
       }
 
-      // Récupérer toutes les courses complétées pour ce chauffeur dans le mois en cours
+      // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
-        driverPhone: chauffeur.phone,  // Filtre par chauffeur
+        driverPhone: chauffeur.phone, // Filtre par chauffeurId
         status: 'completed',
         time: {
-          $gte: moment([annee, mois - 1]).startOf('month').toDate(),  // Début du mois
-          $lt: moment([annee, mois - 1]).endOf('month').toDate(),    // Fin du mois
+          $gte: moment([annee, mois - 1]).startOf('month').toDate(),
+          $lt: moment([annee, mois - 1]).endOf('month').toDate(),
         }
       });
 
@@ -106,10 +104,10 @@ exports.generateFacturesForAllChauffeurs = async () => {
       const nomPrenom = `${chauffeur.Nom.substr(0, 2)}${chauffeur.Prenom.substr(0, 2)}`.toUpperCase();
       const numeroFacture = `${chauffeurIdStr}_${nomPrenom}_${mois.toString().padStart(2, '0')}_${annee}`;
 
-      // Générer la date d'échéance (15 du mois suivant)
+      // Générer la date d'échéance
       const dateEcheance = moment([annee, mois - 1]).add(1, 'month').date(15).toDate();
 
-      // Créer la nouvelle facture
+      // Créer une nouvelle facture
       const nouvelleFacture = new Facture({
         numero: numeroFacture,
         mois,
@@ -121,7 +119,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
         chauffeurId: chauffeur._id,
         nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
         dateEcheance,
-        notes: `Montant net à payer: ${montantNet.toFixed(2)} €`
+        notes: `Montant net à payer: ${montantNet.toFixed(2)}`
       });
 
       // Sauvegarder la nouvelle facture
@@ -129,13 +127,11 @@ exports.generateFacturesForAllChauffeurs = async () => {
       return nouvelleFacture;
     }));
 
-    // Retourner toutes les factures générées
     return factures;
   } catch (error) {
     throw new Error(`Erreur lors de la génération des factures: ${error.message}`);
   }
 };
-
 
 
 
