@@ -166,28 +166,40 @@ exports.updateTarifAndMajoration = async (req, res) => {
       });
     }
 
+    // Conversion directe des valeurs en type number
+    const baseFareNum = Number(baseFare);
+    const farePerKmNum = Number(farePerKm);
+    const farePerMinuteNum = Number(farePerMinute);
+
+    // Vérifier que les valeurs converties sont valides
+    if (
+      isNaN(baseFareNum) ||
+      isNaN(farePerKmNum) ||
+      isNaN(farePerMinuteNum)
+    ) {
+      return res.status(400).send({
+        message: "Les valeurs baseFare, farePerKm et farePerMinute doivent être des nombres valides.",
+      });
+    }
+
     // Mise à jour dans MongoDB
     const existingTarif = await Tarifs.findById(tarifId);
     if (!existingTarif) {
       return res.status(404).send({ message: "Tarif non trouvé dans MongoDB." });
     }
 
-    existingTarif.baseFare = baseFare;
-    existingTarif.farePerKm = farePerKm;
-    existingTarif.farePerMinute = farePerMinute;
+    existingTarif.baseFare = baseFareNum;
+    existingTarif.farePerKm = farePerKmNum;
+    existingTarif.farePerMinute = farePerMinuteNum;
 
     const updatedTarif = await existingTarif.save();
-
-     baseFare = Number(baseFare);
-     farePerKm = Number(farePerKm);
-     farePerMinute = Number(farePerMinute);
 
     // Mise à jour dans Firebase Realtime Database
     const firebaseRef = realtimeDB.ref("tarifs");
     await firebaseRef.update({
-      baseFare,
-      farePerKm,
-      farePerMinute,
+      baseFare: baseFareNum,
+      farePerKm: farePerKmNum,
+      farePerMinute: farePerMinuteNum,
     });
 
     // Réponse de succès
