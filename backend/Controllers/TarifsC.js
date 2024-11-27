@@ -178,6 +178,10 @@ exports.updateTarifAndMajoration = async (req, res) => {
 
     const updatedTarif = await existingTarif.save();
 
+     baseFare = Number(baseFare);
+     farePerKm = Number(farePerKm);
+     farePerMinute = Number(farePerMinute);
+
     // Mise à jour dans Firebase Realtime Database
     const firebaseRef = realtimeDB.ref("tarifs");
     await firebaseRef.update({
