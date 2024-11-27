@@ -86,8 +86,8 @@ exports.generateFacturesForAllChauffeurs = async () => {
         }
 
         // Calculer les bornes temporelles
-        const debutMois = moment().year(annee).month(mois - 1).startOf('month').toDate();
-        const finMois = moment().year(annee).month(mois - 1).endOf('month').toDate();
+        const debutMois = moment().year(annee).month(mois).startOf('month').toDate();
+        const finMois = moment().year(annee).month(mois).endOf('month').toDate();
 
         // Récupérer toutes les courses complétées pour le chauffeur ce mois
         const rideRequests = await RideRequest.find({
