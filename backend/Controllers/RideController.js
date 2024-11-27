@@ -106,38 +106,38 @@ async function saveRideFirebaseToMongoDB(req, res) {
         continue; // Passer à la suivante
       }
 
-      // Créer une nouvelle instance de RideRequest
+      // Vérifier et attribuer des valeurs par défaut si les propriétés sont manquantes
       const newRideRequest = new RideRequest({
         firebaseRiderRequestsID,
-        driverId: rideRequest.driverId,
-        driverName: rideRequest.driverName,
-        driverPhone: rideRequest.driverPhone,
-        driverPhoto: rideRequest.driverPhoto,
+        driverId: rideRequest.driverId || "",
+        driverName: rideRequest.driverName || "",
+        driverPhone: rideRequest.driverPhone || "",
+        driverPhoto: rideRequest.driverPhoto || "",
         driverLocationData: {
-          latitude: rideRequest.driverLocationData.latitude,
-          longitude: rideRequest.driverLocationData.longitude,
+          latitude: rideRequest.driverLocationData?.latitude || 0,
+          longitude: rideRequest.driverLocationData?.longitude || 0,
         },
         carDetails: {
-          carModel: rideRequest.carDetails?.carModel || "",
-          carNumber: rideRequest.carDetails?.carNumber || "",
+          carModel: rideRequest.carDetails?.carModel || "Unknown",
+          carNumber: rideRequest.carDetails?.carNumber || "Unknown",
         },
-        fareAmount: rideRequest.fareAmount,
+        fareAmount: rideRequest.fareAmount || 0,
         healthStatus: rideRequest.healthStatus || "none",
         source: {
-          latitude: rideRequest.source.latitude,
-          longitude: rideRequest.source.longitude,
+          latitude: rideRequest.source?.latitude || 0,
+          longitude: rideRequest.source?.longitude || 0,
         },
-        sourceAddress: rideRequest.sourceAddress,
+        sourceAddress: rideRequest.sourceAddress || "Unknown",
         destination: {
-          latitude: rideRequest.destination.latitude,
-          longitude: rideRequest.destination.longitude,
+          latitude: rideRequest.destination?.latitude || 0,
+          longitude: rideRequest.destination?.longitude || 0,
         },
-        destinationAddress: rideRequest.destinationAddress,
-        status: rideRequest.status,
-        time: rideRequest.time,
-        userId: rideRequest.userId,
-        userName: rideRequest.userName,
-        userPhone: rideRequest.userPhone,
+        destinationAddress: rideRequest.destinationAddress || "Unknown",
+        status: rideRequest.status || "Pending",
+        time: rideRequest.time || new Date(),
+        userId: rideRequest.userId || "",
+        userName: rideRequest.userName || "",
+        userPhone: rideRequest.userPhone || "",
       });
 
       // Sauvegarder dans MongoDB
