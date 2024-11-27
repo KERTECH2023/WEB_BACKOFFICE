@@ -86,7 +86,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
       // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
         driverPhone: chauffeur.phone, // Filtre par chauffeurId
-        status: 'completed',
+        status: 'Ended',
         time: {
           $gte: moment([annee, mois - 1]).startOf('month').toDate(),
           $lt: moment([annee, mois - 1]).endOf('month').toDate(),
@@ -119,7 +119,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
         chauffeurId: chauffeur._id,
         nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
         dateEcheance,
-        notes: `Montant net à payer: ${montantNet.toFixed(2)}`
+        notes: `Montant net à payer: ${montantNet.toFixed(2)} €`
       });
 
       // Sauvegarder la nouvelle facture
@@ -192,7 +192,7 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
     // Récupérer toutes les courses complétées pour le chauffeur ce mois
     const rideRequests = await RideRequest.find({
       chauffeurId,
-      status: 'completed',
+      status: 'Ended',
       time: {
         $gte: moment([annee, mois - 1]).startOf('month').toDate(),
         $lt: moment([annee, mois - 1]).endOf('month').toDate(),
@@ -232,7 +232,7 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
       chauffeurId: chauffeur._id,
       nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
       dateEcheance: dateEcheance,
-      notes: `Montant net à payer: ${montantNet.toFixed(2)}`
+      notes: `Montant net à payer: ${montantNet.toFixed(2)} €`
     });
 
     // Sauvegarder la facture
