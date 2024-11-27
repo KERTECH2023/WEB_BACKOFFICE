@@ -86,16 +86,18 @@ exports.generateFacturesForAllChauffeurs = async () => {
         }
 
         // Calculer les bornes temporelles
-        const debutMois = moment().year(annee).month(mois).startOf('month').toDate();
-        const finMois = moment().year(annee).month(mois).endOf('month').toDate();
+        const debutMois = moment().year(annee).month(mois - 1).startOf('month').toDate();
+        const finMois = moment().year(annee).month(mois - 1).endOf('month').toDate();
 
         // Récupérer toutes les courses complétées pour le chauffeur ce mois
         const rideRequests = await RideRequest.find({
           driverPhone: chauffeur.phone,
           status: 'Ended',
-          time: {
-            $gte: debutMois,
-            $lt: finMois,
+          $expr: {
+            $and: [
+              { $gte: [{ $toDate: "$time" }, debutMois] },
+              { $lt: [{ $toDate: "$time" }, finMois] },
+            ],
           },
         });
 
@@ -139,7 +141,6 @@ exports.generateFacturesForAllChauffeurs = async () => {
     throw new Error(`Erreur lors de la génération des factures: ${error.message}`);
   }
 };
-
 
 
 
