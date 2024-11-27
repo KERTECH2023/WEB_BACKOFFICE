@@ -70,30 +70,22 @@ exports.getFactureById = async (factureId) => {
 
 exports.generateFacturesForAllChauffeurs = async () => {
   try {
-    const mois = moment().month() + 1; // Mois actuel
-    const annee = moment().year(); // Année actuelle
-
+    const mois = moment().month() + 1;
+    const annee = moment().year();
+    
     // Récupérer tous les chauffeurs
     const chauffeurs = await Chauffeur.find();
 
     const factures = await Promise.all(chauffeurs.map(async (chauffeur) => {
-      // Vérifier s'il existe une facture pour ce chauffeur, mais d'un mois ou année différent(e)
-      const factureExistante = await Facture.findOne({
-        chauffeurId: chauffeur._id,
-        $or: [
-          { mois: { $ne: mois } },
-          { annee: { $ne: annee } },
-        ]
-      });
-
-      // Si une facture pour un mois/année différent(e) existe, ne pas la ré-enregistrer
+      // Vérifier si la facture existe déjà
+      const factureExistante = await Facture.findOne({ chauffeurId: chauffeur._id, mois, annee });
       if (factureExistante) {
-        return factureExistante;
+        return factureExistante; // Retourner la facture existante
       }
 
       // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
-        driverPhone: chauffeur.phone, // Filtre par chauffeur
+        driverPhone: chauffeur.phone, // Filtre par chauffeurId
         status: 'Ended',
         time: {
           $gte: moment([annee, mois - 1]).startOf('month').toDate(),
@@ -101,13 +93,13 @@ exports.generateFacturesForAllChauffeurs = async () => {
         }
       });
 
-      // Calcul des données de la facture
+      // Calculer le nombre de trajets et le montant total TTC
       const nbTrajet = rideRequests.length;
       const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
       const fraisDeService = montantTTC * 0.15;  // 15% de frais de service
       const montantNet = montantTTC - fraisDeService;
 
-      // Générer un numéro de facture unique
+      // Générer un nouveau numéro de facture
       const chauffeurIdStr = chauffeur._id.toString().substr(0, 4);
       const nomPrenom = `${chauffeur.Nom.substr(0, 2)}${chauffeur.Prenom.substr(0, 2)}`.toUpperCase();
       const numeroFacture = `${chauffeurIdStr}_${nomPrenom}_${mois.toString().padStart(2, '0')}_${annee}`;
