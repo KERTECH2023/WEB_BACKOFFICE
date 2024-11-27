@@ -1,46 +1,63 @@
 const mongoose = require("mongoose");
-const cron = require("node-cron");
 const RideRequest = require("../Models/AllRideRequest");
-const Facture = require("../Models/Facture");
-const GlobalCounter = require("../Models/GlobalCounter");
+const firestoreModule = require("../services/config");
+const realtimeDB = firestoreModule.firestoreApp.database();
+
+
 
 async function saveRide(req, res) {
   try {
     const {
-      HealthStatus,
-
+      firebaseRiderRequestsID, // Champ ajouté
+      healthStatus,
       destination,
-
-      driverLocation,
-      fareAmount,
+      destinationAddress,
+      driverId,
       driverName,
       driverPhone,
+      driverPhoto,
+      driverLocationData,
+      carDetails,
+      fareAmount,
       source,
+      sourceAddress,
       status,
       time,
+      userId,
       userName,
       userPhone,
     } = req.body;
 
     // Créer une nouvelle instance de RideRequest
     const newRideRequest = new RideRequest({
-      HealthStatus: HealthStatus,
+      firebaseRiderRequestsID: firebaseRiderRequestsID,
+      healthStatus: healthStatus || "none",
       destination: {
         latitude: destination.latitude,
         longitude: destination.longitude,
       },
+      destinationAddress: destinationAddress,
+      driverId: driverId,
+      driverName: driverName,
+      driverPhone: driverPhone,
+      driverPhoto: driverPhoto,
       driverLocationData: {
-        latitude: driverLocation.latitude,
-        longitude: driverLocation.longitude,
+        latitude: driverLocationData.latitude,
+        longitude: driverLocationData.longitude,
+      },
+      carDetails: {
+        carModel: carDetails.carModel,
+        carNumber: carDetails.carNumber,
       },
       fareAmount: fareAmount,
-      driverPhone: driverPhone,
       source: {
         latitude: source.latitude,
         longitude: source.longitude,
       },
+      sourceAddress: sourceAddress,
       status: status,
       time: time,
+      userId: userId,
       userName: userName,
       userPhone: userPhone,
     });
@@ -62,4 +79,74 @@ async function saveRide(req, res) {
   }
 }
 
-module.exports = { saveRide };
+
+
+
+
+async function saveRideFirebaseToMongoDB() {
+  try {
+    // Récupérer toutes les RideRequests depuis Firebase
+    const snapshot = await realtimeDB.ref("AllRideRequests").once("value");
+    const rideRequests = snapshot.val();
+
+    if (!rideRequests) {
+      console.log("Aucune donnée trouvée dans Firebase.");
+      return;
+    }
+
+    // Parcourir les rideRequests et sauvegarder dans MongoDB
+    for (const [firebaseRiderRequestsID, rideRequest] of Object.entries(rideRequests)) {
+      // Vérifier si la rideRequest existe déjà dans MongoDB
+      const existingRequest = await RideRequest.findOne({ firebaseRiderRequestsID });
+
+      if (existingRequest) {
+        console.log(`RideRequest ${firebaseRiderRequestsID} existe déjà dans MongoDB.`);
+        continue; // Passer à la suivante
+      }
+
+      // Créer une nouvelle instance de RideRequest
+      const newRideRequest = new RideRequest({
+        firebaseRiderRequestsID,
+        driverId: rideRequest.driverId,
+        driverName: rideRequest.driverName,
+        driverPhone: rideRequest.driverPhone,
+        driverPhoto: rideRequest.driverPhoto,
+        driverLocationData: {
+          latitude: rideRequest.driverLocationData.latitude,
+          longitude: rideRequest.driverLocationData.longitude,
+        },
+        carDetails: {
+          carModel: rideRequest.carDetails?.carModel || "",
+          carNumber: rideRequest.carDetails?.carNumber || "",
+        },
+        fareAmount: rideRequest.fareAmount,
+        healthStatus: rideRequest.healthStatus || "none",
+        source: {
+          latitude: rideRequest.source.latitude,
+          longitude: rideRequest.source.longitude,
+        },
+        sourceAddress: rideRequest.sourceAddress,
+        destination: {
+          latitude: rideRequest.destination.latitude,
+          longitude: rideRequest.destination.longitude,
+        },
+        destinationAddress: rideRequest.destinationAddress,
+        status: rideRequest.status,
+        time: rideRequest.time,
+        userId: rideRequest.userId,
+        userName: rideRequest.userName,
+        userPhone: rideRequest.userPhone,
+      });
+
+      // Sauvegarder dans MongoDB
+      await newRideRequest.save();
+      console.log(`RideRequest ${firebaseRiderRequestsID} sauvegardée avec succès.`);
+    }
+
+    console.log("Synchronisation terminée.");
+  } catch (error) {
+    console.error("Erreur lors de la synchronisation des données Firebase vers MongoDB :", error);
+  }
+}
+
+module.exports = { saveRide,saveRideFirebaseToMongoDB };
