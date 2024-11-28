@@ -79,6 +79,9 @@ const DataFact = () => {
     try {
       setLoading(true);
       setError(null);
+
+            // New API call to firebaseToMongoDB
+      await axios.post('${process.env.REACT_APP_BASE_URL}/Ride/firebaseToMongoDB', {});
       
       // First, generate all invoices
       await axios.get(`${process.env.REACT_APP_BASE_URL}/facture/generate/all`);
