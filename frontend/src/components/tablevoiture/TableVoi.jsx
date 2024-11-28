@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import "./tablevoi.scss";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -7,55 +8,97 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useParams } from "react-router-dom";
-import { useEffect,useState } from "react";
-
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
-
-
 const ListVoi = () => {
+  const [user, setUser] = useState(null);
+  const [clickedFile, setClickedFile] = useState(null);
+  const [isFileOpen, setIsFileOpen] = useState(false);
 
+  const { id } = useParams();
 
-
-  const [user , setUser] = useState()
-
-
-  const [clickedImage, setClickedImage] = useState(null);
-const [isImageOpen, setIsImageOpen] = useState(false);
-
-  const {id} = useParams();
-  const role = window.localStorage.getItem("userRole");
-  console.log("role//",role)
-  
-  useEffect(() =>{
-  if (id) {
-    getSingleUservoi(id)
-  }
-  
-  },[id] )
-  console.log("useridvoit2", id);
-  
-  const getSingleUservoi = async (id)  => {
-    const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Voi/getvoi/${id}`);
-    if(response.status===200){
-   setUser({ ...response.data })
-   console.log("dataVoiture2" , response.data)
+  useEffect(() => {
+    if (id) {
+      getSingleUservoi(id);
     }
-  }
- 
-  console.log("USER**2" , user)
+  }, [id]);
 
-  const handleImageClick = (image) => {
-    setClickedImage(image);
-    setIsImageOpen(true);
+  const getSingleUservoi = async (id) => {
+    try {
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Voi/getvoi/${id}`);
+      if (response.status === 200) {
+        setUser({ ...response.data });
+      }
+    } catch (error) {
+      console.error("Error fetching vehicle data:", error);
+    }
   };
-  
-  const handleCloseImage = () => {
-    setClickedImage(null);
-    setIsImageOpen(false);
+
+  const handleFileClick = (file) => {
+    setClickedFile(file);
+    setIsFileOpen(true);
   };
-  
+
+  const handleCloseFile = () => {
+    setClickedFile(null);
+    setIsFileOpen(false);
+  };
+
+  const renderFile = (fileUrl, alt) => {
+    if (!fileUrl) return null;
+
+    const isPDF = fileUrl.toLowerCase().endsWith('.pdf');
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].some(ext => fileUrl.toLowerCase().endsWith(ext));
+
+    return (
+      <div className="cellWrapper">
+        {isImage && (
+          <img 
+            src={fileUrl} 
+            alt={alt} 
+            className="image" 
+            onClick={() => handleFileClick(fileUrl)}
+          />
+        )}
+        {isPDF && (
+          <div 
+            className="pdf-preview" 
+            onClick={() => handleFileClick(fileUrl)}
+            style={{ cursor: 'pointer', border: '1px solid #ccc', padding: '10px' }}
+          >
+            View PDF
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderFileModal = () => {
+    if (!isFileOpen || !clickedFile) return null;
+
+    const isPDF = clickedFile.toLowerCase().endsWith('.pdf');
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].some(ext => clickedFile.toLowerCase().endsWith(ext));
+
+    return (
+      <div className="fileOverlay">
+        <span className="close" onClick={handleCloseFile}>
+          &times;
+        </span>
+        {isImage && (
+          <img src={clickedFile} alt="Full size" className="fullImage" />
+        )}
+        {isPDF && (
+          <iframe 
+            src={clickedFile} 
+            width="90%" 
+            height="90%" 
+            title="PDF Viewer"
+            style={{ border: 'none' }}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <TableContainer component={Paper} className="table">
@@ -66,80 +109,22 @@ const [isImageOpen, setIsImageOpen] = useState(false);
             <TableCell className="tableCell">Matriculation</TableCell>
             <TableCell className="tableCell">Carte Grise</TableCell>
             <TableCell className="tableCell">Assurance</TableCell>
-            
           </TableRow>
         </TableHead>
         <TableBody>
-         
-            <TableRow key={user && user.id}>
-          
+          <TableRow key={user && user.id}>
             <TableCell className="tableCell">{user && user.modelle}</TableCell>
-
-            
-              <TableCell className="tableCell">{user && user.immatriculation}</TableCell>
-
-
-              <TableCell className="tableCell">
-  <div className="cellWrapper">
-    {user && user.cartegrise ? (
-      <img
-      src={user && user.cartegrise}
-        alt=""
-        className="image"
-        onClick={() => handleImageClick(user.cartegrise)}
-      />
-    ) : (
-      // eslint-disable-next-line no-undef
-      <img src={user && user.cartegrise}alt="" className="image" /> // Replace placeholderImage with the source of your placeholder image
-    )}
-
-    {isImageOpen && clickedImage === user.cartegrise && (
-      <div className="imageOverlay">
-        <span className="close" onClick={handleCloseImage}>
-          &times;
-        </span>
-        <img src={user && user.cartegrise} alt="" className="fullImage" />
-      </div>
-    )}
-  </div>
-</TableCell>
-
-<TableCell className="tableCell">
-  <div className="cellWrapper">
-    {user && user.assurance ? (
-      <img
-      src={user && user.assurance}
-        alt=""
-        className="image"
-        onClick={() => handleImageClick(user.assurance)}
-      />
-    ) : (
-      
-      <img src={user && user.photoAssurance} alt="" className="image" /> 
-    )}
-
-    {isImageOpen && clickedImage === user.assurance && (
-      <div className="imageOverlay">
-        <span className="close" onClick={handleCloseImage}>
-          &times;
-        </span>
-        <img src={user && user.assurance} alt="" className="fullImage" />
-      </div>
-    )}
-  </div>
-</TableCell>
-
-              {/* <TableCell className="tableCell">{row.customer}</TableCell>
-              <TableCell className="tableCell">{row.date}</TableCell>
-              <TableCell className="tableCell">{row.amount}</TableCell>
-              <TableCell className="tableCell">{row.method}</TableCell>
-              <TableCell className="tableCell">
-                <span className={`status ${row.status}`}>{row.status}</span>
-              </TableCell> */}
-            </TableRow>
-      
+            <TableCell className="tableCell">{user && user.immatriculation}</TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.cartegrise, "Carte Grise")}
+            </TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.assurance, "Assurance")}
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
+      {renderFileModal()}
     </TableContainer>
   );
 };
