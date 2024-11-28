@@ -70,69 +70,66 @@ exports.getFactureById = async (factureId) => {
 
 exports.generateFacturesForAllChauffeurs = async () => {
   try {
-    const moisCourant = moment().month() + 1; // Mois actuel (1-12)
+    const mois = moment().month() + 1;
     const annee = moment().year();
-
+    
     // Récupérer tous les chauffeurs
     const chauffeurs = await Chauffeur.find();
 
-    for (const chauffeur of chauffeurs) {
-      for (let mois = 1; mois <= moisCourant; mois++) {
-        // Vérifier si la facture existe déjà pour ce mois
-        const factureExistante = await Facture.findOne({ chauffeurId: chauffeur._id, mois, annee });
-        if (factureExistante) {
-          console.log(`Facture déjà existante pour ${mois}/${annee} pour le chauffeur ${chauffeur.Nom} ${chauffeur.Prenom}`);
-          continue; // Passer au mois suivant
-        }
-
-        // Récupérer les courses complétées pour ce mois
-        const rideRequests = await RideRequest.find({
-          driverPhone: chauffeur.phone,
-          status: 'Ended',
-          time: {
-            $gte: moment([annee, mois - 1]).startOf('month').toDate(),
-            $lt: moment([annee, mois - 1]).endOf('month').toDate(),
-          }
-        });
-
-        // Calculer les données de la facture
-        const nbTrajet = rideRequests.length;
-        const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
-        const fraisDeService = montantTTC * 0.15;  // 15% de frais de service
-        const montantNet = montantTTC - fraisDeService;
-
-        // Générer le numéro de facture
-        const chauffeurIdStr = chauffeur._id.toString().substr(0, 4);
-        const nomPrenom = `${chauffeur.Nom.substr(0, 2)}${chauffeur.Prenom.substr(0, 2)}`.toUpperCase();
-        const numeroFacture = `${chauffeurIdStr}_${nomPrenom}_${mois.toString().padStart(2, '0')}_${annee}`;
-
-        // Date d'échéance (15 du mois suivant)
-        const dateEcheance = moment([annee, mois - 1]).add(1, 'month').date(15).toDate();
-
-        // Créer une nouvelle facture
-        const nouvelleFacture = new Facture({
-          numero: numeroFacture,
-          mois,
-          annee,
-          nbTrajet,
-          montantTTC,
-          fraisDeService,
-          firebaseUID: chauffeur.firebaseUID,
-          chauffeurId: chauffeur._id,
-          nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
-          dateEcheance,
-          notes: `Montant net à payer: ${montantNet.toFixed(2)}`
-        });
-
-        // Sauvegarder la facture
-        await nouvelleFacture.save();
-        console.log(`Facture générée pour ${mois}/${annee} pour le chauffeur ${chauffeur.Nom} ${chauffeur.Prenom}`);
+    const factures = await Promise.all(chauffeurs.map(async (chauffeur) => {
+      // Vérifier si la facture existe déjà
+      const factureExistante = await Facture.findOne({ chauffeurId: chauffeur._id, mois, annee });
+      if (factureExistante) {
+        return factureExistante; // Retourner la facture existante
       }
-    }
+    
 
-    console.log('Génération des factures terminée.');
+      // Récupérer toutes les courses complétées pour le chauffeur ce mois
+      const rideRequests = await RideRequest.find({
+        driverPhone: chauffeur.phone, // Filtre par chauffeurId
+        status: 'Ended',
+        time: {
+          $gte: moment([annee, mois - 1]).startOf('month').toDate(),
+          $lt: moment([annee, mois - 1]).endOf('month').toDate(),
+        }
+      });
+
+      // Calculer le nombre de trajets et le montant total TTC
+      const nbTrajet = rideRequests.length;
+      const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
+      const fraisDeService = montantTTC * 0.15;  // 15% de frais de service
+      const montantNet = montantTTC - fraisDeService;
+
+      // Générer un nouveau numéro de facture
+      const chauffeurIdStr = chauffeur._id.toString().substr(0, 4);
+      const nomPrenom = `${chauffeur.Nom.substr(0, 2)}${chauffeur.Prenom.substr(0, 2)}`.toUpperCase();
+      const numeroFacture = `${chauffeurIdStr}_${nomPrenom}_${mois.toString().padStart(2, '0')}_${annee}`;
+
+      // Générer la date d'échéance
+      const dateEcheance = moment([annee, mois - 1]).add(1, 'month').date(15).toDate();
+
+      // Créer une nouvelle facture
+      const nouvelleFacture = new Facture({
+        numero: numeroFacture,
+        mois,
+        annee,
+        nbTrajet,
+        montantTTC,
+        fraisDeService,
+        firebaseUID: chauffeur.firebaseUID,
+        chauffeurId: chauffeur._id,
+        nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
+        dateEcheance,
+        notes: `Montant net à payer: ${montantNet.toFixed(2)}`
+      });
+
+      // Sauvegarder la nouvelle facture
+      await nouvelleFacture.save();
+      return nouvelleFacture;
+    }));
+
+    return factures;
   } catch (error) {
-    console.error(`Erreur lors de la génération des factures : ${error.message}`);
     throw new Error(`Erreur lors de la génération des factures: ${error.message}`);
   }
 };
