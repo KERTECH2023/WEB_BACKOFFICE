@@ -965,6 +965,66 @@ const destroy = async (req, res) => {
       });
     });
 };
+const reactivateChauffeur = async (req, res) => {
+  const { id } = req.params; // ID du chauffeur à réactiver
+
+  try {
+    // Étape 1 : Récupérer le chauffeur dans MongoDB
+    const chauffeur = await Chauffeur.findById(id);
+
+    if (!chauffeur) {
+      return res.status(404).send({ message: "Chauffeur not found!" });
+    }
+
+    if (!chauffeur.firebaseUID) {
+      return res.status(400).send({
+        message: "Chauffeur does not have a Firebase UID.",
+      });
+    }
+
+    // Étape 2 : Activer le compte dans Firebase Authentication
+    try {
+      await admin.auth().updateUser(chauffeur.firebaseUID, { disabled: false });
+      console.log("Firebase account reactivated for UID:", chauffeur.firebaseUID);
+    } catch (firebaseError) {
+      console.error("Error reactivating Firebase user:", firebaseError);
+      return res.status(500).send({
+        message: "Error reactivating Firebase account.",
+      });
+    }
+
+    // Étape 3 : Mettre à jour le statut dans MongoDB
+    const updatedChauffeur = await Chauffeur.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isActive: true,
+          Cstatus: "Validé",
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedChauffeur) {
+      return res.status(500).send({
+        message: "Failed to update chauffeur in MongoDB.",
+      });
+    }
+
+    console.log("Chauffeur reactivated and updated in MongoDB.");
+
+    // Répondre avec succès
+    return res.status(200).send({
+      message: "Chauffeur reactivated successfully!",
+      chauffeur: updatedChauffeur,
+    });
+  } catch (error) {
+    console.error("Error reactivating chauffeur:", error);
+    return res.status(500).send({
+      message: "An error occurred while reactivating the chauffeur.",
+    });
+  }
+};
 
 const updatestatuss = async (req, res, next) => {
   const { id } = req.params;
@@ -1279,6 +1339,7 @@ module.exports = {
   updatestatus,
   chauffdes,
   updatestatuss,
+  reactivateChauffeur,
   Comptevald,
   recuperernewchauf,
   getFacturesByChauffeurId,
