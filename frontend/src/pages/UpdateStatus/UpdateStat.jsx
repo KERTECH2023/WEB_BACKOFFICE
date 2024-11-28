@@ -30,7 +30,7 @@ const SingleC = () => {
     console.log("user", id);
     
     const getSingleUser = async (id)  => {
-      const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/reactivate-chauffeur/${id}`);
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`);
       if(response.status===200){
      setUser({ ...response.data })
      console.log("data" , response.data)
