@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+import React, { useEffect, useState } from "react";
 import "./table.scss";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,55 +8,100 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useParams } from "react-router-dom";
-import { useEffect,useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
-
-import { Buffer } from 'buffer';
 
 const List = () => {
+  const [user, setUser] = useState(null);
+  const [clickedFile, setClickedFile] = useState(null);
+  const [isFileOpen, setIsFileOpen] = useState(false);
 
-
-
-  const [user , setUser] = useState()
-
-  const navigate =useNavigate()
-  const [clickedImage, setClickedImage] = useState(null);
-const [isImageOpen, setIsImageOpen] = useState(false);
-
-  const {id} = useParams();
+  const { id } = useParams();
   const role = window.localStorage.getItem("userRole");
-  console.log("role//",role)
-  
-  useEffect(() =>{
-  if (id) {
-    getSingleUser(id)
-  }
-  
-  },[id] )
-  console.log("useriddd", id);
-  
-  const getSingleUser = async (id)  => {
-    const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`);
-    if(response.status===200){
-   setUser({ ...response.data })
-   console.log("data" , response.data)
-    }
-  }
-   console.log("USER**" , user)
 
-  const handleImageClick = (image) => {
-    setClickedImage(image);
-    setIsImageOpen(true);
+  useEffect(() => {
+    if (id) {
+      getSingleUser(id);
+    }
+  }, [id]);
+
+  const getSingleUser = async (id) => {
+    try {
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`);
+      if (response.status === 200) {
+        setUser({ ...response.data });
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   };
-  
-  const handleCloseImage = () => {
-    setClickedImage(null);
-    setIsImageOpen(false);
+
+  const handleFileClick = (file) => {
+    setClickedFile(file);
+    setIsFileOpen(true);
   };
-  
+
+  const handleCloseFile = () => {
+    setClickedFile(null);
+    setIsFileOpen(false);
+  };
+
+  const renderFile = (fileUrl, alt) => {
+    if (!fileUrl) return null;
+
+    const isPDF = fileUrl.toLowerCase().endsWith('.pdf');
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].some(ext => fileUrl.toLowerCase().endsWith(ext));
+
+    return (
+      <div className="cellWrapper">
+        {isImage && (
+          <img 
+            src={fileUrl} 
+            alt={alt} 
+            className="image" 
+            onClick={() => handleFileClick(fileUrl)}
+          />
+        )}
+        {isPDF && (
+          <div 
+            className="pdf-preview" 
+            onClick={() => handleFileClick(fileUrl)}
+            style={{ cursor: 'pointer', border: '1px solid #ccc', padding: '10px' }}
+          >
+            View PDF
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderFileModal = () => {
+    if (!isFileOpen || !clickedFile) return null;
+
+    const isPDF = clickedFile.toLowerCase().endsWith('.pdf');
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].some(ext => clickedFile.toLowerCase().endsWith(ext));
+
+    return (
+      <div className="fileOverlay">
+        <span className="close" onClick={handleCloseFile}>
+          &times;
+        </span>
+        {isImage && (
+          <img src={clickedFile} alt="Full size" className="fullImage" />
+        )}
+        {isPDF && (
+          <iframe 
+            src={clickedFile} 
+            width="90%" 
+            height="90%" 
+            title="PDF Viewer"
+            style={{ border: 'none' }}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <TableContainer component={Paper} className="table">
@@ -65,93 +110,29 @@ const [isImageOpen, setIsImageOpen] = useState(false);
           <TableRow>
             <TableCell className="tableCell">Carte Identité</TableCell>
             <TableCell className="tableCell">Permis Recto</TableCell>
-            <TableCell className="tableCell">Permi Verso</TableCell>
+            <TableCell className="tableCell">Permis Verso</TableCell>
             <TableCell className="tableCell">Carte VTC</TableCell>
-            
           </TableRow>
         </TableHead>
         <TableBody>
-         
-            <TableRow key={user && user.id}>
-          
-              <TableCell className="tableCell">
-                <div className="cellWrapper">
-                  <img src={user && user.photoCin}
-     alt="" className="image"  onClick={() => handleImageClick(user && user.photoCin)}/>
-                  {isImageOpen && clickedImage ===user &&  user.photoCin && (
-      <div className="imageOverlay">
-        <span className="close" onClick={handleCloseImage}>
-          &times;
-        </span>
-        <img src={user && user.photoCin}
-     alt="" className="fullImage" />
-      </div>
-    )}
-                </div>
-              </TableCell>
-              <TableCell className="tableCell">
-                <div className="cellWrapper">
-                  <img src={user && user.photoPermisRec}
-     alt="" className="image" onClick={() => handleImageClick(user && user.photoPermisRec)} />
-                
-
-                  {isImageOpen && clickedImage === user && user.photoPermisRec && (
-      <div className="imageOverlay">
-        <span className="close" onClick={handleCloseImage}>
-          &times;
-        </span>
-        <img src={user && user.photoPermisRec}
-     alt="" className="fullImage" />
-      </div>
-    )}
-                </div>
-              </TableCell>
-              <TableCell className="tableCell">
-                <div className="cellWrapper"> 
-                  <img src={user && user.photoPermisVer}
-     alt="" className="image" onClick={() => handleImageClick(user && user.photoPermisVer)} />
-                 
-
-                  {isImageOpen && clickedImage === user && user.photoPermisVer && (
-      <div className="imageOverlay">
-        <span className="close" onClick={handleCloseImage}>
-          &times;
-        </span>
-        <img src={user && user.photoPermisVer}
-     alt="" className="fullImage" />
-      </div>
-    )}
-                </div>
-              </TableCell>
-              <TableCell className="tableCell">
-                <div className="cellWrapper">
-                  <img src={user && user.photoVtc}
-     alt="" className="image"  onClick={() => handleImageClick(user && user.photoVtc)}/>
-                 
-
-                  {isImageOpen && clickedImage ===user &&  user.photoVtc && (
-      <div className="imageOverlay">
-        <span className="close" onClick={handleCloseImage}>
-          &times;
-        </span>
-        <img src={user && user.photoVtc}
-     alt="" className="fullImage" />
-      </div>
-    )}
-                </div>
-              </TableCell>
-
-              {/* <TableCell className="tableCell">{row.customer}</TableCell>
-              <TableCell className="tableCell">{row.date}</TableCell>
-              <TableCell className="tableCell">{row.amount}</TableCell>
-              <TableCell className="tableCell">{row.method}</TableCell>
-              <TableCell className="tableCell">
-                <span className={`status ${row.status}`}>{row.status}</span>
-              </TableCell> */}
-            </TableRow>
-      
+          <TableRow key={user && user.id}>
+            <TableCell className="tableCell">
+              {renderFile(user && user.photoCin, "Carte Identité")}
+            </TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.photoPermisRec, "Permis Recto")}
+            </TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.photoPermisVer, "Permis Verso")}
+            </TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.photoVtc, "Carte VTC")}
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
+      {renderFileModal()}
+      <ToastContainer />
     </TableContainer>
   );
 };
