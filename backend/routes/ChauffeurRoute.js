@@ -55,6 +55,8 @@ router.get("/newchauf", ChauffContro.recuperernewchauf);
 //router.get('/getAg', AuthController.recupereruse);
 // router.put('/updatechauf/:id',Multer.single("photoAvatar"),UploadImage, ChauffContro.update);
 router.put("/updatestatus/:id", ChauffContro.updatestatus);
+router.put('/reactivate-chauffeur/:id', ChauffContro.reactivateChauffeur);
+
 router.put("/updatestatuss/:id", ChauffContro.updatestatuss);
 
 router.post('/:id/reject', ChauffContro.rejectChauffeur);
