@@ -82,7 +82,6 @@ exports.generateFacturesForAllChauffeurs = async () => {
       if (factureExistante) {
         return factureExistante; // Retourner la facture existante
       }
-    
 
       // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
