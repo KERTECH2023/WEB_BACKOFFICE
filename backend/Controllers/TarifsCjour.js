@@ -74,7 +74,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       const updatedTarif = await existingTarif.save();
 
       // Mise à jour dans Firebase
-      const firebaseRef = realtimeDB.ref("tarifs");
+      const firebaseRef = realtimeDB.ref("tarifsDeJour");
       await firebaseRef.update({
         baseFare: baseFareNum,
         farePerKm: farePerKmNum,
