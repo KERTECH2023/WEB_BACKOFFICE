@@ -76,14 +76,14 @@ async function updateTariff(type) {
 }
 
 // Planification des tâches cron
-cron.schedule('01 17 * * *', () => {
+cron.schedule('00 21 * * *', () => {
   updateTariff('nocturne');
 }, {
   scheduled: true,
   timezone: "Africa/Tunis"
 });
 
-cron.schedule('02 17 * * *', () => {
+cron.schedule('00 05 * * *', () => {
   updateTariff('journalier');
 }, {
   scheduled: true,
