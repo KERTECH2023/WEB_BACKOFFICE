@@ -28,7 +28,7 @@ function updateTariff() {
   console.log('Heure actuelle (Tunisie) :', currentHour + ':' + currentMinute);
 
   // Exemple : mise à jour à 20:44
-  if (currentHour === 15 && currentMinute === 0) {
+  if (currentHour === 16 && currentMinute === 14) {
     Tarifs.findOne({}, async (err, tariff) => {
       if (err) {
         console.error(err);
@@ -68,7 +68,7 @@ function updateTariff() {
   }
 
 
-  if (currentHour === 14 && currentMinute === 44) {
+  if (currentHour === 16 && currentMinute === 17) {
     Tarifs.findOne({}, async (err, tariff) => {
       if (err) {
         console.error(err);
