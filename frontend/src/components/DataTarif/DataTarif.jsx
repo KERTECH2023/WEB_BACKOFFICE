@@ -3,6 +3,7 @@ import "./datatarif.scss";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const DataTarif = () => {
   const [data, setData] = useState({ day: [], night: [] });
@@ -14,9 +15,13 @@ const DataTarif = () => {
   const apiBaseURL = process.env.REACT_APP_BASE_URL;
 
   const fetchData = async (type) => {
-    const endpoint = `${apiBaseURL}/Tar${type === "day" ? "j" : "n"}/`;
-    const response = await axios.get(endpoint);
-    setData((prevData) => ({ ...prevData, [type]: response.data }));
+    const endpoint = `${apiBaseURL}/Tar${type === "day" ? "j" : "n"}/show`;
+    try {
+      const response = await axios.get(endpoint);
+      setData((prevData) => ({ ...prevData, [type]: response.data }));
+    } catch (error) {
+      toast.error(`Erreur de chargement des données pour ${type === "day" ? "le jour" : "la nuit"}`);
+    }
   };
 
   useEffect(() => {
@@ -52,46 +57,63 @@ const DataTarif = () => {
   };
 
   return (
-    <div className="datatable">
-      <input
-        type="text"
-        placeholder="Rechercher..."
-        onChange={(e) => setSearch(e.target.value)}
-        className="form-control mb-3"
-      />
+    <div className="datatable container">
+      <h1 className="text-center my-4">Gestion des Tarifs</h1>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <input
+          type="text"
+          placeholder="Rechercher un tarif..."
+          onChange={(e) => setSearch(e.target.value)}
+          className="form-control w-50"
+        />
+        <button className="btn btn-primary" onClick={() => setIsAdding(!isAdding)}>
+          {isAdding ? "Annuler" : "Ajouter un Tarif"}
+        </button>
+      </div>
+
       {isAdding && (
-        <div className="mb-3 d-flex">
-          <select
-            className="form-control me-2"
-            value={tarif.type}
-            onChange={(e) => setTarif({ ...tarif, type: e.target.value })}
-          >
-            <option value="day">Tarif de jour</option>
-            <option value="night">Tarif de nuit</option>
-          </select>
-          {["Base Fare", "Fare Per Km", "Fare Per Minute"].map((label, i) => (
+        <div className="mb-4 p-3 border rounded bg-light">
+          <h4>Ajouter un Tarif</h4>
+          <div className="d-flex gap-3">
+            <select
+              className="form-select"
+              value={tarif.type}
+              onChange={(e) => setTarif({ ...tarif, type: e.target.value })}
+            >
+              <option value="day">Tarif de jour</option>
+              <option value="night">Tarif de nuit</option>
+            </select>
             <input
-              key={i}
               type="text"
-              placeholder={label}
-              value={tarif[["baseFare", "farePerKm", "farePerMinute"][i]]}
-              onChange={(e) =>
-                setTarif({ ...tarif, [["baseFare", "farePerKm", "farePerMinute"][i]]: e.target.value })
-              }
-              className="form-control me-2"
+              placeholder="Base Fare"
+              value={tarif.baseFare}
+              onChange={(e) => setTarif({ ...tarif, baseFare: e.target.value })}
+              className="form-control"
             />
-          ))}
-          <button className="btn btn-primary" onClick={handleSave}>
-            Soumettre
-          </button>
+            <input
+              type="text"
+              placeholder="Fare Per Km"
+              value={tarif.farePerKm}
+              onChange={(e) => setTarif({ ...tarif, farePerKm: e.target.value })}
+              className="form-control"
+            />
+            <input
+              type="text"
+              placeholder="Fare Per Minute"
+              value={tarif.farePerMinute}
+              onChange={(e) => setTarif({ ...tarif, farePerMinute: e.target.value })}
+              className="form-control"
+            />
+            <button className="btn btn-success" onClick={handleSave}>
+              Sauvegarder
+            </button>
+          </div>
         </div>
       )}
-      <button className="btn btn-primary mb-3" onClick={() => setIsAdding(!isAdding)}>
-        {isAdding ? "Annuler" : "Ajouter un tarif"}
-      </button>
+
       {["day", "night"].map((type) => (
         <div key={type}>
-          <h3>Tarifs de {type === "day" ? "jour" : "nuit"}</h3>
+          <h3 className="my-3 text-uppercase">{`Tarifs de ${type === "day" ? "jour" : "nuit"}`}</h3>
           <DataGrid
             className="datagrid mb-4"
             rows={data[type].filter(({ baseFare, farePerKm, farePerMinute }) =>
@@ -107,7 +129,7 @@ const DataTarif = () => {
                 width: 150,
                 renderCell: ({ row }) => (
                   <button
-                    className="btn btn-primary btn-sm"
+                    className="btn btn-sm btn-warning"
                     onClick={() => handleEdit(row, type)}
                   >
                     Modifier
@@ -121,12 +143,13 @@ const DataTarif = () => {
           />
         </div>
       ))}
+
       {modalOpen && (
-        <div className="modal show d-block">
+        <div className="modal show d-block" tabIndex="-1">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5>Modifier le tarif ({tarif.type === "day" ? "jour" : "nuit"})</h5>
+                <h5 className="modal-title">{`Modifier Tarif (${tarif.type === "day" ? "jour" : "nuit"})`}</h5>
                 <button className="btn-close" onClick={() => setModalOpen(false)}></button>
               </div>
               <div className="modal-body">
