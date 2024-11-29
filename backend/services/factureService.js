@@ -245,25 +245,21 @@ exports.generateFactures = async (chauffeurId, mois, annee) => {
   }
 };
 
-// Nouvelle fonction pour mettre à jour le statut de la facture à "PAYE"
-exports.updateFactureStatusToPaid = async (chauffeurId) => {
+exports.updateFactureStatusToPaid = async (factureId) => {
   try {
-    const currentMonth = moment().month() + 1;
-    const currentYear = moment().year();
-
     const updatedFacture = await Facture.findOneAndUpdate(
       { 
-        chauffeurId: chauffeurId,
-            status: "NON_PAYE"
+        _id: factureId, 
+        status: "NON_PAYE" 
       },
       { 
-        $set: { status: "PAYE" }
+        $set: { status: "PAYE" } 
       },
-      { new: true }
+      { new: true } // Retourne la facture mise à jour
     );
 
     if (!updatedFacture) {
-      throw new Error("Facture non trouvée ou déjà payée pour ce chauffeur ce mois-ci.");
+      throw new Error("Facture non trouvée ou déjà payée.");
     }
 
     return updatedFacture;
