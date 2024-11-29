@@ -20,14 +20,14 @@ const updateAllChauffeursWithTarif = async (tariffId) => {
 
 
 // Planification de la mise à jour automatique des tarifs
-cron.schedule('16 22 * * *', () => {
+cron.schedule('30 16 * * *', () => {
   updateTariff('nocturne');
  }, {
   scheduled: true,
   timezone: "Africa/Tunis",
  });
  
- cron.schedule('16 25 * * *', () => {
+ cron.schedule('32 16 * * *', () => {
   updateTariff('journalier');
  }, {
   scheduled: true,
