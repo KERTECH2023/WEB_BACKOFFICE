@@ -19,6 +19,8 @@ const ClRoute = require("./routes/ClientRoute");
 const Rec = require("./routes/ReclamationRout");
 const Voi = require("./routes/VoitureRoutes");
 const tar = require("./routes/TarifRoute");
+const tarj = require("./routes/TarifRouteJour.js");
+const tarn = require("./routes/TarifRouteNuit.js");
 const con = require("./routes/ContactRoute");
 const rides = require("./routes/RideRoute");
 const factureRoute = require("./routes/factureRoutes.js")
@@ -75,6 +77,8 @@ app.use("/Client", ClRoute);
 app.use("/Rec", Rec);
 app.use("/Voi", Voi);
 app.use("/Tar", tar);
+app.use("/Tarj", tarj);
+app.use("/Tarn", tarn);
 app.use("/Con", con);
 app.use("/facture",factureRoute);
 
