@@ -30,11 +30,16 @@ async function updateTariff(type) {
 
     let config;
     if (type === 'nocturne') {
-      config = Tarifsn;
+      config = await Tarifsn.findOne({});
     } else if (type === 'journalier') {
-      config = Tarifj;
+      config = await Tarifj.findOne({});
     } else {
       console.error('Type de tarif invalide');
+      return;
+    }
+
+    if (!config) {
+      console.error(`Aucune configuration trouvée pour le type ${type}`);
       return;
     }
 
@@ -71,14 +76,14 @@ async function updateTariff(type) {
 }
 
 // Planification des tâches cron
-cron.schedule('42 16 * * *', () => {
+cron.schedule('01 17 * * *', () => {
   updateTariff('nocturne');
 }, {
   scheduled: true,
   timezone: "Africa/Tunis"
 });
 
-cron.schedule('43 16 * * *', () => {
+cron.schedule('02 17 * * *', () => {
   updateTariff('journalier');
 }, {
   scheduled: true,
