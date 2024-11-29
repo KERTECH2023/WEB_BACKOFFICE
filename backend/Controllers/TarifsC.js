@@ -1,5 +1,7 @@
 const Chauffeur = require("../Models/Chauffeur");
 const Tarifs = require("../Models/Tarifs");
+const Tarifsn = require("../Models/TarifsDeNuit");
+const Tarifj = require("../Models/TarifsDeJour");
 const cron = require('node-cron');
 const moment = require('moment-timezone');
 const firestoreModule = require("../services/config");
@@ -26,7 +28,7 @@ function updateTariff() {
   console.log('Heure actuelle (Tunisie) :', currentHour + ':' + currentMinute);
 
   // Exemple : mise à jour à 20:44
-  if (currentHour === 20 && currentMinute === 44) {
+  if (currentHour === 15 && currentMinute === 0) {
     Tarifs.findOne({}, async (err, tariff) => {
       if (err) {
         console.error(err);
@@ -38,10 +40,62 @@ function updateTariff() {
         return;
       }
 
+          // Conversion explicite en nombres
+    const baseFareNumnn = Number(Tarifsn.baseFare);
+    const farePerKmNumnn= Number(Tarifsn.farePerKm);
+    const farePerMinuteNumnn = Number(Tarifsn.farePerMinute);
+
       // Mise à jour des tarifs avec une majoration de 50% sur les bases
-      tariff.baseFare = (parseFloat(tariff.baseFare) * 1.5).toFixed(2);
-      tariff.farePerKm = (parseFloat(tariff.farePerKm) * 1.5).toFixed(2);
-      tariff.farePerMinute = (parseFloat(tariff.farePerMinute) * 1.5).toFixed(2);
+      tariff.baseFare = baseFareNumnn;
+      tariff.farePerKm = farePerKmNumnn;
+      tariff.farePerMinute = farePerMinuteNumnn;
+
+      const firebaseRef = realtimeDB.ref("tarifs");
+      await firebaseRef.update({
+        baseFare: baseFareNumnn,
+        farePerKm: farePerKmNumnn,
+        farePerMinute: farePerMinuteNumnn,
+      });
+
+
+      try {
+        await tariff.save();
+        console.log("Tarifs mis à jour automatiquement avec majoration.");
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour des tarifs :", error.message);
+      }
+    });
+  }
+
+
+  if (currentHour === 14 && currentMinute === 44) {
+    Tarifs.findOne({}, async (err, tariff) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      if (!tariff) {
+        console.error('Aucun tarif trouvé');
+        return;
+      }
+
+          // Conversion explicite en nombres
+    const baseFareNumnj = Number(Tarifj.baseFare);
+    const farePerKmNumnj= Number(Tarifj.farePerKm);
+    const farePerMinuteNumnj = Number(Tarifj.farePerMinute);
+
+      // Mise à jour des tarifs avec une majoration de 50% sur les bases
+      tariff.baseFare = baseFareNumnj;
+      tariff.farePerKm = farePerKmNumnj;
+      tariff.farePerMinute = farePerMinuteNumnj;
+
+      const firebaseRef = realtimeDB.ref("tarifs");
+      await firebaseRef.update({
+        baseFare: baseFareNumnj,
+        farePerKm: farePerKmNumnj,
+        farePerMinute: farePerMinuteNumnj,
+      });
 
       try {
         await tariff.save();
