@@ -19,66 +19,101 @@ const updateAllChauffeursWithTarif = async (tariffId) => {
 
 
 
-// Planification de la mise à jour automatique des tarifs
-cron.schedule('30 16 * * *', () => {
-  updateTariff('nocturne');
- }, {
-  scheduled: true,
-  timezone: "Africa/Tunis",
- });
- 
- cron.schedule('32 16 * * *', () => {
-  updateTariff('journalier');
- }, {
-  scheduled: true,
-  timezone: "Africa/Tunis",
- });
- 
- // Modification de la fonction updateTariff pour prendre un paramètre de type
- async function updateTariff(type) {
-  try {
-    const tariff = await Tarifs.findOne({});
-    
-    if (!tariff) {
-      console.error('Aucun tarif trouvé');
-      return;
-    }
- 
-    let config;
-    if (type === 'nocturne') {
-      config = Tarifsn;
-    } else if (type === 'journalier') {
-      config = Tarifj;
-    } else {
-      console.error('Type de tarif invalide');
-      return;
-    }
- 
-    // Conversion explicite en nombres
-    const baseFare = Number(config.baseFare);
-    const farePerKm = Number(config.farePerKm);
-    const farePerMinute = Number(config.farePerMinute);
- 
-    // Mise à jour des tarifs
-    tariff.baseFare = baseFare;
-    tariff.farePerKm = farePerKm;
-    tariff.farePerMinute = farePerMinute;
- 
-    // Mise à jour Firebase
-    const firebaseRef = realtimeDB.ref("tarifs");
-    await firebaseRef.update({
-      baseFare,
-      farePerKm,
-      farePerMinute
+// Mise à jour du tarif automatiquement à une heure précise
+function updateTariff() {
+  const tunisiaTime = moment().tz('Africa/Tunis');
+  const currentHour = tunisiaTime.hour();
+  const currentMinute = tunisiaTime.minute();
+
+  console.log('Heure actuelle (Tunisie) :', currentHour + ':' + currentMinute);
+
+  // Exemple : mise à jour à 20:44
+  if (currentHour === 16 && currentMinute === 38) {
+    Tarifs.findOne({}, async (err, tariff) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      if (!tariff) {
+        console.error('Aucun tarif trouvé');
+        return;
+      }
+
+          // Conversion explicite en nombres
+    const baseFareNumnn = Number(Tarifsn.baseFare);
+    const farePerKmNumnn= Number(Tarifsn.farePerKm);
+    const farePerMinuteNumnn = Number(Tarifsn.farePerMinute);
+
+      // Mise à jour des tarifs avec une majoration de 50% sur les bases
+      tariff.baseFare = baseFareNumnn;
+      tariff.farePerKm = farePerKmNumnn;
+      tariff.farePerMinute = farePerMinuteNumnn;
+
+      const firebaseRef = realtimeDB.ref("tarifs");
+      await firebaseRef.update({
+        baseFare: baseFareNumnn,
+        farePerKm: farePerKmNumnn,
+        farePerMinute: farePerMinuteNumnn,
+      });
+
+
+      try {
+        await tariff.save();
+        console.log("Tarifs mis à jour automatiquement avec majoration.");
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour des tarifs :", error.message);
+      }
     });
- 
-    await tariff.save();
-    console.log(`Tarifs ${type} mis à jour automatiquement`);
- 
-  } catch (error) {
-    console.error(`Erreur lors de la mise à jour des tarifs ${type} :`, error.message);
   }
- }
+
+
+  if (currentHour === 16 && currentMinute === 39) {
+    Tarifs.findOne({}, async (err, tariff) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      if (!tariff) {
+        console.error('Aucun tarif trouvé');
+        return;
+      }
+
+          // Conversion explicite en nombres
+    const baseFareNumnj = Number(Tarifj.baseFare);
+    const farePerKmNumnj= Number(Tarifj.farePerKm);
+    const farePerMinuteNumnj = Number(Tarifj.farePerMinute);
+
+      // Mise à jour des tarifs avec une majoration de 50% sur les bases
+      tariff.baseFare = baseFareNumnj;
+      tariff.farePerKm = farePerKmNumnj;
+      tariff.farePerMinute = farePerMinuteNumnj;
+
+      const firebaseRef = realtimeDB.ref("tarifs");
+      await firebaseRef.update({
+        baseFare: baseFareNumnj,
+        farePerKm: farePerKmNumnj,
+        farePerMinute: farePerMinuteNumnj,
+      });
+
+      try {
+        await tariff.save();
+        console.log("Tarifs mis à jour automatiquement avec majoration.");
+      } catch (error) {
+        console.error("Erreur lors de la mise à jour des tarifs :", error.message);
+      }
+    });
+  }
+}
+
+// Planification de la mise à jour automatique des tarifs
+cron.schedule('38 16 * * *', () => {
+  updateTariff();
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis",
+});
 
 
 
