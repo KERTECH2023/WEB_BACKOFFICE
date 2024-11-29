@@ -83,7 +83,7 @@ cron.schedule('00 21 * * *', () => {
   timezone: "Africa/Tunis"
 });
 
-cron.schedule('00 05 * * *', () => {
+cron.schedule('28 17 * * *', () => {
   updateTariff('journalier');
 }, {
   scheduled: true,
