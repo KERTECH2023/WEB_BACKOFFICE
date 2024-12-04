@@ -11,7 +11,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { PDFDocument, rgb } from 'pdf-lib';
 import {
   storage,
   ref,
@@ -111,101 +110,42 @@ const SingleF = () => {
 
   // Handle generating and uploading the PDF
   const handlePrint = async (sendByEmail = false) => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    ReactDOM.render(
+      <TemplateFacture chauffeur={chauffeur} facture={facture} />,
+      container
+    );
+
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: "a4",
+    });
+
     try {
-      // Charger le fichier PDF existant depuis le dossier public
-      const existingPdfBytes = await fetch('/FACTUREpdf.pdf').then((res) => res.arrayBuffer());
-  
-      // Charger le PDF avec pdf-lib
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-  
-      // Obtenez la première page du PDF
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
-  
-      // Ajouter des informations dynamiques
-      const { width, height } = firstPage.getSize();
-  
-      firstPage.drawText(`${chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : 'Nom du Chauffeur'}`, {
-        x: 50,
-        y: height - 250,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
+      const canvas = await html2canvas(container, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
 
-      firstPage.drawText(`${chauffeur ? chauffeur.address : 'Adresse'}`, {
-        x: 50,
-        y: height - 270,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        0,
+        pdf.internal.pageSize.width,
+        pdf.internal.pageSize.height
+      );
 
-      firstPage.drawText(`${facture ? facture.numero : '-'}`, {
-        x: 215,
-        y: height - 140,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
+      const pdfBlob = pdf.output("blob");
 
-      firstPage.drawText(`${facture ? `${facture.mois + 1}/${facture.annee}` : '-'}`, {
-        x: 40,
-        y: height - 140,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-      
-      firstPage.drawText(`${facture ? `Facture de Mois  ` : '-'}`, {
-        x: 42,
-        y: height - 450,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
+      ReactDOM.unmountComponentAtNode(container);
+      document.body.removeChild(container);
 
-
-      firstPage.drawText(`${facture ? ` ${facture.mois} - ${facture.mois + 1}` : '-'}`, {
-        x: 50,
-        y: height - 475,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-
-      firstPage.drawText(`${facture ? facture.nbTrajet : '-'}`, {
-        x: 220,
-        y: height - 460,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-
-      firstPage.drawText(`${facture ? `${parseFloat(facture.montantTTC).toFixed(2)} dt` : '-'}`, {
-        x: 350,
-        y: height - 460,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-
-      firstPage.drawText(`${facture ? `${extractMontant(facture.notes)} dt` : '-'}`, {
-        x: 500,
-        y: height - 460,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-
-      firstPage.drawText(`${facture ? `${parseFloat(facture.fraisDeService).toFixed(2)} dt` : '-'}`, {
-        x: 500,
-        y: height - 612,
-        size: 12,
-        color: rgb(0, 0, 0),
-      });
-
-  
-      // Sauvegarder le nouveau PDF en tant que blob
-      const pdfBytes = await pdfDoc.save();
-      const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-  
-      // Téléchargement ou upload vers Firebase
       const pdfFileName = `${facture._id}.pdf`;
       const storageRef = ref(storage, `factures/${pdfFileName}`);
       const uploadTask = uploadBytesResumable(storageRef, pdfBlob);
-  
+
       uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -222,7 +162,7 @@ const SingleF = () => {
             console.log("File available at", downloadURL);
             setPdfUrl(downloadURL);
             setUploadProgress(0);
-  
+
             if (sendByEmail) {
               sendEmailWithFacture(pdfBlob, chauffeur.email, facture.mois, facture._id);
             } else {
@@ -232,8 +172,8 @@ const SingleF = () => {
         }
       );
     } catch (error) {
-      console.error("Erreur lors de la manipulation du PDF :", error);
-      toast.error("Erreur lors de la génération ou de l'upload du PDF");
+      console.error("Error generating PDF:", error);
+      toast.error("Erreur lors de la génération du PDF");
     }
   };
 
