@@ -19,6 +19,12 @@ import {
   getDownloadURL,
 } from "../../config";
 
+const extractMontant = (notes) => {
+  const regex = /Montant net à payer:\s*([\d,.]+)/; // Regex to capture the amount
+  const match = notes.match(regex);
+  return match ? parseFloat(match[1].replace(',', '.')).toFixed(2) : " - ";
+};
+
 const SingleF = () => {
   const navigate = useNavigate();
   const { id } = useParams();
