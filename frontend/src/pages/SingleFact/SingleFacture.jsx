@@ -167,10 +167,31 @@ const SingleF = () => {
         size: 12,
         color: rgb(0, 0, 0),
       });
+
+      
+      firstPage.drawText(`${facture ? facture.nbTrajet : '-'}`, {
+        x: 220,
+        y: height - 460,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
   
       firstPage.drawText(`${facture ? `${facture.montantTTC} dt` : '-'}`, {
-        x: 50,
-        y: height - 180,
+        x: 350,
+        y: height - 460,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+      firstPage.drawText(`${facture ? `${extractMontant(facture.notes)} dt` : '-'}`, {
+        x: 500,
+        y: height - 460,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
+      firstPage.drawText(`${facture ? `${parseFloat(facture.fraisDeService).toFixed(2)} dt` : '-'}`, {
+        x: 500,
+        y: height - 612,
         size: 12,
         color: rgb(0, 0, 0),
       });
