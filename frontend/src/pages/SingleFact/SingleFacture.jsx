@@ -125,40 +125,77 @@ const SingleF = () => {
       // Ajouter des informations dynamiques
       const { width, height } = firstPage.getSize();
   
-      firstPage.drawText(`Chauffeur: ${chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : 'Nom du Chauffeur'}`, {
+      firstPage.drawText(`${chauffeur ? `${chauffeur.Nom} ${chauffeur.Prenom}` : 'Nom du Chauffeur'}`, {
         x: 50,
-        y: height - 100,
+        y: height - 250,
         size: 12,
         color: rgb(0, 0, 0),
       });
-  
-      firstPage.drawText(`Adresse: ${chauffeur ? chauffeur.address : 'Adresse'}`, {
+
+      firstPage.drawText(`${chauffeur ? chauffeur.address : 'Adresse'}`, {
         x: 50,
-        y: height - 120,
+        y: height - 270,
         size: 12,
         color: rgb(0, 0, 0),
       });
-  
-      firstPage.drawText(`Facture N°: ${facture ? facture.numero : '-'}`, {
-        x: 50,
+
+      firstPage.drawText(`${facture ? facture.numero : '-'}`, {
+        x: 215,
         y: height - 140,
         size: 12,
         color: rgb(0, 0, 0),
       });
-  
-      firstPage.drawText(`Date: ${facture ? `${facture.mois + 1}/${facture.annee}` : '-'}`, {
-        x: 50,
-        y: height - 160,
+
+      firstPage.drawText(`${facture ? `${facture.mois + 1}/${facture.annee}` : '-'}`, {
+        x: 40,
+        y: height - 140,
         size: 12,
         color: rgb(0, 0, 0),
       });
-  
-      firstPage.drawText(`Montant Total (TTC): ${facture ? `${facture.montantTTC} dt` : '-'}`, {
-        x: 50,
-        y: height - 180,
+      
+      firstPage.drawText(`${facture ? `Facture de Mois  ` : '-'}`, {
+        x: 42,
+        y: height - 450,
         size: 12,
         color: rgb(0, 0, 0),
       });
+
+
+      firstPage.drawText(`${facture ? ` ${facture.mois} - ${facture.mois + 1}` : '-'}`, {
+        x: 50,
+        y: height - 475,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
+      firstPage.drawText(`${facture ? facture.nbTrajet : '-'}`, {
+        x: 220,
+        y: height - 460,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
+      firstPage.drawText(`${facture ? `${parseFloat(facture.montantTTC).toFixed(2)} dt` : '-'}`, {
+        x: 350,
+        y: height - 460,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
+      firstPage.drawText(`${facture ? `${extractMontant(facture.notes)} dt` : '-'}`, {
+        x: 500,
+        y: height - 460,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
+      firstPage.drawText(`${facture ? `${parseFloat(facture.fraisDeService).toFixed(2)} dt` : '-'}`, {
+        x: 500,
+        y: height - 612,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
   
       // Sauvegarder le nouveau PDF en tant que blob
       const pdfBytes = await pdfDoc.save();
