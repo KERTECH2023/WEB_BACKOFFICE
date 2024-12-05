@@ -154,7 +154,7 @@ const SingleF = () => {
       });
   
      firstPage.drawText(
-     `${facture ? (facture.mois === 12 ? `${facture.mois}/${facture.annee}` : `${facture.mois + 1}/${facture.annee}`) : '-'}`, 
+     `${facture ? `${facture.mois}/${facture.annee}`: '-'}`, 
      {
      x: 40,
      y: height - 140,
