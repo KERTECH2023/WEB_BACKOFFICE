@@ -77,7 +77,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
     const factures = await Promise.all(chauffeurs.map(async (chauffeur) => {
       // Récupérer toutes les courses complétées pour le chauffeur ce mois
       const rideRequests = await RideRequest.find({
-        driverPhone: chauffeur.phone, // Filtre par numéro de téléphone du chauffeur
+        driverId: chauffeur.firebaseUID, // Filtre par numéro de téléphone du chauffeur
         status: 'Ended',
         time: {
           $gte: moment([annee, mois - 1]).startOf('month').toDate(),
@@ -86,7 +86,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
       });
 
       const rideRequestsannuler = await RideRequest.find({
-        driverPhone: chauffeur.phone, // Filtre par numéro de téléphone du chauffeur
+        driverId: chauffeur.firebaseUID, // Filtre par numéro de téléphone du chauffeur
         status: 'Annuler',
         time: {
           $gte: moment([annee, mois - 1]).startOf('month').toDate(),
