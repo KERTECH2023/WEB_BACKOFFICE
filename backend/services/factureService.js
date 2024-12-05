@@ -85,11 +85,21 @@ exports.generateFacturesForAllChauffeurs = async () => {
         }
       });
 
+      const rideRequestsannuler = await RideRequest.find({
+        driverPhone: chauffeur.phone, // Filtre par numéro de téléphone du chauffeur
+        status: 'Annuler',
+        time: {
+          $gte: moment([annee, mois - 1]).startOf('month').toDate(),
+          $lt: moment([annee, mois - 1]).endOf('month').toDate(),
+        }
+      });
+
       // Calculer le nombre de trajets et le montant total TTC
       const nbTrajet = rideRequests.length;
       const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
       const fraisDeService = montantTTC * 0.15;  // 15% de frais de service
       const montantNet = montantTTC - fraisDeService;
+      const nbannulerchauffeur= rideRequestsannuler.length;
 
       // Vérifier si une facture existe déjà pour ce chauffeur
       let facture = await Facture.findOne({ chauffeurId: chauffeur._id, mois, annee });
@@ -100,6 +110,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
         facture.montantTTC = montantTTC;
         facture.fraisDeService = fraisDeService;
         facture.notes = `Montant net à payer: ${montantNet.toFixed(2)}`;
+        facture.annulation = nbannulerchauffeur;
         await facture.save(); // Enregistrer les mises à jour
       } else {
         // Générer un nouveau numéro de facture
@@ -122,7 +133,8 @@ exports.generateFacturesForAllChauffeurs = async () => {
           chauffeurId: chauffeur._id,
           nomChauffeur: `${chauffeur.Nom} ${chauffeur.Prenom}`,
           dateEcheance,
-          notes: `Montant net à payer: ${montantNet.toFixed(2)}`
+          notes: `Montant net à payer: ${montantNet.toFixed(2)}`,
+          annulation:nbannulerchauffeur
         });
 
         await facture.save(); // Sauvegarder la nouvelle facture
