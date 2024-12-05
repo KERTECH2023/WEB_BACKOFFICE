@@ -167,12 +167,13 @@ const SingleF = () => {
         color: rgb(0, 0, 0),
       });
 
-      firstPage.drawText(`${facture ? ` ${facture.mois} - ${facture.mois + 1}` : '-'}`, {
-        x: 50,
-        y: height - 475,
-        size: 12,
-        color: rgb(0, 0, 0),
+      firstPage.drawText(`${facture ? (facture.mois === 12 ? `${facture.mois}` : `${facture.mois} - ${facture.mois + 1}`) : '-'}`, {
+      x: 50,
+      y: height - 475,
+      size: 12,
+      color: rgb(0, 0, 0),
       });
+
 
       
       firstPage.drawText(`${facture ? facture.nbTrajet : '-'}`, {
@@ -182,7 +183,7 @@ const SingleF = () => {
         color: rgb(0, 0, 0),
       });
   
-      firstPage.drawText(`${facture ? `${facture.montantTTC} dt` : '-'}`, {
+      firstPage.drawText(`${facture ? `${parseFloat(facture.montantTTC).toFixed(2)} dt` : '-'}`, {
         x: 350,
         y: height - 460,
         size: 12,
