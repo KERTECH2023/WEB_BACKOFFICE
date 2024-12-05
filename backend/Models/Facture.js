@@ -73,6 +73,9 @@ const FactureSchema = new Schema(
     notes: {
       type: String,
     },
+    annulation: {
+      type: Number,
+    },
   },
   {
     timestamps: true,
