@@ -125,7 +125,6 @@ const DataFact = () => {
       width: 200,
       valueGetter: (params) => `${params.row.nomChauffeur || ''}`,
     },
-  
     { 
       field: "periode", 
       headerName: "Période", 
@@ -136,7 +135,6 @@ const DataFact = () => {
       }
     },
     { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
-    { field: "annulation", headerName: "Nombre de annulation", width: 150 },
     {
       field: "montantTTC",
       headerName: "Montant TTC",
