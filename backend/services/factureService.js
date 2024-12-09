@@ -97,7 +97,7 @@ exports.generateFacturesForAllChauffeurs = async () => {
       // Calculer le nombre de trajets et le montant total TTC
       const nbTrajet = rideRequests.length;
       const montantTTC = rideRequests.reduce((total, ride) => total + ride.fareAmount, 0);
-      const fraisDeService = montantTTC * 0.15;  // 15% de frais de service
+      const fraisDeService = montantTTC * 0.15 *1.19;  // 15% de frais de service
       const montantNet = montantTTC - fraisDeService;
       const nbannulerchauffeur= rideRequestsannuler.length;
 
