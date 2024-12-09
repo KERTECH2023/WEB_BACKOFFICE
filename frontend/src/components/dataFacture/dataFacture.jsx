@@ -135,6 +135,14 @@ const DataFact = () => {
       }
     },
     { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
+    { field: "annulation", headerName: "Nombre de annulation", width: 150 ,
+      valueFormatter: (params) => {
+        if (params.value == null) {
+          return 0;
+        }
+        return `${params.value}`;
+      },
+    },
     {
       field: "montantTTC",
       headerName: "Montant TTC",
