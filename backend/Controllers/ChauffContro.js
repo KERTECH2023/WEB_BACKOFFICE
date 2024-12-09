@@ -809,6 +809,13 @@ const updatestatus = async (req, res, next) => {
       await admin.auth().updateUser(userRecord.uid, {
         disabled: true
       });
+
+        // Update Realtime Database
+        const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
+        await firebaseRef.update({
+          'Cstatus': false
+        });
+
       const usersRef = realtimeDB.ref("Users");
       usersRef.child(id).set(
         {
@@ -984,8 +991,17 @@ const reactivateChauffeur = async (req, res) => {
 
     // Étape 2 : Activer le compte dans Firebase Authentication
     try {
+      // Reactivate Firebase user account
       await admin.auth().updateUser(chauffeur.firebaseUID, { disabled: false });
       console.log("Firebase account reactivated for UID:", chauffeur.firebaseUID);
+    
+      // Update Realtime Database
+      const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
+      await firebaseRef.update({
+        'Cstatus': true
+      });
+  
+   
     } catch (firebaseError) {
       console.error("Error reactivating Firebase user:", firebaseError);
       return res.status(500).send({
