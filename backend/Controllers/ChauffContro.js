@@ -811,7 +811,7 @@ const updatestatus = async (req, res, next) => {
       });
 
         // Update Realtime Database
-        const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
+        const firebaseRef = realtimeDB.ref("Drivers/" + chauffeurUpdated.firebaseUID);
         await firebaseRef.update({
           'Cstatus': false
         });
