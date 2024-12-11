@@ -1222,9 +1222,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 </head>
 <body>
     <div class="container">
-        <img src="https://firebasestorage.googleapis.com/v0/b/prd-transport.appspot.com/o/logoc.png?alt=media&token=6a225136-94c5-407b-8501-c233e9aa721f" 
-             alt="Flash Driver Logo" 
-             class="logo">
+       
         
         <div class="content">
             <h1>Votre compte vient d'être validé !</h1>
