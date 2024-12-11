@@ -1075,7 +1075,7 @@ const updatestatuss = async (req, res, next) => {
       throw new Error("Error finding car by chauffeur ID");
     });
 
-    // 4. Créer ou récupérer un utilisateur Firebase
+    // 4. Créer ou mettre à jour un utilisateur Firebase
     let firebaseUser;
     try {
       try {
@@ -1086,7 +1086,7 @@ const updatestatuss = async (req, res, next) => {
         });
         console.log("New Firebase user created:", firebaseUser);
       } catch (firebaseError) {
-        // Si l'erreur est due à un email existant, récupérer l'utilisateur existant
+        // Si l'utilisateur existe déjà, récupérer l'utilisateur existant
         if (firebaseError.code === 'auth/email-already-in-use') {
           firebaseUser = await admin.auth().getUserByEmail(chauffeurEmail);
           console.log("Existing Firebase user found:", firebaseUser);
@@ -1101,7 +1101,7 @@ const updatestatuss = async (req, res, next) => {
       });
     }
 
-    // Étape 5 : Mise à jour du chauffeur avec firebaseUID
+    // 5. Mise à jour du chauffeur avec firebaseUID
     const updatedChauffeurs = await Chauffeur.findByIdAndUpdate(
       id,
       {
@@ -1118,7 +1118,7 @@ const updatestatuss = async (req, res, next) => {
 
     console.log("Firebase UID saved in MongoDB.");
 
-    // 6. Ajouter/Mettre à jour les données dans Firebase Realtime Database
+    // 6. Ajouter ou mettre à jour les données dans Firebase Realtime Database
     const activeDriver = {
       name: chauffeurUpdated.Nom,
       DateNaissance: chauffeurUpdated.DateNaissance,
@@ -1143,7 +1143,7 @@ const updatestatuss = async (req, res, next) => {
 
     console.log("Chauffeur successfully added/updated in Firebase Database.");
 
-    // 7. Envoyer un email de confirmation
+    // 7. Envoyer un email avec le mot de passe
     try {
       await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
       return res.status(200).send({
