@@ -71,15 +71,7 @@ const onChangeHandler = (e)=>{
       data.append(key, form[key]);
     }
 
-   
-    const LiceRegex = /^[0-9]{8}$/;
-    if (!LiceRegex.test(form.licenseNo)) {
-    toast.error('N° Permis  must be 8 digits.', {
-        position: toast.POSITION.TOP_RIGHT
-      });
-      return;
-    }
-   
+
     
   
       // Handle validations
@@ -176,14 +168,8 @@ const onChangeHandler = (e)=>{
     		
    		</select>
        </p>
-
-       <p className="item">
-                <label>N° Permis :</label><br />
-                <input type="text" onChange={onChangeHandler} name="licenseNo" className='InputBox' id="licenseNo" value={form.licenseNo || ""
-                } required   disabled={role === "Agent"}/>
-            </p>
             <p className="item">
-                <label>N° CIN :</label><br />
+                <label>N° Permis :</label><br />
                 <input type="text" onChange={onChangeHandler} name="cnicNo" className='InputBox' id="cnicNo" value={form.cnicNo || ""
                 } required   disabled={role === "Agent"} />
             </p>
