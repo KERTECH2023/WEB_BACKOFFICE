@@ -1075,32 +1075,41 @@ const updatestatuss = async (req, res, next) => {
       throw new Error("Error finding car by chauffeur ID");
     });
 
-    // 4. Créer un utilisateur Firebase
+    // 4. Créer ou récupérer un utilisateur Firebase
     let firebaseUser;
     try {
-      firebaseUser = await admin.auth().createUser({
-        email: chauffeurEmail,
-        password: chauffeurPassword,
-      });
-      console.log("New Firebase user created:", firebaseUser);
-    } catch (firebaseError) {
-      console.error("Error creating Firebase user:", firebaseError);
+      try {
+        // Essayer de créer un nouvel utilisateur
+        firebaseUser = await admin.auth().createUser({
+          email: chauffeurEmail,
+          password: chauffeurPassword,
+        });
+        console.log("New Firebase user created:", firebaseUser);
+      } catch (firebaseError) {
+        // Si l'erreur est due à un email existant, récupérer l'utilisateur existant
+        if (firebaseError.code === 'auth/email-already-in-use') {
+          firebaseUser = await admin.auth().getUserByEmail(chauffeurEmail);
+          console.log("Existing Firebase user found:", firebaseUser);
+        } else {
+          throw firebaseError;
+        }
+      }
+    } catch (error) {
+      console.error("Error handling Firebase user:", error);
       return res.status(500).send({
-        message: "Error creating Firebase user",
+        message: "Error creating or finding Firebase user",
       });
     }
 
-   
-    
-    // Étape 3 : Mise à jour du chauffeur avec firebaseUID
+    // Étape 5 : Mise à jour du chauffeur avec firebaseUID
     const updatedChauffeurs = await Chauffeur.findByIdAndUpdate(
-      id, // Trouve le chauffeur par ID
+      id,
       {
         $set: {
-          firebaseUID: firebaseUser.uid, // Ajoute ou met à jour le champ firebaseUID
+          firebaseUID: firebaseUser.uid,
         },
       },
-      { new: true,strict: false } // Retourne le chauffeur mis à jour
+      { new: true, strict: false }
     );
 
     if (!updatedChauffeurs) {
@@ -1109,7 +1118,7 @@ const updatestatuss = async (req, res, next) => {
 
     console.log("Firebase UID saved in MongoDB.");
 
-    // 6. Ajouter les données dans Firebase Realtime Database
+    // 6. Ajouter/Mettre à jour les données dans Firebase Realtime Database
     const activeDriver = {
       name: chauffeurUpdated.Nom,
       DateNaissance: chauffeurUpdated.DateNaissance,
@@ -1132,7 +1141,7 @@ const updatestatuss = async (req, res, next) => {
     const driversRef = realtimeDB.ref("Drivers");
     await driversRef.child(firebaseUser.uid).set(activeDriver);
 
-    console.log("Chauffeur successfully added to Firebase Database.");
+    console.log("Chauffeur successfully added/updated in Firebase Database.");
 
     // 7. Envoyer un email de confirmation
     try {
