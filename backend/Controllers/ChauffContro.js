@@ -425,128 +425,91 @@ async function sendConfirmationEmail(Email, Password) {
   });
 
   const mailOptions = {
-    from: "Flash Driver<testrapide45@gmail.com>",
+    from: "Flash Driver <testrapide45@gmail.com>",
     to: Email,
-    subject: "Flash Driver Nouveau Compte ",
-    html:
-      `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
-<head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1" name="viewport">
-  <meta name="x-apple-disable-message-reformatting">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta content="telephone=no" name="format-detection">
-  <title>Account Activation</title>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
-  <style type="text/css">
-    #outlook a { padding:0; }
-    .es-button { text-decoration:none!important; }
-    a[x-apple-data-detectors] { color:inherit!important; text-decoration:none!important; font-size:inherit!important; font-family:inherit!important; font-weight:inherit!important; line-height:inherit!important; }
-    @media only screen and (max-width:600px) {
-      p, ul li, ol li, a { line-height:150%!important }
-      h1, h2, h3, h1 a, h2 a, h3 a { line-height:120% }
-      h1 { font-size:30px!important; text-align:center }
-      h2 { font-size:24px!important; text-align:left }
-      h3 { font-size:20px!important; text-align:left }
-      .es-header-body h1 a, .es-content-body h1 a, .es-footer-body h1 a { font-size:30px!important; text-align:center }
-      .es-menu td a { font-size:14px!important }
-      .es-content-body p, .es-footer-body p, .es-header-body p { font-size:14px!important }
-      .es-m-txt-c, .es-m-txt-c h1, .es-m-txt-c h2, .es-m-txt-c h3 { text-align:center!important }
-      .es-adapt-td { display:block!important; width:100%!important }
-      .adapt-img { width:100%!important; height:auto!important }
-    }
-  </style>
-</head>
-<body style="width:100%;font-family:arial, 'helvetica neue', helvetica, sans-serif;padding:0;Margin:0;background-color:#D2A805">
-  <div class="es-wrapper-color" style="background-color:#D2A805">
-    <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0" style="padding:0;Margin:0;width:100%;height:100%;background-color:#D2A805">
-      <tr>
-        <td valign="top" style="padding:0;Margin:0">
-          <table class="es-header" align="center" style="width:100%;background-color:transparent;">
-            <tr>
-              <td align="center" style="padding:0;Margin:0">
-                <table bgcolor="#ffffff" class="es-header-body" align="center" cellpadding="0" cellspacing="0" style="background-color:#FFFFFF;width:600px">
-                  <tr>
-                    <td align="left" style="padding:20px;Margin:0">
-                      <table cellpadding="0" cellspacing="0" align="left" style="float:left">
-                        <tr>
-                          <td valign="top" align="center" style="width:241px">
-                            <a href="https://viewstripo.email" target="_blank" style="text-decoration:none;color:#3B8026">
-                              <img src="https://firebasestorage.googleapis.com/v0/b/prd-transport.appspot.com/o/logoc.png?alt=media&token=6a225136-94c5-407b-8501-c233e9aa721f" alt="Logo" title="Logo" width="193" height="127" style="display:block;border:0;outline:none;text-decoration:none">
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                      <table cellpadding="0" cellspacing="0" align="right" style="float:right">
-                        <tr>
-                          <td align="left" style="width:299px">
-                            <table cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                              <tr class="links-images-right">
-                                <td align="center" valign="top" style="padding-top:10px;padding-bottom:0;border:0">
-                                  <a href="" target="_blank" style="display:block;color:#0b5394;font-size:18px">Commandez un taxi en un clic depuis votre mobile</a>
-                                </td>
-                              </tr>
-                            </table>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-          <table class="es-content" cellspacing="0" cellpadding="0" align="center" style="width:100%">
-            <tr>
-              <td align="center" style="padding:0;Margin:0">
-                <table class="es-content-body" style="background-color:#ffffff;width:600px" cellspacing="0" cellpadding="0" align="center">
-                  <tr>
-                    <td align="left" style="padding:40px;Margin:0">
-                      <table cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                        <tr>
-                          <td align="center" valign="top" style="width:520px">
-                            <table cellpadding="0" cellspacing="0" width="100%" bgcolor="#fef852" style="background-color:#fef852;border-radius:20px">
-                              <tr>
-                                <td align="center" style="padding:30px 20px 10px">
-                                  <h1 style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:40px;color:#2D033A">Merci<br>pour nous choisir</h1>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td align="center" style="padding-bottom:30px">
-                                  <p style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:16px;color:#38363A">Votre compte a été activé avec succès.</p>
-                                </td>
-                              </tr>
-                            </table>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td align="left" style="padding:0 40px 40px">
-                      <table cellpadding="0" cellspacing="0" width="100%" role="presentation">
-                        <tr>
-                          <td align="left" style="padding-top:5px;padding-bottom:5px">
-                            <h3 style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:20px;color:#2D033A">Cher(e) ` + Email + `,</h3>
-                            <p style="font-family:'Josefin Sans', helvetica, arial, sans-serif;font-size:14px;color:#38363A">Nous sommes ravis de vous accueillir sur Flash Driver ! Votre compte a été créé avec succès. Vous pouvez désormais profiter de tous nos services.</p>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </div>
-</body>
-</html>
-`,
+    subject: "Flash Driver Nouveau Compte",
+    html: `
+  <!DOCTYPE html>
+  <html lang="en" style="font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Driver Account Activation</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        color: #333333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #ddd;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: #333;
+      }
+      .content {
+        padding: 20px;
+      }
+      .content h2 {
+        font-size: 20px;
+        color: #444;
+      }
+      .content p {
+        line-height: 1.5;
+        margin: 10px 0;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12px;
+        color: #888;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 20px 0;
+        color: #ffffff;
+        background-color: #007bff;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Bienvenue sur Flash Driver</h1>
+      </div>
+      <div class="content">
+        <h2>Bonjour,</h2>
+        <p>Nous sommes ravis de vous accueillir sur Flash Driver ! Votre compte a été créé avec succès. Vous pouvez désormais profiter de tous nos services.</p>
+        <p><strong>Adresse email:</strong> ${Email}</p>
+        <p><strong>Mot de passe temporaire:</strong> <em>[Votre mot de passe]</em></p>
+        <a href="https://flashdriver.com/login" class="button">Accéder à mon compte</a>
+      </div>
+      <div class="footer">
+        <p>Merci d'avoir choisi Flash Driver. Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `,
   };
+  
 
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, function (error, info) {
@@ -1235,156 +1198,78 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
   const mailOptions = {
     from: "Flash Driver <noreplyflashdriver@gmail.com>",
     to: Email,
-    subject: "Flash Driver Compte Validé ",
-  html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-        <html xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" style="font-family:arial, 'helvetica neue', helvetica, sans-serif">
-        <head>
+    subject: "Flash Driver Compte Validé",
+    html: `
+      <!DOCTYPE html>
+      <html lang="fr" style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+      <head>
         <meta charset="UTF-8">
-        <meta content="width=device-width, initial-scale=1" name="viewport">
-        <meta name="x-apple-disable-message-reformatting">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta content="telephone=no" name="format-detection">
-        <title>Nouveau message 3</title><!--[if (mso 16)]>
-        <style type="text/css">
-        a {text-decoration: none;}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Compte Validé</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+          }
+          .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+          }
+          h1 {
+            font-size: 24px;
+            text-align: center;
+            color: #444;
+          }
+          p {
+            font-size: 16px;
+            margin: 10px 0;
+          }
+          .btn {
+            display: inline-block;
+            background: #fad939;
+            color: #000;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 20px 0;
+            font-size: 16px;
+            border-radius: 4px;
+            text-align: center;
+          }
+          .btn:hover {
+            background: #f7b800;
+          }
+          footer {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+          }
         </style>
-        <![endif]--><!--[if gte mso 9]><style>sup { font-size: 100% !important; }</style><![endif]--><!--[if gte mso 9]>
-        <xml>
-        <o:OfficeDocumentSettings>
-        <o:AllowPNG></o:AllowPNG>
-        <o:PixelsPerInch>96</o:PixelsPerInch>
-        </o:OfficeDocumentSettings>
-        </xml>
-        <![endif]--><!--[if !mso]><!-- -->
-        <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"><!--<![endif]-->
-        <style type="text/css">
-        #outlook a {
-        padding:0;
-        }
-        .es-button {
-        mso-style-priority:100!important;
-        text-decoration:none!important;
-        }
-        a[x-apple-data-detectors] {
-        color:inherit!important;
-        text-decoration:none!important;
-        font-size:inherit!important;
-        font-family:inherit!important;
-        font-weight:inherit!important;
-        line-height:inherit!important;
-        }
-        .es-desk-hidden {
-        display:none;
-        float:left;
-        overflow:hidden;
-        width:0;
-        max-height:0;
-        line-height:0;
-        mso-hide:all;
-        }
-        @media only screen and (max-width:600px) {p, ul li, ol li, a { line-height:150%!important } h1, h2, h3, h1 a, h2 a, h3 a { line-height:120% } h1 { font-size:30px!important; text-align:center!important } h2 { font-size:24px!important; text-align:center!important } h3 { font-size:20px!important; text-align:center!important } .es-header-body h1 a, .es-content-body h1 a, .es-footer-body h1 a { font-size:30px!important; text-align:center!important } .es-header-body h2 a, .es-content-body h2 a, .es-footer-body h2 a { font-size:24px!important; text-align:center!important } .es-header-body h3 a, .es-content-body h3 a, .es-footer-body h3 a { font-size:20px!important; text-align:center!important } .es-menu td a { font-size:14px!important } .es-header-body p, .es-header-body ul li, .es-header-body ol li, .es-header-body a { font-size:14px!important } .es-content-body p, .es-content-body ul li, .es-content-body ol li, .es-content-body a { font-size:14px!important } .es-footer-body p, .es-footer-body ul li, .es-footer-body ol li, .es-footer-body a { font-size:14px!important } .es-infoblock p, .es-infoblock ul li, .es-infoblock ol li, .es-infoblock a { font-size:12px!important } *[class="gmail-fix"] { display:none!important } .es-m-txt-c, .es-m-txt-c h1, .es-m-txt-c h2, .es-m-txt-c h3 { text-align:center!important } .es-m-txt-r, .es-m-txt-r h1, .es-m-txt-r h2, .es-m-txt-r h3 { text-align:right!important } .es-m-txt-l, .es-m-txt-l h1, .es-m-txt-l h2, .es-m-txt-l h3 { text-align:left!important } .es-m-txt-r img, .es-m-txt-c img, .es-m-txt-l img { display:inline!important } .es-button-border { display:inline-block!important } a.es-button, button.es-button { font-size:18px!important; display:inline-block!important } .es-adaptive table, .es-left, .es-right { width:100%!important } .es-content table, .es-header table, .es-footer table, .es-content, .es-footer, .es-header { width:100%!important; max-width:600px!important } .es-adapt-td { display:block!important; width:100%!important } .adapt-img { width:100%!important; height:auto!important } .es-m-p0 { padding:0px!important } .es-m-p0r { padding-right:0px!important } .es-m-p0l { padding-left:0px!important } .es-m-p0t { padding-top:0px!important } .es-m-p0b { padding-bottom:0!important } .es-m-p20b { padding-bottom:20px!important } .es-mobile-hidden, .es-hidden { display:none!important } tr.es-desk-hidden, td.es-desk-hidden, table.es-desk-hidden { width:auto!important; overflow:visible!important; float:none!important; max-height:inherit!important; line-height:inherit!important } tr.es-desk-hidden { display:table-row!important } table.es-desk-hidden { display:table!important } td.es-desk-menu-hidden { display:table-cell!important } .es-menu td { width:1%!important } table.es-table-not-adapt, .esd-block-html table { width:auto!important } table.es-social { display:inline-block!important } table.es-social td { display:inline-block!important } .es-desk-hidden { display:table-row!important; width:auto!important; overflow:visible!important; max-height:inherit!important } }
-        </style>
-        </head>
-        <body style="width:100%;font-family:arial, 'helvetica neue', helvetica, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0">
-        <div class="es-wrapper-color" style="background-color:#FFFFFF"><!--[if gte mso 9]>
-        <v:background xmlns:v="urn:schemas-microsoft-com:vml" fill="t">
-        <v:fill type="tile" color="#ffffff"></v:fill>
-        </v:background>
-        <![endif]-->
-        <table class="es-wrapper" width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;padding:0;Margin:0;width:100%;height:100%;background-repeat:repeat;background-position:center top;background-color:#FFFFFF">
-        <tr>
-        <td valign="top" style="padding:0;Margin:0">
-        <table cellpadding="0" cellspacing="0" class="es-header" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%;background-color:transparent;background-repeat:repeat;background-position:center top">
-        <tr>
-        <td align="center" style="padding:0;Margin:0">
-        <table bgcolor="#fad939" class="es-header-body" align="center" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FFFFFF;width:510px">
-        <tr>
-        <td align="left" style="padding:0;Margin:0;padding-left:20px;padding-right:20px">
-        <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td align="center" valign="top" style="padding:0;Margin:0;width:470px">
-        <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td align="center" height="40" style="padding:0;Margin:0"></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table>
-        <table class="es-content" cellspacing="0" cellpadding="0" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%">
-        <tr>
-        <td align="center" style="padding:0;Margin:0">
-        <table class="es-content-body" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:transparent;width:510px" cellspacing="0" cellpadding="0" align="center" bgcolor="#FAD939">
-        <tr>
-        <td align="left" style="padding:0;Margin:0">
-        <table width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td class="es-m-p0r" valign="top" align="center" style="padding:0;Margin:0;width:510px">
-        <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td align="center" style="padding:0;Margin:0;position:relative"><img class="adapt-img" src="https://firebasestorage.googleapis.com/v0/b/prd-transport.appspot.com/o/image16934700588243507%20(1).png?alt=media&token=d1f81748-0b47-48fd-a2fd-72c73ea094c8" alt title width="100%" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic"></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table>
-        <table cellpadding="0" cellspacing="0" class="es-content" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;table-layout:fixed !important;width:100%">
-        <tr>
-        <td align="center" style="padding:0;Margin:0">
-        <table bgcolor="#ffffff" class="es-content-body" align="center" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;background-color:#FAD939;border-radius:0 0 50px 50px;width:510px">
-        <tr>
-        <td align="left" style="padding:0;Margin:0;padding-left:20px;padding-right:20px">
-        <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td align="center" valign="top" style="padding:0;Margin:0;width:470px">
-        <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td align="center" style="padding:0;Margin:0"><h1 style="Margin:0;line-height:46px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:38px;font-style:normal;font-weight:bold;color:#5d541d">Votre compte vient d'être validé !</h1></td>
-        </tr>
-        <tr>
-        <td align="center" style="padding:0;Margin:0;padding-top:40px;padding-bottom:40px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D">Merci de nous avoir rejoint.</h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p></td>
-        </tr>
-        <tr>
-        ${
-          chauffeurPassword === "" ? "" : `
-        <td align="center" style="padding:0;Margin:0;padding-top:40px;padding-bottom:40px"><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D"><br></h3><h3 style="Margin:0;line-height:24px;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;font-size:20px;font-style:normal;font-weight:bold;color:#5D541D">votre mot de passe: ${chauffeurPassword}</h3><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:27px;color:#5D541D;font-size:18px"><br></p></td>
-          
-          `
-        }
-
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        <tr>
-        <td align="left" style="Margin:0;padding-top:20px;padding-left:20px;padding-right:20px;padding-bottom:40px">
-        <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td align="left" style="padding:0;Margin:0;width:470px">
-        <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-        <tr>
-        <td align="center" style="padding:0;Margin:0"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:Poppins, sans-serif;line-height:21px;color:#5D541D;font-size:14px">Merci,<br>Flash Driver Team!&nbsp;</p></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table></td>
-        </tr>
-        </table>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Compte Validé</h1>
+          <p>Bonjour,</p>
+          <p>Nous sommes heureux de vous informer que votre compte Flash Driver a été validé avec succès.</p>
+          <p>Vous pouvez maintenant accéder à votre compte et profiter de nos services.</p>
+          <a href="https://flashdriver.example.com/login" class="btn">Accéder à mon compte</a>
+          <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+          <footer>
+            © 2024 Flash Driver. Tous droits réservés.
+          </footer>
         </div>
-        </body>
-        </html>`,
+      </body>
+      </html>
+    `
   };
+  
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
