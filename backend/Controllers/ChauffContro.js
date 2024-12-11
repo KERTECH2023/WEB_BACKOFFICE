@@ -1225,7 +1225,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
        
         
         <div class="content">
-            <h1>Votre compte vient d'être validé !</h1>
+            <h1>Votre compte vient d'être validé</h1>
             
             <p>Merci de nous avoir rejoint.</p>
             
