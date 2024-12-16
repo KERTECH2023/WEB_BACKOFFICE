@@ -15,6 +15,7 @@ const Facture = require("../Models/Facture"); // Assuming the Car schema is defi
 const RideRequest = require("../Models/AllRideRequest"); // Import the RideRequest Mongoose model
 const Chauffeur = require("../Models/Chauffeur");
 const PDFDocument = require("pdfkit");
+const querystring = require("querystring");
 
 const fs = require("fs");
 
@@ -1028,10 +1029,12 @@ const updatestatuss = async (req, res, next) => {
       // Essayer de trouver un utilisateur existant par email
       firebaseUser = await admin.auth().getUserByEmail(chauffeurEmail);
       console.log("Existing Firebase user found:", firebaseUser);
-
+      const messagesms="Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
       // Si l'utilisateur existe, envoyer un email avec le mot de passe existant
       try {
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
+        
+        await sendSMS(chauffeurUpdated.phone, messagesms)
         
         // Mettre à jour les données dans Realtime Database
         const activeDriver = {
@@ -1125,10 +1128,12 @@ const updatestatuss = async (req, res, next) => {
 
         const driversRef = realtimeDB.ref("Drivers");
         await driversRef.child(firebaseUser.uid).set(activeDriver);
+        const messagesms="Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
 
         // Envoyer un email de confirmation
         try {
           await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
+          await sendSMS(updatedChauffeurs.phone, messagesms)
           return res.status(200).send({
             message: "Chauffeur enabled and email sent successfully!",
             chauffeurEmail,
@@ -1256,6 +1261,43 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
       }
     });
   });
+}
+
+
+// Fonction pour envoyer un SMS
+async  function sendSMS(phoneNumber, message) {
+  const postData = querystring.stringify({
+    action: "send-sms",
+    api_key: "DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6", // Remplacez par votre clé API réelle
+    to: phoneNumber, // Numéro de téléphone du destinataire (ex. 216XXXXXXXX)
+    sms: message, // Message à envoyer
+    from: "Test_WinSMS", // Identifiant expéditeur
+  });
+
+  const options = {
+    hostname: "www.winsmspro.com",
+    port: 443,
+    path: "/sms/sms/api",
+    method: "GET",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Length": postData.length,
+    },
+  };
+
+  const req = https.request(options, (res) => {
+    console.log(`Statut de l'envoi SMS : ${res.statusCode}`);
+    res.on("data", (d) => {
+      process.stdout.write(d);
+    });
+  });
+
+  req.on("error", (e) => {
+    console.error(`Erreur lors de l'envoi du SMS : ${e.message}`);
+  });
+
+  req.write(postData);
+  req.end();
 }
 
 module.exports = {
