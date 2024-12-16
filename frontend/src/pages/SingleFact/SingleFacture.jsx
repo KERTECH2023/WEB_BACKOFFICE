@@ -193,7 +193,7 @@ const SingleF = () => {
         size: 12,
         color: rgb(0, 0, 0),
       });
-      firstPage.drawText(`${facture ? `${extractMontant(facture.notes)} dt` : '-'}`, {
+      firstPage.drawText(`${facture ? `${extractMontant(facture.montantTTC)*0.15} dt` : '-'}`, {
         x: 500,
         y: height - 460,
         size: 12,
