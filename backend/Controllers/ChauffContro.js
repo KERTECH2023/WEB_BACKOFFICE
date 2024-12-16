@@ -16,6 +16,7 @@ const RideRequest = require("../Models/AllRideRequest"); // Import the RideReque
 const Chauffeur = require("../Models/Chauffeur");
 const PDFDocument = require("pdfkit");
 const querystring = require("querystring");
+const https = require("https");
 
 const fs = require("fs");
 
@@ -1034,7 +1035,7 @@ const updatestatuss = async (req, res, next) => {
       try {
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
         
-        await sendSMS(chauffeurUpdated.phone, messagesms)
+        await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
         
         // Mettre à jour les données dans Realtime Database
         const activeDriver = {
@@ -1128,12 +1129,12 @@ const updatestatuss = async (req, res, next) => {
 
         const driversRef = realtimeDB.ref("Drivers");
         await driversRef.child(firebaseUser.uid).set(activeDriver);
-        const messagesms="Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
+       
 
         // Envoyer un email de confirmation
         try {
           await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
-          await sendSMS(updatedChauffeurs.phone, messagesms)
+          await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
           return res.status(200).send({
             message: "Chauffeur enabled and email sent successfully!",
             chauffeurEmail,
@@ -1265,40 +1266,28 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 
 
 // Fonction pour envoyer un SMS
-async  function sendSMS(phoneNumber, message) {
-  const postData = querystring.stringify({
-    action: "send-sms",
-    api_key: "DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6", // Remplacez par votre clé API réelle
-    to: '21694400107', // Numéro de téléphone du destinataire (ex. 216XXXXXXXX)
-    sms: message, // Message à envoyer
-    from: "Test_WinSMS", // Identifiant expéditeur
-  });
+async function sendSMSDirect(motdepasse, numtel) {
+  // Suppression du "+" dans le numéro de téléphone
+  const formattedNumTel = numtel.replace(/\+/g, ""); 
 
-  const options = {
-    hostname: "www.winsmspro.com",
-    port: 443,
-    path: "/sms/sms/api",
-    method: "GET",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Content-Length": postData.length,
-    },
-  };
+  // URL construite avec le numéro de téléphone formaté
+  const url = "https://www.winsmspro.com/sms/sms/api?action=send-sms&api_key=DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6&to=" 
+              + formattedNumTel 
+              + "&sms=Flash%20Driver%20:%20Votre%20mot%20de%20passe%20est%20" 
+              + motdepasse 
+              + "&from=Test_WinSMS";
 
-  const req = https.request(options, (res) => {
+  https.get(url, (res) => {
     console.log(`Statut de l'envoi SMS : ${res.statusCode}`);
-    res.on("data", (d) => {
-      process.stdout.write(d);
-    });
-  });
 
-  req.on("error", (e) => {
+    res.on("data", (d) => {
+      process.stdout.write(d); // Affiche la réponse du serveur
+    });
+  }).on("error", (e) => {
     console.error(`Erreur lors de l'envoi du SMS : ${e.message}`);
   });
-
-  req.write(postData);
-  req.end();
 }
+
 
 module.exports = {
 
