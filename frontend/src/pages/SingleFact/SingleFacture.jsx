@@ -193,7 +193,7 @@ const SingleF = () => {
         size: 12,
         color: rgb(0, 0, 0),
       });
-      firstPage.drawText(`${facture ? `${parseFloat(facture.montantTTC) * 0.15} dt` : '-'}`, {
+      firstPage.drawText(`${facture ? `${(parseFloat(facture.montantTTC) * 0.15).toFixed(2)} dt` : '-'}`, {
         x: 500,
         y: height - 460,
         size: 12,
