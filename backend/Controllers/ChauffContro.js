@@ -1269,7 +1269,7 @@ async  function sendSMS(phoneNumber, message) {
   const postData = querystring.stringify({
     action: "send-sms",
     api_key: "DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6", // Remplacez par votre clé API réelle
-    to: phoneNumber, // Numéro de téléphone du destinataire (ex. 216XXXXXXXX)
+    to: '21694400107', // Numéro de téléphone du destinataire (ex. 216XXXXXXXX)
     sms: message, // Message à envoyer
     from: "Test_WinSMS", // Identifiant expéditeur
   });
