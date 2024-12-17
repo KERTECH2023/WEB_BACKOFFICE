@@ -110,25 +110,135 @@ const UpdChauf = () => {
           <h1>Mettre à jour Agent : {form.Nom}</h1>
         </div>
         <div className="bottom">
-          <div className="right">
-            <form onSubmit={handleSubmit}>
-              <p className="item">
-                <label>Nom :</label>
-                <input type="text" name="Nom" onChange={onChangeHandler} value={form.Nom || ""} required />
-              </p>
-              <p className="item">
-                <label>Prenom :</label>
-                <input type="text" name="Prenom" onChange={onChangeHandler} value={form.Prenom || ""} required />
-              </p>
-              <p className="item">
-                <label>Email :</label>
-                <input type="email" name="email" onChange={onChangeHandler} value={form.email || ""} required disabled={role === "Agent"} />
-              </p>
-              <p className="item">
-                <label>Photo Avatar :</label>
-                <input type="file" onChange={(e) => setPhotoAvatar(e.target.files[0])} />
-              </p>
-              <button type="submit">Mettre à jour</button>
+              <div className="right">
+                <form action="" id="login" method="put" onSubmit={handleSubmit} >
+                <p className="item">
+                <label>Nom :</label><br />
+                <input type="text" onChange={onChangeHandler} name="Nom" className='InputBox' id="Nom" value={form.Nom || ""
+                } required /> 
+            </p>
+    
+            <p className="item">
+                <label>Prenom :</label><br />
+                <input type="text" onChange={onChangeHandler} name="Prenom" className='InputBox' id="Prenom" value={form.Prenom || ""
+                } required />
+            </p>
+            
+            <p className="item">
+                <label>Email :</label><br />
+                <input type="email" onChange={onChangeHandler} name="email" className='InputBox' id="email" value={ form.email || ""
+                } required  disabled={role === "Agent"} />
+            </p>
+    
+            <p className="item">
+                <label>Phone :</label><br />
+                <input type="text" onChange={onChangeHandler} name="phone" className='InputBox' id="phone" value={form.phone || ""
+                } required />
+            </p>
+            
+
+            <p className="item">
+<label>Gender :</label><br />
+
+        <select onChange={onChangeHandler} value={form.gender || ""} name="gender" id="gender" >
+        <option value="-">-</option>
+    		<option value="male">male</option>
+    		<option value="female">female</option>
+    		
+    		
+   		</select>
+       </p>
+
+    
+
+       <p className="item">
+<label>Nationalite :</label><br />
+        <select onChange={onChangeHandler} value={form.Nationalite || ""} name="Nationalite" id="Nationalite" >
+        <option value="-">-</option>
+    		<option value="Tunisian">Tunisian</option>
+    		<option value="Francais">Francais</option>
+        <option value="marocain">marocain</option>
+    		
+    		
+   		</select>
+       </p>
+            <p className="item">
+                <label>N° Permis :</label><br />
+                <input type="text" onChange={onChangeHandler} name="cnicNo" className='InputBox' id="cnicNo" value={form.cnicNo || ""
+                } required   disabled={role === "Agent"} />
+            </p>
+            <p className="item">
+                <label>Adresse :</label><br />
+                <input type="text" onChange={onChangeHandler} name="address" className='InputBox' id="address" value={form.address || ""
+                } required />
+            </p>
+            <p className="item">
+                <label>Code Postale :</label><br />
+                <input type="text" onChange={onChangeHandler} name="postalCode" className='InputBox' id="postalCode" value={form.postalCode || ""
+                } required />
+            </p>
+            
+         
+            <p className="item">
+                <label>photo de profil  :</label><br />
+                <img
+                src={form.photoAvatar || ""}
+                alt=""
+                className="itemImg"
+              />
+             
+                <input type="file"   onChange={e => setphotoAvatar(e.target.files[0])} name="photoAvatar" className='InputBox' id="photoAvatar" />
+                
+            </p>
+    
+            <p className="item">
+                <label>photo de CIN  :</label><br />
+                <img
+                src={form.photoCin || ""}
+                alt=""
+                className="itemImg"
+              />
+             
+                <input type="file"   onChange={e => setphotoCin(e.target.files[0])} name="photoCin" className='InputBox' id="photoCin" />
+                
+            </p>
+            <p className="item">
+                <label>photo de Permis Recto  :</label><br />
+                <img
+                src={form.photoPermisRec || ""}
+                alt=""
+                className="itemImg"
+              />
+             
+                <input type="file"   onChange={e => setphotoPermisRec(e.target.files[0])} name="photoPermisRec" className='InputBox' id="photoPermisRec" />
+                
+            </p>
+            <p className="item">
+                <label>photo de Permis Verso  :</label><br />
+                <img
+                src={form.photoPermisVer || ""}
+                alt=""
+                className="itemImg"
+              />
+             
+                <input type="file"   onChange={e => setphotoPermisVer(e.target.files[0])} name="photoPermisVer" className='InputBox' id="photoPermisVer" />
+                
+            </p>
+            <p className="item">
+                <label>photo de VTC  :</label><br />
+                <img
+                src={form.photoVtc || ""}
+                alt=""
+                className="itemImg"
+              />
+             
+                <input type="file"   onChange={e => setphotoVtc(e.target.files[0])} name="photoVtc" className='InputBox' id="photoVtc" />
+                
+            </p>
+   <p className="item">
+                <button id="sub_btn" type="submit" value="login">Mis A Jour</button>
+            </p>
+            <ToastContainer />
             </form>
           </div>
           <div className="vehicle-details">
