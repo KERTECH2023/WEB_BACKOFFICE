@@ -1,115 +1,121 @@
 /* eslint-disable no-unused-vars */
-import "./updchauf.scss";
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import "./updchauf.scss"
+import React from 'react'
+import { useParams } from "react-router-dom"
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { useState , useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const UpdChauf = () => {
-  const [form, setForm] = useState({});
-  const [photoAvatar, setPhotoAvatar] = useState(null);
-  const [photoCin, setPhotoCin] = useState(null);
-  const [photoPermisRec, setPhotoPermisRec] = useState(null);
-  const [photoPermisVer, setPhotoPermisVer] = useState(null);
-  const [photoVtc, setPhotoVtc] = useState(null);
-  const [vehicle, setVehicle] = useState(null);
-  const [clickedFile, setClickedFile] = useState(null);
+
+  
+    
+  const [photoAvatar, setphotoAvatar] = useState({file :[]})
+  const [photoCin, setphotoCin] = useState({file :[]})
+  const [photoPermisRec, setphotoPermisRec] = useState({file :[]})
+  const [photoPermisVer, setphotoPermisVer] = useState({file :[]})
+  const [photoVtc, setphotoVtc] = useState({file :[]})
+  const [form, setform] = useState({})
   const role = window.localStorage.getItem("userRole");
-  const { id } = useParams();
-  const navigate = useNavigate();
+  console.log("role",role)
+  const navigate =useNavigate()
 
-  useEffect(() => {
-    if (id) {
-      getSingleUser(id);
-      getVehicleDetails(id);
+  const [user] = useState()
+
+
+  const {id} = useParams();
+  
+  useEffect(() =>{
+  if (id) {
+    getSingleUser(id)
+  }
+  
+  },[id] )
+  console.log("user", id);
+  
+  const getSingleUser = async (id)  => {
+    const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`);
+    if(response.status===200){
+   setform({ ...response.data })
+   console.log("data" , response.data)
     }
-  }, [id]);
-
-  const getSingleUser = async (id) => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/searchchauf/${id}`);
-      if (response.status === 200) {
-        setForm({ ...response.data });
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
-
-  const getVehicleDetails = async (id) => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Voi/getvoi/${id}`);
-      if (response.status === 200) {
-        setVehicle(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching vehicle data:", error);
-    }
-  };
-
-  const onChangeHandler = (e) => {
-    setForm({
+  }
+  console.log("USER**" , user)
+  
+const onChangeHandler = (e)=>{
+  setform({
       ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+      [e.target.name] : e.target.value,
+      //photoAvatar : e.Target.files[0],
+  })
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+}
+
+
+  const handleSubmit = e => {
+      // Prevent the default submit and page reload
+      e.preventDefault()
+    
     const data = new FormData();
-    data.append("photoAvatar", photoAvatar);
-    data.append("photoCin", photoCin);
-    data.append("photoPermisRec", photoPermisRec);
-    data.append("photoPermisVer", photoPermisVer);
-    data.append("photoVtc", photoVtc);
-
+    data.append('photoAvatar',e.target.photoAvatar.files[0]);
+    data.append('photoCin',e.target.photoCin.files[0]);
+    data.append('photoPermisRec',e.target.photoPermisRec.files[0]);
+    data.append('photoPermisVer',e.target.photoPermisVer.files[0]);
+    data.append('photoVtc',e.target.photoVtc.files[0]);
+    console.log("fileeeeee",photoAvatar)
     for (const key in form) {
       data.append(key, form[key]);
     }
 
-    try {
-      const response = await axios.put(`${process.env.REACT_APP_BASE_URL}/Chauff/updatechauf/${id}`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      if (response.status === 200) {
-        toast.success("Chauffeur mis à jour avec succès !");
-        setTimeout(() => navigate("/Chauffeur"), 3000);
+
+    
+  
+      // Handle validations
+      axios
+        .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatechauf/${id}`,data
+        ,{ headers: {
+          'Content-Type': 'multipart/form-data',
+        },})
+       
+        .then(response => {
+       
+          toast.success('Chauffeur Updated with Success !', {
+            position: toast.POSITION.TOP_RIGHT
+            
+        });
+        console.log("file",response.data)
+          //navigate("/users")
+          setTimeout(()=>navigate("/Chauffeur"),3000);
+          console.log(response.Nom)
+    
+          
+        
+                      // Handle response
+        })
+       
+    .catch(err =>{
+      console.warn(err)
+      toast.error('Email exist Already !', {
+        position: toast.POSITION.TOP_RIGHT
+    });
+    })
+    
       }
-    } catch (error) {
-      console.error("Error updating chauffeur:", error);
-      toast.error("Erreur lors de la mise à jour !");
-    }
-  };
 
-  const handleFileClick = (file) => setClickedFile(file);
-  const handleCloseFile = () => setClickedFile(null);
 
-  const renderFile = (fileUrl, alt) => {
-    if (!fileUrl) return null;
-    const ext = fileUrl.toLowerCase().split(".").pop();
-    const isPDF = ext === "pdf";
-    const isImage = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext);
-
-    return (
-      <div onClick={() => handleFileClick(fileUrl)} style={{ cursor: "pointer" }}>
-        {isImage ? <img src={fileUrl} alt={alt} style={{ width: "50px" }} /> : "Voir PDF"}
-      </div>
-    );
-  };
-
-  return (
-    <div className="new">
-      <Sidebar />
-      <div className="newContainer">
-        <Navbar />
-        <div className="top">
-          <h1>Mettre à jour Agent : {form.Nom}</h1>
-        </div>
-        <div className="bottom">
+      return (
+        <div className="new">
+          <Sidebar />
+          <div className="newContainer">
+            <Navbar />
+            <div className="top">
+              <h1>Mettre  a jour Agent : {form.Nom} </h1>
+            </div>
+            <div className="bottom">
               <div className="right">
                 <form action="" id="login" method="put" onSubmit={handleSubmit} >
                 <p className="item">
@@ -235,54 +241,20 @@ const UpdChauf = () => {
                 <input type="file"   onChange={e => setphotoVtc(e.target.files[0])} name="photoVtc" className='InputBox' id="photoVtc" />
                 
             </p>
-   <p className="item">
+            
+            
+            <p className="item">
                 <button id="sub_btn" type="submit" value="login">Mis A Jour</button>
             </p>
             <ToastContainer />
-            </form>
-          </div>
-          <div className="vehicle-details">
-            <h2>Détails de la voiture</h2>
-            {vehicle ? (
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Modelle</TableCell>
-                      <TableCell>Immatriculation</TableCell>
-                      <TableCell>Carte Grise</TableCell>
-                      <TableCell>Assurance</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>{vehicle.modelle}</TableCell>
-                      <TableCell>{vehicle.immatriculation}</TableCell>
-                      <TableCell>{renderFile(vehicle.cartegrise, "Carte Grise")}</TableCell>
-                      <TableCell>{renderFile(vehicle.assurance, "Assurance")}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            ) : (
-              <p>Aucune information sur la voiture disponible.</p>
-            )}
+                </form>
+             
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      {clickedFile && (
-        <div className="fileOverlay" onClick={handleCloseFile}>
-          {clickedFile.endsWith(".pdf") ? (
-            <iframe src={clickedFile} title="PDF Viewer" style={{ width: "90%", height: "90%", border: "none" }} />
-          ) : (
-            <img src={clickedFile} alt="Aperçu" style={{ maxWidth: "90%", maxHeight: "90%" }} />
-          )}
-          <span className="close">&times;</span>
-        </div>
-      )}
-      <ToastContainer />
-    </div>
-  );
-};
+      );
 
-export default UpdChauf;
+}
+
+export default UpdChauf
