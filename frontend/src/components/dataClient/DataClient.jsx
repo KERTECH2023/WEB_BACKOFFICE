@@ -35,20 +35,25 @@ const DataClient = () => {
     getUsers();
   }, []);
 
-  const getUsers = () => {
-    const db = getDatabase(app); // Utilisation de l'app Firebase initialisée
-    const usersRef = ref(db, "Users");
-    onValue(usersRef, (snapshot) => {
+const getUsers = () => {
+  const db = getDatabase(app); // Instance de la base Firebase
+  const usersRef = ref(db, "Users"); // Référence au nœud Users
+  onValue(usersRef, (snapshot) => {
+    if (snapshot.exists()) {
       const usersData = snapshot.val();
-      if (usersData) {
-        const usersArray = Object.keys(usersData).map((key) => ({
-          id: key,
-          ...usersData[key],
-        }));
-        setData(usersArray);
-      }
-    });
-  };
+      console.log("Snapshot data:", usersData); // Log des données récupérées
+      const usersArray = Object.keys(usersData).map((key) => ({
+        id: key,
+        ...usersData[key],
+      }));
+      setData(usersArray);
+    } else {
+      console.error("No data available in 'Users' node.");
+    }
+  }, (error) => {
+    console.error("Error fetching data from Firebase:", error);
+  });
+};
 
   console.log("data=>", data);
 
