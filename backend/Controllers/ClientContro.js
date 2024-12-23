@@ -471,31 +471,11 @@ const Clientdesa = async(req,res,data) =>{
 }
 /**----------------------Supprimer un agent------------------- */
 
-const ClientSchema = new mongoose.Schema({
-  firebaseUID: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  healthStatus: {
-    type: String,
-    default: "none"
-  },
-  email: String,
-  name: String,
-  phone: String,
-  token: String,
-  factures: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Facture'
-  }]
-});
 
-const Client = mongoose.model('Client', ClientSchema);
 
 async function syncClientsFirebaseToMongoDB(req, res) {
   try {
-    const snapshot = await realtimeDB.ref("Clients").once("value");
+    const snapshot = await realtimeDB.ref("Users").once("value");
     const clients = snapshot.val();
 
     if (!clients) {
