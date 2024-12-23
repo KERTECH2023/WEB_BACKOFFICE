@@ -21,7 +21,7 @@ router.get('/afficheCl', ClientContro.recupereruse)
 router.delete('/destroyCl/:id', ClientContro.destroy);
  
 // router.post('/AjoutCl',Multer.single("photoAvatar"),UploadImage,ClientContro.register)
-
+router.post('/syncFirebaseMongo', ClientContro.syncClientsFirebaseToMongoDB);
 router.post('/AjoutCl',Multer.fields([
   { name: "photoAvatar", maxCount: 1  },
 
