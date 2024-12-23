@@ -475,61 +475,73 @@ const Clientdesa = async(req,res,data) =>{
 
 async function syncClientsFirebaseToMongoDB(req, res) {
   try {
+    // 1. Récupérer les données depuis Firebase
     const snapshot = await realtimeDB.ref("Users").once("value");
     const clients = snapshot.val();
 
+    // 2. Vérifier si des données sont présentes
     if (!clients) {
       return res.status(404).json({ message: "Aucun client trouvé dans Firebase." });
     }
 
     let savedCount = 0;
 
+    // 3. Parcourir chaque utilisateur
     for (const [firebaseUID, clientData] of Object.entries(clients)) {
-      // Vérification des données minimales requises
+      // 3.1 Vérifier si les données minimales existent
       if (!clientData.email || !clientData.name || !clientData.phone) {
-        console.warn(`Client avec UID ${firebaseUID} a des données incomplètes.`);
-        continue; // Passer au client suivant
+        console.warn(`Utilisateur ignoré - UID: ${firebaseUID}, données incomplètes.`);
+        continue; // Passer au suivant
       }
 
+      // 3.2 Vérifier si le client existe déjà dans MongoDB
       const existingClient = await Client.findOne({ email: clientData.email });
 
-      // Transformation des données Firebase vers MongoDB
+      // 3.3 Préparer les données avec des valeurs par défaut et validation
       const transformedData = {
-        username: clientData.email ? clientData.email.split("@")[0] : `user_${firebaseUID}`,
-        Nom: clientData.name ? clientData.name.split(" ")[1] || "N/A" : "N/A",
-        Prenom: clientData.name ? clientData.name.split(" ")[0] || "N/A" : "N/A",
+        username: clientData.email
+          ? clientData.email.split("@")[0] // Partie avant le @ comme username
+          : `user_${firebaseUID}`, // Valeur par défaut
+        Nom: clientData.name && clientData.name.split(" ")[1] 
+          ? clientData.name.split(" ")[1] 
+          : "N/A", // Nom (dernier mot)
+        Prenom: clientData.name && clientData.name.split(" ")[0] 
+          ? clientData.name.split(" ")[0] 
+          : "N/A", // Prénom (premier mot)
         email: clientData.email || "",
         phone: clientData.phone || "",
-        password: "DefaultPass123!", // Mot de passe par défaut
+        password: "DefaultPass123!", // Mot de passe temporaire
         DateNaissance: new Date("2000-01-01"), // Valeur par défaut
         gender: "-", // Valeur par défaut
-        role: "client",
-        Nationalite: "Non spécifiée",
-        photoAvatar: "",
-        cnicNo: firebaseUID, // UID utilisé comme CNIC
-        address: "Adresse non spécifiée",
+        role: "client", // Valeur par défaut
+        Nationalite: "Non spécifiée", // Valeur par défaut
+        photoAvatar: "", // Par défaut vide
+        cnicNo: firebaseUID, // UID utilisé comme identifiant unique
+        address: "Adresse non spécifiée", // Valeur par défaut
         ratingsAverage: 1,
         ratingsQuantity: 0,
         isActive: true,
       };
 
+      // 3.4 Mise à jour ou création
       if (existingClient) {
-        // Mise à jour des données existantes
+        // Mise à jour
         await Client.findOneAndUpdate({ email: clientData.email }, transformedData);
-        continue;
+      } else {
+        // Création
+        const newClient = new Client(transformedData);
+        await newClient.save();
+        savedCount++;
       }
-
-      // Création d'un nouveau client
-      const newClient = new Client(transformedData);
-      await newClient.save();
-      savedCount++;
     }
 
+    // 4. Répondre avec un message de succès
     res.status(200).json({
       message: "Synchronisation des clients terminée",
       savedCount,
     });
   } catch (error) {
+    // 5. Gestion des erreurs
     console.error("Erreur de synchronisation:", error);
     res.status(500).json({
       message: "Erreur lors de la synchronisation",
@@ -537,6 +549,7 @@ async function syncClientsFirebaseToMongoDB(req, res) {
     });
   }
 }
+
 
 
 
