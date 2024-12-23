@@ -43,5 +43,5 @@ router.put('/updateCl/:id',Multer.fields([
 router.put('/updatestatus/:id', ClientContro.updatestatus);
 router.put('/updatestatuss/:id', ClientContro.updatestatuss);
 router.get('/getchdes', ClientContro.Clientdesa);
-router.post('/syncFirebaseMongo', ClientContro.syncClientsFirebaseToMongoDB);
+
 module.exports = router
