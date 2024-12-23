@@ -8,22 +8,9 @@ import { ToastContainer, toast } from "react-toastify";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import "react-toastify/dist/ReactToastify.css";
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { database } from "../../firebaseConfig"; 
+import { ref, onValue } from "firebase/database";
 
-// Configuration Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDgBbTBbjIo8hVD128y5TG9FswyZVO8XGE",
-  authDomain: "prd-transport.firebaseapp.com",
-  databaseURL: "https://prd-transport-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "prd-transport",
-  storageBucket: "prd-transport.appspot.com",
-  messagingSenderId: "824880668007",
-  appId: "1:824880668007:web:91bd07b347a51542c0a3c2",
-  measurementId: "G-Q8X6MDK1V9",
-};
-
-// Initialiser Firebase
-const app = initializeApp(firebaseConfig);
 
 const DataClient = () => {
   const [data, setData] = useState([]);
