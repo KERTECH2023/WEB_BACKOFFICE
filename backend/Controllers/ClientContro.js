@@ -4,6 +4,8 @@ const config = require("../config.json");
 const jwt    =require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const firestoreModule = require("../services/config");
+const realtimeDB = firestoreModule.firestoreApp.database();
 /**--------------------Ajouter un agnet------------------------  */
 
 const register = async (req, res) => {
@@ -468,6 +470,127 @@ const Clientdesa = async(req,res,data) =>{
   });
 }
 /**----------------------Supprimer un agent------------------- */
+const ClientSchema = new mongoose.Schema({
+  firebaseUID: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  healthStatus: {
+    type: String,
+    default: "none"
+  },
+  email: String,
+  name: String,
+  phone: String,
+  token: String,
+  factures: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Facture'
+  }]
+});
+
+const Client = mongoose.model('Client', ClientSchema);
+
+async function syncClientsFirebaseToMongoDB(req, res) {
+  try {
+    const snapshot = await realtimeDB.ref("Clients").once("value");
+    const clients = snapshot.val();
+
+    if (!clients) {
+      return res.status(404).json({ message: "Aucun client trouvé dans Firebase." });
+    }
+
+    let savedCount = 0;
+
+    for (const [firebaseUID, clientData] of Object.entries(clients)) {
+      const existingClient = await Client.findOne({ firebaseUID });
+
+      if (existingClient) {
+        // Mise à jour du client existant
+        await Client.findOneAndUpdate(
+          { firebaseUID },
+          {
+            healthStatus: clientData.HealthStatus || "none",
+            email: clientData.email || "",
+            name: clientData.name || "",
+            phone: clientData.phone || "",
+            token: clientData.token || ""
+          }
+        );
+        continue;
+      }
+
+      // Création d'un nouveau client
+      const newClient = new Client({
+        firebaseUID,
+        healthStatus: clientData.HealthStatus || "none",
+        email: clientData.email || "",
+        name: clientData.name || "",
+        phone: clientData.phone || "",
+        token: clientData.token || ""
+      });
+
+      await newClient.save();
+      savedCount++;
+    }
+
+    res.status(200).json({
+      message: "Synchronisation des clients terminée",
+      savedCount
+    });
+  } catch (error) {
+    console.error("Erreur de synchronisation:", error);
+    res.status(500).json({
+      message: "Erreur lors de la synchronisation",
+      error: error.message
+    });
+  }
+}
+
+module.exports = { Client, syncClientsFirebaseToMongoDB };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const destroy = async (req, res) => {
