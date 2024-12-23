@@ -499,15 +499,9 @@ async function syncClientsFirebaseToMongoDB(req, res) {
 
       // 3.3 Préparer les données avec des valeurs par défaut et validation
       const transformedData = {
-        username: clientData.email
-          ? clientData.email.split("@")[0] // Partie avant le @ comme username
-          : `user_${firebaseUID}`, // Valeur par défaut
-        Nom: clientData.name && clientData.name.split(" ")[1] 
-          ? clientData.name.split(" ")[1] 
-          : "N/A", // Nom (dernier mot)
-        Prenom: clientData.name && clientData.name.split(" ")[0] 
-          ? clientData.name.split(" ")[0] 
-          : "N/A", // Prénom (premier mot)
+        username: clientData.email || `user_${firebaseUID}`, // Nom d'utilisateur basé sur l'email
+        Nom: clientData.name || "N/A", // Utiliser directement le name
+        Prenom: clientData.name || "N/A", // Copier le même name pour prénom aussi
         email: clientData.email || "",
         phone: clientData.phone || "",
         password: "DefaultPass123!", // Mot de passe temporaire
@@ -549,7 +543,6 @@ async function syncClientsFirebaseToMongoDB(req, res) {
     });
   }
 }
-
 
 
 
