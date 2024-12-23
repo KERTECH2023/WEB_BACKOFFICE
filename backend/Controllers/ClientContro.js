@@ -530,7 +530,7 @@ async function syncClientsFirebaseToMongoDB(req, res) {
   }
 }
 
-module.exports = { Client, syncClientsFirebaseToMongoDB };
+
 
 
 
@@ -614,5 +614,5 @@ const destroy = async (req, res) => {
       console.log(res)
       }
   module.exports ={
-    register, login,recupereruse,updateuse,destroy,searchuse,update,updatestatus,Clientdesa,updatestatuss
+    register, login,recupereruse,updateuse,destroy,searchuse,update,updatestatus,Clientdesa,updatestatuss,syncClientsFirebaseToMongoDB 
     }
