@@ -490,7 +490,7 @@ const ClientSchema = new mongoose.Schema({
   }]
 });
 
-const Client = mongoose.model('Client', ClientSchema);
+
 
 async function syncClientsFirebaseToMongoDB(req, res) {
   try {
