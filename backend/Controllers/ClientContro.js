@@ -485,33 +485,36 @@ async function syncClientsFirebaseToMongoDB(req, res) {
     let savedCount = 0;
 
     for (const [firebaseUID, clientData] of Object.entries(clients)) {
-      const existingClient = await Client.findOne({ firebaseUID });
+      const existingClient = await Client.findOne({ email: clientData.email });
+
+      // Transformation des données Firebase vers MongoDB
+      const transformedData = {
+        username: clientData.email.split("@")[0], // Utiliser la partie avant '@' comme username
+        Nom: clientData.name.split(" ")[1] || "N/A", // Dernier mot comme Nom
+        Prenom: clientData.name.split(" ")[0] || "N/A", // Premier mot comme Prénom
+        email: clientData.email || "",
+        phone: clientData.phone || "",
+        password: "DefaultPass123!", // Mot de passe par défaut à remplacer par un généré sécurisé
+        DateNaissance: new Date("2000-01-01"), // Date fictive par défaut
+        gender: "-", // Valeur par défaut
+        role: "client", // Rôle par défaut
+        Nationalite: "Non spécifiée", // Valeur par défaut
+        photoAvatar: "", // Vide par défaut
+        cnicNo: firebaseUID, // UID utilisé comme CNIC
+        address: "Adresse non spécifiée", // Valeur par défaut
+        ratingsAverage: 1, // Valeur par défaut
+        ratingsQuantity: 0, // Valeur par défaut
+        isActive: true,
+      };
 
       if (existingClient) {
-        // Mise à jour du client existant
-        await Client.findOneAndUpdate(
-          { firebaseUID },
-          {
-            healthStatus: clientData.HealthStatus || "none",
-            email: clientData.email || "",
-            name: clientData.name || "",
-            phone: clientData.phone || "",
-            token: clientData.token || ""
-          }
-        );
+        // Mise à jour des données existantes
+        await Client.findOneAndUpdate({ email: clientData.email }, transformedData);
         continue;
       }
 
       // Création d'un nouveau client
-      const newClient = new Client({
-        firebaseUID,
-        healthStatus: clientData.HealthStatus || "none",
-        email: clientData.email || "",
-        name: clientData.name || "",
-        phone: clientData.phone || "",
-        token: clientData.token || ""
-      });
-
+      const newClient = new Client(transformedData);
       await newClient.save();
       savedCount++;
     }
@@ -528,6 +531,7 @@ async function syncClientsFirebaseToMongoDB(req, res) {
     });
   }
 }
+
 
 
 
