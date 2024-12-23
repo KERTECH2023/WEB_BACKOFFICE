@@ -485,25 +485,31 @@ async function syncClientsFirebaseToMongoDB(req, res) {
     let savedCount = 0;
 
     for (const [firebaseUID, clientData] of Object.entries(clients)) {
+      // Vérification des données minimales requises
+      if (!clientData.email || !clientData.name || !clientData.phone) {
+        console.warn(`Client avec UID ${firebaseUID} a des données incomplètes.`);
+        continue; // Passer au client suivant
+      }
+
       const existingClient = await Client.findOne({ email: clientData.email });
 
       // Transformation des données Firebase vers MongoDB
       const transformedData = {
-        username: clientData.email.split("@")[0], // Utiliser la partie avant '@' comme username
-        Nom: clientData.name.split(" ")[1] || "N/A", // Dernier mot comme Nom
-        Prenom: clientData.name.split(" ")[0] || "N/A", // Premier mot comme Prénom
+        username: clientData.email ? clientData.email.split("@")[0] : `user_${firebaseUID}`,
+        Nom: clientData.name ? clientData.name.split(" ")[1] || "N/A" : "N/A",
+        Prenom: clientData.name ? clientData.name.split(" ")[0] || "N/A" : "N/A",
         email: clientData.email || "",
         phone: clientData.phone || "",
-        password: "DefaultPass123!", // Mot de passe par défaut à remplacer par un généré sécurisé
-        DateNaissance: new Date("2000-01-01"), // Date fictive par défaut
+        password: "DefaultPass123!", // Mot de passe par défaut
+        DateNaissance: new Date("2000-01-01"), // Valeur par défaut
         gender: "-", // Valeur par défaut
-        role: "client", // Rôle par défaut
-        Nationalite: "Non spécifiée", // Valeur par défaut
-        photoAvatar: "", // Vide par défaut
+        role: "client",
+        Nationalite: "Non spécifiée",
+        photoAvatar: "",
         cnicNo: firebaseUID, // UID utilisé comme CNIC
-        address: "Adresse non spécifiée", // Valeur par défaut
-        ratingsAverage: 1, // Valeur par défaut
-        ratingsQuantity: 0, // Valeur par défaut
+        address: "Adresse non spécifiée",
+        ratingsAverage: 1,
+        ratingsQuantity: 0,
         isActive: true,
       };
 
@@ -521,16 +527,17 @@ async function syncClientsFirebaseToMongoDB(req, res) {
 
     res.status(200).json({
       message: "Synchronisation des clients terminée",
-      savedCount
+      savedCount,
     });
   } catch (error) {
     console.error("Erreur de synchronisation:", error);
     res.status(500).json({
       message: "Erreur lors de la synchronisation",
-      error: error.message
+      error: error.message,
     });
   }
 }
+
 
 
 
