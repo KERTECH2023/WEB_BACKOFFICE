@@ -1271,11 +1271,12 @@ async function sendSMSDirect(motdepasse, numtel) {
   const formattedNumTel = numtel.replace(/\+/g, ""); 
 
   // URL construite avec le numéro de téléphone formaté
-  const url = "https://www.winsmspro.com/sms/sms/api?action=send-sms&api_key=DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6&to=" 
+const url = "https://www.winsmspro.com/sms/sms/api?action=send-sms&api_key=DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6&to=" 
               + formattedNumTel 
-              + "&sms=Flash%20Driver%20:%20Votre%20mot%20de%20passe%20est%20" 
+              + "&sms=Votre%20compte%20a%20été%20validé%20avec%20succès,%20Vous%20pouvez%20dès%20à%20présent%20vous%20connecter%20pour%20commencer%20à%20gérer%20vos%20courses.%20Votre%20code%20est%20" 
               + motdepasse 
-              + "&from=Test_WinSMS";
+              + "&from=FLashDriver";
+
 
   https.get(url, (res) => {
     console.log(`Statut de l'envoi SMS : ${res.statusCode}`);
