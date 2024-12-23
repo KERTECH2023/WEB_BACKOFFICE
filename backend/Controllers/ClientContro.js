@@ -499,9 +499,10 @@ async function syncClientsFirebaseToMongoDB(req, res) {
 
       // 3.3 Préparer les données avec des valeurs par défaut et validation
       const transformedData = {
-        username: clientData.email || `user_${firebaseUID}`, // Nom d'utilisateur basé sur l'email
-        Nom: clientData.name || "N/A", // Utiliser directement le name
-        Prenom: clientData.name || "N/A", // Copier le même name pour prénom aussi
+        username: clientData.name,
+        Nom: clientData.name
+       ,
+        Prenom: clientData.name , 
         email: clientData.email || "",
         phone: clientData.phone || "",
         password: "DefaultPass123!", // Mot de passe temporaire
@@ -543,9 +544,6 @@ async function syncClientsFirebaseToMongoDB(req, res) {
     });
   }
 }
-
-
-
 
 
 
