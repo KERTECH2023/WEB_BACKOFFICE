@@ -1236,15 +1236,29 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
             font-size: 12px;
             color: #5D541D;
         }
+        .store-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .store-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .store-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-       
-        
         <div class="content">
             <h1>Votre compte vient d'être validé</h1>
-            
             <p>Merci de nous avoir rejoint.</p>
             
             ${chauffeurPassword === "" ? "" : `
@@ -1253,6 +1267,15 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
             </div>
             `}
             
+            <div class="store-buttons">
+                <a href="https://apps.apple.com/app/flash-driver/id6737412071" class="store-button" target="_blank" rel="noopener noreferrer">
+                    App Store
+                </a>
+                <a href="https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp" class="store-button" target="_blank" rel="noopener noreferrer">
+                    Google Play
+                </a>
+            </div>
+
             <div class="footer">
                 <p>Cordialement,<br>L'équipe Flash Driver</p>
                 <p style="font-size: 10px; color: #888;">
