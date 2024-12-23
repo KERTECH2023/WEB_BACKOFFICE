@@ -7,7 +7,6 @@ import { React, useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import "react-toastify/dist/ReactToastify.css";
-import { initializeApp } from "firebase/app";
 import { database } from "../../config"; 
 import { ref, onValue } from "firebase/database";
 
