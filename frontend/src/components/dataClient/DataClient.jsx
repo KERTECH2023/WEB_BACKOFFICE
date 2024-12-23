@@ -1,123 +1,117 @@
 /* eslint-disable no-unused-vars */
-import "./dataclient.scss";
+import "./dataclient.scss"
 import { DataGrid } from "@mui/x-data-grid";
 import { ClientColumns } from "../../datatableClient";
 import { Link } from "react-router-dom";
-import { React, useState, useEffect } from "react";
+import {React, useState,useEffect } from "react";
+import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import "react-toastify/dist/ReactToastify.css";
-import { database } from "../../config"; 
-import { ref, onValue } from "firebase/database";
-
 
 const DataClient = () => {
-  const [data, setData] = useState([]);
-  const [search, setSearch] = useState("");
-  const role = window.localStorage.getItem("userRole");
-  console.log("role**", role);
 
-  useEffect(() => {
-    getUsers();
-  }, []);
+    const [data, setData] = useState([]);
+    const [search, setsearch] = useState("");
+    const role = window.localStorage.getItem("userRole");
+    console.log("role**",role)
+   
+    useEffect(()=>{
+      getUsers();
+    },[]);
+    const getUsers = async () =>{
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Client/afficheCl");
+      if(response.status===200){
+        setData(response.data)
+      }
+    };
+    console.log("data=>",data)
+    // const handleDelete = async (id) => {
+    //   if(window.confirm("Are you sure that you wanted to delete this client")
+    //   ){
+    //     const response = await axios.delete(`process.env.REACT_APP_BASE_URL + /Chauff/destroychauff/${id}`);
+    //     if(response.status===200){
+    //       toast.success('Agent Deleted with Success !', {
+    //         position: toast.POSITION.TOP_RIGHT
+    //     });
+    //     getUsers();
+    //     }
+    //   }
+    // };
+    const handleSearchTerm = (e) =>{
+      console.log(e.target.value)
+      let value = e.target.value;
+      setsearch(value)
 
-const getUsers = () => {
-  const db = getDatabase(app); // Instance de la base Firebase
-  const usersRef = ref(db, "Users"); // Référence au nœud Users
-  onValue(usersRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const usersData = snapshot.val();
-      console.log("Snapshot data:", usersData); // Log des données récupérées
-      const usersArray = Object.keys(usersData).map((key) => ({
-        id: key,
-        ...usersData[key],
-      }));
-      setData(usersArray);
-    } else {
-      console.error("No data available in 'Users' node.");
-    }
-  }, (error) => {
-    console.error("Error fetching data from Firebase:", error);
-  });
-};
-
-  console.log("data=>", data);
-
-  const handleSearchTerm = (e) => {
-    let value = e.target.value;
-    setSearch(value);
-  };
-  console.log(search);
-
-  const actionColumn = [
-    {
-      field: "action",
-      headerName: "Action",
-      width: 300,
-      renderCell: (params) => {
-        return (
-          <div className="cellAction">
-            <Link
-              to={`/ConsultCL/${params.row.id}`}
-              style={{ textDecoration: "none" }}
-            >
-              <div className="viewButton">Consulté</div>
-            </Link>
-            <div>
-              {(role === "Admin" || role === "Agentad") && (
-                <Link
-                  to={`/updateClient/${params.row.id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div className="upButton">Mettre à jour</div>
-                </Link>
-              )}
-            </div>
-          </div>
-        );
-      },
-    },
-  ];
-
-  return (
-    <div className="datatable">
-      <div className="datatableTitle">
-        Listes Des Clients
-        <Link to="/Client/newCL" className="link">
-          Ajouter
-        </Link>
-      </div>
-
-      <div className="search">
-        <input
-          type="text"
-          placeholder="Search..."
-          onChange={handleSearchTerm}
-          name="Search"
-          id="Search"
-          className="find"
-        />
-        <SearchOutlinedIcon />
-      </div>
-      <DataGrid
-        className="datagrid"
-        rows={data.filter((val) => {
-          const searchTerm = search.toLowerCase();
-          const clientName = val.name.toLowerCase();
-          const clientPhone = val.phone.toLowerCase();
-
+    };
+    console.log(search)
+  
+    const actionColumn = [
+      {
+        field: "action",
+        headerName: "Action",
+        width: 300,
+        renderCell: (params) => {
           return (
-            clientName.includes(searchTerm) || clientPhone.includes(searchTerm)
+            <div className="cellAction">
+              <Link to={`/ConsultCL/${params.row.id}`} style={{ textDecoration: "none" }}>
+                <div className="viewButton">Consulté</div>
+              </Link>
+            <div>
+            {(role === "Admin" || role === "Agentad") && (
+            <Link to={`/updateClient/${params.row.id}`} style={{ textDecoration: "none",color: "inherit" }}>
+                <div className="upButton">Mettre a jour </div>
+              </Link>
+)}
+            </div>
+           
+{/*   
+              <div
+                className="deleteButton"
+                onClick={() => handleDelete(params.row.id)}
+              >
+                Delete
+              </div> */}
+            </div>
           );
-        })}
-        columns={ClientColumns.concat(actionColumn)}
-        pageSize={9}
-        rowsPerPageOptions={[9]}
-        checkboxSelection
-      />
-      <ToastContainer />
-    </div>
-  );
-};
+        },
+      },
+    ];
+    return (
+      <div className="datatable">
+        <div className="datatableTitle">
+          Listes Des Clients
+          <Link to="/Client/newCL" className="link">
+          Ajouter
+          </Link>
+        </div>
 
-export default DataClient;
+        <div className="search">
+          <input type="text" placeholder="Search..." onChange={handleSearchTerm}  name="Search"
+        id="Search" className="find"/>
+          <SearchOutlinedIcon />
+        </div>
+        <DataGrid
+          className="datagrid"
+          rows={data.filter((val) => {
+            const searchTerm = search.toLowerCase();
+            const chauffName = val.Nom.toLowerCase();
+            const chauffprenom = val.Prenom.toLowerCase();
+            const chauffphone = val.phone.toLowerCase();
+            
+            return chauffName.includes(searchTerm) || 
+            chauffprenom.includes(searchTerm) ||
+            chauffphone.includes(searchTerm);
+          })}
+          columns={ClientColumns.concat(actionColumn)}
+          pageSize={9}
+          rowsPerPageOptions={[9]}
+          checkboxSelection
+        />
+        <ToastContainer />
+      </div>
+    );
+}
+
+
+export default DataClient
