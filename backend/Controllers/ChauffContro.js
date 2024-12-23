@@ -488,6 +488,18 @@ async function sendConfirmationEmail(Email, Password) {
 
         <div class="footer">
             <p>Si vous n'avez pas créé ce compte, veuillez nous contacter.</p>
+               <div class="footer">
+            <div class="download-section">
+             <h2>Téléchargez notre application</h2>
+<div class="store-buttons">
+    <a href="https://apps.apple.com/app/flash-driver/id6737412071" class="store-button" target="_blank" rel="noopener noreferrer">
+        App Store
+    </a>
+    <a href="https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp" class="store-button" target="_blank" rel="noopener noreferrer">
+        Google Play
+    </a>
+</div>
+
             <p>© ${new Date().getFullYear()} Flash Driver. Tous droits réservés.</p>
             <p><a href="#">Se désabonner</a></p>
         </div>
