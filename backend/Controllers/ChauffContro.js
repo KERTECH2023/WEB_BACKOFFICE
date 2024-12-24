@@ -1260,10 +1260,10 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
             ${chauffeurPassword ? `<p><strong>Mot de passe:</strong> ${chauffeurPassword}</p>` : ""}
             
             <div class="store-buttons">
-                <a href="https://apps.apple.com/app/flash-driver/id6737412071" class="store-button" target="_blank" rel="noopener noreferrer">
+                <a href="https://apps.apple.com/app/flashdriver-driver/id6737279801" class="store-button" target="_blank" rel="noopener noreferrer">
                     App Store
                 </a>
-                <a href="https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp" class="store-button" target="_blank" rel="noopener noreferrer">
+                <a href="https://play.google.com/store/apps/details?id=com.flashdriversdriver.app" class="store-button" target="_blank" rel="noopener noreferrer">
                     Google Play
                 </a>
             </div>
