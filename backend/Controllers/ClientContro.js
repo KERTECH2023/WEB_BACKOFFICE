@@ -497,12 +497,17 @@ async function syncClientsFirebaseToMongoDB(req, res) {
       // 3.2 Vérifier si le client existe déjà dans MongoDB
       const existingClient = await Client.findOne({ email: clientData.email });
 
+      if (existingClient) {
+        // Si le client existe déjà, ignorer
+        console.log(`Client déjà existant - Email: ${clientData.email}`);
+        continue;
+      }
+
       // 3.3 Préparer les données avec des valeurs par défaut et validation
       const transformedData = {
         username: clientData.name,
-        Nom: clientData.name
-       ,
-        Prenom: clientData.name , 
+        Nom: clientData.name,
+        Prenom: clientData.name,
         email: clientData.email || "",
         phone: clientData.phone || "",
         password: "DefaultPass123!", // Mot de passe temporaire
@@ -518,16 +523,10 @@ async function syncClientsFirebaseToMongoDB(req, res) {
         isActive: true,
       };
 
-      // 3.4 Mise à jour ou création
-      if (existingClient) {
-        // Mise à jour
-        await Client.findOneAndUpdate({ email: clientData.email }, transformedData);
-      } else {
-        // Création
-        const newClient = new Client(transformedData);
-        await newClient.save();
-        savedCount++;
-      }
+      // 3.4 Ajouter le nouveau client dans MongoDB
+      const newClient = new Client(transformedData);
+      await newClient.save();
+      savedCount++;
     }
 
     // 4. Répondre avec un message de succès
