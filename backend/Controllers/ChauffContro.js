@@ -1184,7 +1184,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
     service: "gmail",
     auth: {
       user: "noreplyflashdriver@gmail.com", // Replace with your email
-      pass: "uvfu llrf qsbw esok",
+      pass: "uvfu llrf qsbw esok", // Replace with your email password
     },
   });
 
@@ -1200,8 +1200,8 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
   const mailOptions = {
     from: "Flash Driver <noreplyflashdriver@gmail.com>",
     to: Email,
-    subject: "Flash Driver Compte Validé ",
-  html: `<!DOCTYPE html>
+    subject: "Flash Driver Compte Validé",
+    html: `<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -1220,10 +1220,6 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
             border-radius: 20px;
             padding: 20px;
             text-align: center;
-        }
-        .logo {
-            max-width: 200px;
-            margin: 20px auto;
         }
         .content {
             background-color: #FFFFFF;
@@ -1259,13 +1255,9 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
     <div class="container">
         <div class="content">
             <h1>Votre compte vient d'être validé</h1>
-            <p>Merci de nous avoir rejoint.</p>
-            
-            ${chauffeurPassword === "" ? "" : `
-            <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; margin-top: 20px;">
-                <strong>Votre mot de passe:</strong> ${chauffeurPassword}
-            </div>
-            `}
+            <p>Votre compte a été validé avec succès. Vous pouvez dès à présent vous connecter pour commencer à gérer vos courses.</p>
+            <p><strong>Email:</strong> ${Email}</p>
+            ${chauffeurPassword ? `<p><strong>Mot de passe:</strong> ${chauffeurPassword}</p>` : ""}
             
             <div class="store-buttons">
                 <a href="https://apps.apple.com/app/flash-driver/id6737412071" class="store-button" target="_blank" rel="noopener noreferrer">
@@ -1287,6 +1279,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 </body>
 </html>`,
   };
+
   return new Promise((resolve, reject) => {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
@@ -1298,6 +1291,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
     });
   });
 }
+
 
 
 // Fonction pour envoyer un SMS
