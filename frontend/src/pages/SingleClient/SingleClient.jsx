@@ -36,8 +36,8 @@ const SingleClient = () => {
     const fetchRides = async (cnicNo) => {
         try {
             const response = await axios.get(`https://api.backofficegc.com/Ride/ride-requests/${cnicNo}`);
-            if (response.status === 200) {
-                setRides(response.data);
+            if (response.status === 200 && response.data.rideRequests) {
+                setRides(response.data.rideRequests);
             }
         } catch (error) {
             console.error("Error fetching rides: ", error);
@@ -111,7 +111,8 @@ const SingleClient = () => {
                                         Départ: {ride.sourceAddress},
                                         Destination: {ride.destination.destinationAddress},
                                         Montant: {ride.fareAmount} €,
-                                        Statut: {ride.status}
+                                        Statut: {ride.status},
+                                        Date: {new Date(ride.time).toLocaleString()}
                                     </li>
                                 ))}
                             </ul>
