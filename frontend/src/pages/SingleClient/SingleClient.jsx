@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 const SingleClient = () => {
     const [user, setUser] = useState();
-    const [orders, setOrders] = useState([]);
+    const [rides, setRides] = useState([]);
     const navigate = useNavigate();
     const { id } = useParams();
     const role = window.localStorage.getItem("userRole");
@@ -26,21 +26,21 @@ const SingleClient = () => {
             const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Client/searchCl/${id}`);
             if (response.status === 200) {
                 setUser({ ...response.data });
-                fetchOrders(response.data.cnicNo);
+                fetchRides(response.data.cnicNo);
             }
         } catch (error) {
             console.error("Error fetching user data: ", error);
         }
     };
 
-    const fetchOrders = async (cnicNo) => {
+    const fetchRides = async (cnicNo) => {
         try {
             const response = await axios.get(`https://api.backofficegc.com/Ride/ride-requests/${cnicNo}`);
             if (response.status === 200) {
-                setOrders(response.data);
+                setRides(response.data);
             }
         } catch (error) {
-            console.error("Error fetching orders: ", error);
+            console.error("Error fetching rides: ", error);
         }
     };
 
@@ -102,15 +102,21 @@ const SingleClient = () => {
                 </div>
                 <div className="bottom">
                     <h1 className="title">Liste de Courses</h1>
-                    <div className="orders">
-                        {orders.length > 0 ? (
+                    <div className="rides">
+                        {rides.length > 0 ? (
                             <ul>
-                                {orders.map((order, index) => (
-                                    <li key={index}>Commande ID: {order.id} - Status: {order.status}</li>
+                                {rides.map((ride, index) => (
+                                    <li key={index}>
+                                        ID: {ride.firebaseRiderRequestsID},
+                                        Départ: {ride.sourceAddress},
+                                        Destination: {ride.destination.destinationAddress},
+                                        Montant: {ride.fareAmount} €,
+                                        Statut: {ride.status}
+                                    </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p>Aucune commande trouvée.</p>
+                            <p>Aucune course trouvée.</p>
                         )}
                     </div>
                 </div>
