@@ -104,18 +104,30 @@ const SingleClient = () => {
                     <h1 className="title">Liste de Courses</h1>
                     <div className="rides">
                         {rides.length > 0 ? (
-                            <ul>
-                                {rides.map((ride, index) => (
-                                    <li key={index}>
-                                        ID: {ride.firebaseRiderRequestsID},
-                                        Départ: {ride.sourceAddress},
-                                        Destination: {ride.destination.destinationAddress},
-                                        Montant: {ride.fareAmount} €,
-                                        Statut: {ride.status},
-                                        Date: {new Date(ride.time).toLocaleString()}
-                                    </li>
-                                ))}
-                            </ul>
+                            <table className="ridesTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Départ</th>
+                                        <th>Destination</th>
+                                        <th>Montant (€)</th>
+                                        <th>Statut</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {rides.map((ride, index) => (
+                                        <tr key={index}>
+                                            <td>{ride.firebaseRiderRequestsID}</td>
+                                            <td>{ride.sourceAddress}</td>
+                                            <td>{ride.destination.destinationAddress}</td>
+                                            <td>{ride.fareAmount}</td>
+                                            <td>{ride.status}</td>
+                                            <td>{new Date(ride.time).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         ) : (
                             <p>Aucune course trouvée.</p>
                         )}
