@@ -159,5 +159,30 @@ async function saveRideFirebaseToMongoDB(req, res) {
     });
   }
 }
+// Fonction pour récupérer les demandes de trajet par userId
+async function getRideRequestsByUserId(req, res) {
+  try {
+    const { userId } = req.params;
 
-module.exports = { saveRide,saveRideFirebaseToMongoDB };
+    // Rechercher les demandes de trajet associées à l'userId
+    const rideRequests = await RideRequest.find({ userId });
+
+    if (!rideRequests || rideRequests.length === 0) {
+      return res.status(404).json({
+        message: `Aucune demande de trajet trouvée pour l'utilisateur avec l'ID ${userId}.`,
+      });
+    }
+
+    res.status(200).json({
+      message: `Demandes de trajet récupérées avec succès pour l'utilisateur ${userId}.`,
+      rideRequests,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des demandes de trajet :", error);
+    res.status(500).json({
+      message: "Erreur lors de la récupération des demandes de trajet.",
+    });
+  }
+}
+
+module.exports = { saveRide,saveRideFirebaseToMongoDB,getRideRequestsByUserId};
