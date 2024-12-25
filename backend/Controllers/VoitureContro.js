@@ -1,4 +1,7 @@
 const Voiture = require("../Models/Voiture");
+const firestoreModule = require("../services/config");
+const realtimeDB = firestoreModule.firestoreApp.database();
+const Chauffeur = require("../Models/Chauffeur");
 
 exports.addvoiture = async (req, res) => {
   const { modelle, immatriculation } = req.body;
@@ -34,22 +37,46 @@ const assuranceUrl = req.uploadedFiles.assurance || '';
   }
 };
 
-//   exports.getBychauff = async (req, res) => {
-//     res.send({
-//         rec: await Voiture.find({chauffeur: req.params.id})
+exports.updateVoiture = async (req, res) => {
+  const voitureId = req.params.id;
+  const { modelle, immatriculation } = req.body;
+  const cartegriseUrl = req.uploadedFiles?.cartegrise || null;
+  const assuranceUrl = req.uploadedFiles?.assurance || null;
 
-//     })
-// }
+  try {
+    // Recherche de la voiture par ID
+    const voiture = await Voiture.findById(voitureId);
 
-// exports.getBychauff = async(req,res,data) =>{
+    if (!voiture) {
+      return res.status(404).send({ message: "Voiture introuvable" });
+    }
 
-//     Voiture.find({ chauffeur: req.params.id },(err, data)=>{
+    // Mise à jour des champs si présents dans la requête
+    if (modelle) voiture.modelle = modelle;
+    if (immatriculation) voiture.immatriculation = immatriculation;
+    if (cartegriseUrl) voiture.cartegrise = cartegriseUrl;
+    if (assuranceUrl) voiture.assurance = assuranceUrl;
 
-//         res.send(data);
-//         console.log(data)
+    const chauffeur = Chauffeur.findById(voiture.chauffeur);
 
-//     });
-// }
+     // Update Realtime Database
+        const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID+"/carDetails");
+        
+        firebaseRef.update({
+          'immatriculation': immatriculation,
+          'modelle':  modelle,
+         });
+
+    // Sauvegarder les modifications
+    await voiture.save();
+
+    res.status(200).send({ message: "Voiture mise à jour avec succès", voiture });
+  } catch (err) {
+    console.error("Erreur lors de la mise à jour :", err);
+    res.status(500).send({ message: "Erreur serveur lors de la mise à jour" });
+  }
+};
+
 
 exports.getBychauff = async (req, res) => {
   Voiture.find({ chauffeur: req.params.id })
