@@ -561,65 +561,75 @@ const login = (req, res) => {
 
 
 
-const update = (req, res, next) => {
-  const { id } = req.params;
-  const photoAvatarUrl = req.uploadedFiles.photoAvatar;
-  const photoPermisRecUrl = req.uploadedFiles.photoPermisRec;
-  const photoPermisVerUrl = req.uploadedFiles.photoPermisVer;
-  const photoVtcUrl = req.uploadedFiles.photoVtc;
-  const photoCinUrl = req.uploadedFiles.photoCin;
-  let updateData = {
-    Nom: req.body.Nom,
-    Prenom: req.body.Prenom,
-    email: req.body.email,
-    phone: req.body.phone,
-    photoAvatar: photoAvatarUrl,
-    photoCin: photoCinUrl,
-    photoPermisRec: photoPermisRecUrl,
-    photoPermisVer: photoPermisVerUrl,
-    photoVtc: photoVtcUrl,
-    gender: req.body.gender,
-    role: req.body.role,
-    Nationalite: req.body.Nationalite,
-    DateNaissance: req.body.DateNaissance,
-    cnicNo: req.body.cnicNo,
-    address: req.body.address,
-    postalCode: req.body.postalCode,
-  };
-  console.log(updateData);
+const update = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { uploadedFiles, body } = req;
 
+    // Validate if Chauffeur ID is provided
+    if (!id) {
+      return res.status(400).json({ message: "Chauffeur ID is required." });
+    }
 
-  const chauffeur = Chauffeur.findById(id);
+    // Extract uploaded files
+    const photoAvatarUrl = uploadedFiles?.photoAvatar || null;
+    const photoPermisRecUrl = uploadedFiles?.photoPermisRec || null;
+    const photoPermisVerUrl = uploadedFiles?.photoPermisVer || null;
+    const photoVtcUrl = uploadedFiles?.photoVtc || null;
+    const photoCinUrl = uploadedFiles?.photoCin || null;
 
-    // Update Realtime Database
+    // Prepare update data
+    const updateData = {
+      Nom: body.Nom,
+      Prenom: body.Prenom,
+      email: body.email,
+      phone: body.phone,
+      photoAvatar: photoAvatarUrl,
+      photoCin: photoCinUrl,
+      photoPermisRec: photoPermisRecUrl,
+      photoPermisVer: photoPermisVerUrl,
+      photoVtc: photoVtcUrl,
+      gender: body.gender,
+      role: body.role,
+      Nationalite: body.Nationalite,
+      DateNaissance: body.DateNaissance,
+      cnicNo: body.cnicNo,
+      address: body.address,
+      postalCode: body.postalCode,
+    };
+
+    console.log("Update Data:", updateData);
+
+    // Find the chauffeur
+    const chauffeur = await Chauffeur.findById(id);
+    if (!chauffeur) {
+      return res.status(404).json({ message: "Chauffeur not found." });
+    }
+
+    // Update Firebase Realtime Database
     const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
-    
-    firebaseRef.update({
-      'imageUrl': photoAvatarUrl,
-      'name':  req.body.Prenom,
-      'email':  req.body.email,
-      'phone':  req.body.phone,
-      'cnicNo': req.body.cnicNo
-
-     });
-
-
-
-
-
-
-
-  Chauffeur.findByIdAndUpdate(id, { $set: updateData })
-    .then(() => {
-      res.json({
-        message: " Chauffeur  update with succes !",
-      });
-    })
-    .catch((error) => {
-      res.json({
-        message: "error with updtaing Chauffeur !",
-      });
+    await firebaseRef.update({
+      imageUrl: photoAvatarUrl,
+      name: body.Prenom,
+      email: body.email,
+      phone: body.phone,
+      cnicNo: body.cnicNo,
     });
+
+    // Update Chauffeur in MongoDB
+    await Chauffeur.findByIdAndUpdate(id, { $set: updateData });
+
+    // Respond success
+    res.json({
+      message: "Chauffeur updated successfully!",
+    });
+  } catch (error) {
+    console.error("Error updating Chauffeur:", error);
+    res.status(500).json({
+      message: "Error updating Chauffeur.",
+      error: error.message,
+    });
+  }
 };
 
 
