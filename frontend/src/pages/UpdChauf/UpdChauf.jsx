@@ -192,7 +192,16 @@ const UpdChauf = () => {
               {renderField("Modèle Voiture", "modelle")}
               {renderField("Immatriculation Voiture", "immatriculation")}
               
-          
+              {/* Other Details */}
+              {renderField("Genre", "gender", "select", [
+                ["male", "Homme"],
+                ["female", "Femme"]
+              ])}
+              {renderField("Nationalité", "Nationalite", "select", [
+                ["Tunisian", "Tunisienne"],
+                ["Francais", "Française"],
+                ["Marocain", "Marocaine"]
+              ])}
               {renderField("N° Permis", "cnicNo", "text", null, role === "Agent")}
               {renderField("Adresse", "address")}
               {renderField("Code Postal", "postalCode")}
