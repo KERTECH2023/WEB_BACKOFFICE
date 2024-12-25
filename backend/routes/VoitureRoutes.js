@@ -7,6 +7,7 @@ const VoitureCon  = require('../Controllers/VoitureContro')
 const UploadImage = require ("../services/firebase");
 
 
+
 const multer = require('multer')
 
 const Multer = multer({
@@ -22,4 +23,16 @@ router.post('/addvoiture/:id',Multer.fields([
   ]),UploadImage,VoitureCon.addvoiture)
 
   router.get('/getvoi/:id', VoitureCon.getBychauff);
+
+  router.put(
+    "/updatevoi/:id",
+    Multer.fields([
+      { name: "cartegrise", maxCount: 1 },
+      { name: "assurance", maxCount: 1 },
+  
+    ]),
+    UploadImage,
+    VoitureCon.updateVoiture
+  );
+  
   module.exports = router
