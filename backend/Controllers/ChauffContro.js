@@ -558,6 +558,9 @@ const login = (req, res) => {
 };
 
 /**----------Update Agent----------------- */
+
+
+
 const update = (req, res, next) => {
   const { id } = req.params;
   const photoAvatarUrl = req.uploadedFiles.photoAvatar;
@@ -585,6 +588,27 @@ const update = (req, res, next) => {
   };
   console.log(updateData);
 
+
+  const chauffeur = Chauffeur.findById(id);
+
+    // Update Realtime Database
+    const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
+    
+    firebaseRef.update({
+      'imageUrl': photoAvatarUrl,
+      'name':  req.body.Prenom,
+      'email':  req.body.email,
+      'phone':  req.body.phone,
+      'cnicNo': req.body.cnicNo
+
+     });
+
+
+
+
+
+
+
   Chauffeur.findByIdAndUpdate(id, { $set: updateData })
     .then(() => {
       res.json({
@@ -597,6 +621,10 @@ const update = (req, res, next) => {
       });
     });
 };
+
+
+
+
 const transporter = nodemailer.createTransport({
   service: "gmail", // Remplacez par votre service de messagerie
   auth: {
