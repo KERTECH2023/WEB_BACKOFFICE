@@ -571,24 +571,24 @@ const update = async (req, res, next) => {
       return res.status(400).json({ message: "Chauffeur ID is required." });
     }
 
-    // Extract uploaded files
-    const photoAvatarUrl = uploadedFiles?.photoAvatar || null;
-    const photoPermisRecUrl = uploadedFiles?.photoPermisRec || null;
-    const photoPermisVerUrl = uploadedFiles?.photoPermisVer || null;
-    const photoVtcUrl = uploadedFiles?.photoVtc || null;
-    const photoCinUrl = uploadedFiles?.photoCin || null;
+    // Extract uploaded files, only if they are not null or undefined
+    const photoAvatarUrl = uploadedFiles?.photoAvatar ? uploadedFiles.photoAvatar : undefined;
+    const photoPermisRecUrl = uploadedFiles?.photoPermisRec ? uploadedFiles.photoPermisRec : undefined;
+    const photoPermisVerUrl = uploadedFiles?.photoPermisVer ? uploadedFiles.photoPermisVer : undefined;
+    const photoVtcUrl = uploadedFiles?.photoVtc ? uploadedFiles.photoVtc : undefined;
+    const photoCinUrl = uploadedFiles?.photoCin ? uploadedFiles.photoCin : undefined;
 
-    // Prepare update data
+    // Prepare update data dynamically
     const updateData = {
       Nom: body.Nom,
       Prenom: body.Prenom,
       email: body.email,
       phone: body.phone,
-      photoAvatar: photoAvatarUrl,
-      photoCin: photoCinUrl,
-      photoPermisRec: photoPermisRecUrl,
-      photoPermisVer: photoPermisVerUrl,
-      photoVtc: photoVtcUrl,
+      ...(photoAvatarUrl && { photoAvatar: photoAvatarUrl }),
+      ...(photoCinUrl && { photoCin: photoCinUrl }),
+      ...(photoPermisRecUrl && { photoPermisRec: photoPermisRecUrl }),
+      ...(photoPermisVerUrl && { photoPermisVer: photoPermisVerUrl }),
+      ...(photoVtcUrl && { photoVtc: photoVtcUrl }),
       gender: body.gender,
       role: body.role,
       Nationalite: body.Nationalite,
@@ -609,11 +609,11 @@ const update = async (req, res, next) => {
     // Update Firebase Realtime Database
     const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
     await firebaseRef.update({
-      imageUrl: photoAvatarUrl,
-      name: body.Prenom,
-      email: body.email,
-      phone: body.phone,
-      cnicNo: body.cnicNo,
+      ...(photoAvatarUrl && { imageUrl: photoAvatarUrl }),
+      ...(body.Prenom && { name: body.Prenom }),
+      ...(body.email && { email: body.email }),
+      ...(body.phone && { phone: body.phone }),
+      ...(body.cnicNo && { cnicNo: body.cnicNo }),
     });
 
     // Update Chauffeur in MongoDB
@@ -631,7 +631,6 @@ const update = async (req, res, next) => {
     });
   }
 };
-
 
 
 
