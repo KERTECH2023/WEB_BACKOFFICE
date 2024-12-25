@@ -1,170 +1,99 @@
 /* eslint-disable no-unused-vars */
-import "./updchauf.scss"
-import React from 'react'
-import { useParams } from "react-router-dom"
+import "./updchauf.scss";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
 
 const UpdChauf = () => {
-
-
-
-  const [photoAvatar, setphotoAvatar] = useState({ file: [] })
-  const [photoCin, setphotoCin] = useState({ file: [] })
-  const [photoPermisRec, setphotoPermisRec] = useState({ file: [] })
-  const [photoPermisVer, setphotoPermisVer] = useState({ file: [] })
-  const [photoVtc, setphotoVtc] = useState({ file: [] })
-  const [cartegrise, setcartegrise] = useState({ file: [] })
-  const [assurance,setassurance ] = useState({ file: [] })
-  const [form, setform] = useState({})
-  const [voiture, setvoiture] = useState({})
+  const [photoAvatar, setPhotoAvatar] = useState(null);
+  const [photoCin, setPhotoCin] = useState(null);
+  const [photoPermisRec, setPhotoPermisRec] = useState(null);
+  const [photoPermisVer, setPhotoPermisVer] = useState(null);
+  const [photoVtc, setPhotoVtc] = useState(null);
+  const [carteGrise, setCarteGrise] = useState(null);
+  const [assurance, setAssurance] = useState(null);
+  const [form, setForm] = useState({});
+  const [voiture, setVoiture] = useState({});
   const role = window.localStorage.getItem("userRole");
-  console.log("role", role)
-  const navigate = useNavigate()
-
-  const [user] = useState()
-
-
+  const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
     if (id) {
       getSingleUser(id);
-      getvoiture(id);
+      getVoiture(id);
     }
-
-  }, [id])
-  console.log("user", id);
+  }, [id]);
 
   const getSingleUser = async (id) => {
-    const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Chauff/searchchauf/${id}`);
-    if (response.status === 200) {
-      setform({ ...response.data })
-      console.log("data", response.data)
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Chauff/searchchauf/${id}`);
+      if (response.status === 200) {
+        setForm(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching user data", error);
     }
-  }
+  };
 
-  const getvoiture = async (id) => {
-    const response = await axios.get(process.env.REACT_APP_BASE_URL + `/Voi/getvoi/${id}`);
-    if (response.status === 200) {
-      setvoiture({ ...response.data })
-      console.log("data", response.data)
+  const getVoiture = async (id) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Voi/getvoi/${id}`);
+      if (response.status === 200) {
+        setVoiture(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching vehicle data", error);
     }
-  }
-  console.log("USER**", user)
+  };
 
   const onChangeHandler = (e) => {
-    setform({
-      ...form,
-      [e.target.name]: e.target.value,
-      //photoAvatar : e.Target.files[0],
-    })
-    setvoiture({
-      ...voiture,
-      [e.targetv.name]: e.targetv.value,
-      //photoAvatar : e.Target.files[0],
-    })
+    const { name, value } = e.target;
+    setForm((prevForm) => ({ ...prevForm, [name]: value }));
+    setVoiture((prevVoiture) => ({ ...prevVoiture, [name]: value }));
+  };
 
-  }
-
-
-  const handleSubmit = e => {
-    // Prevent the default submit and page reload
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     const data = new FormData();
     const datav = new FormData();
-    data.append('photoAvatar', e.target.photoAvatar.files[0]);
-    data.append('photoCin', e.target.photoCin.files[0]);
-    data.append('photoPermisRec', e.target.photoPermisRec.files[0]);
-    data.append('photoPermisVer', e.target.photoPermisVer.files[0]);
-    data.append('photoVtc', e.target.photoVtc.files[0]);
-    datav.append('cartegrise', e.targetv.cartegrise.files[0]);
-    datav.append('assurance', e.targetv.assurance.files[0]);
-    console.log("fileeeeee", photoAvatar)
-    for (const key in form) {
-      data.append(key, form[key]);
-    }
-    for (const key in voiture) {
-      datav.append(key, voiture[key]);
-    }
 
+    if (photoAvatar) data.append("photoAvatar", photoAvatar);
+    if (photoCin) data.append("photoCin", photoCin);
+    if (photoPermisRec) data.append("photoPermisRec", photoPermisRec);
+    if (photoPermisVer) data.append("photoPermisVer", photoPermisVer);
+    if (photoVtc) data.append("photoVtc", photoVtc);
 
+    if (carteGrise) datav.append("cartegrise", carteGrise);
+    if (assurance) datav.append("assurance", assurance);
 
+    Object.keys(form).forEach((key) => data.append(key, form[key]));
+    Object.keys(voiture).forEach((key) => datav.append(key, voiture[key]));
 
-    // Handle validations
-    axios
-      .put(process.env.REACT_APP_BASE_URL + `/Chauff/updatechauf/${id}`, data
-        , {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-
-      .then(response => {
-
-        toast.success('Chauffeur Updated with Success !', {
-          position: toast.POSITION.TOP_RIGHT
-
-        });
-        console.log("file", response.data)
-        //navigate("/users")
-        setTimeout(() => navigate("/Chauffeur"), 3000);
-        console.log(response.Nom)
-
-
-
-        // Handle response
-      })
-
-      .catch(err => {
-        console.warn(err)
-        toast.error('Email exist Already !', {
-          position: toast.POSITION.TOP_RIGHT
-        });
+    try {
+      await axios.put(`${process.env.REACT_APP_BASE_URL}/Chauff/updatechauf/${id}`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
+      toast.success("Chauffeur updated successfully!", { position: "top-right" });
+    } catch (err) {
+      toast.error("Error updating chauffeur!", { position: "top-right" });
+    }
 
-
-
-       // Handle validations voiture
-    axios
-    .put(process.env.REACT_APP_BASE_URL + `/voi/updatevoi/${voiture.id}}`, datav
-      , {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-
-    .then(response => {
-
-      toast.success('Chauffeur Updated with Success !', {
-        position: toast.POSITION.TOP_RIGHT
-
+    try {
+      await axios.put(`${process.env.REACT_APP_BASE_URL}/Voi/updatevoi/${voiture.id}`, datav, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("file", response.data)
-      //navigate("/users")
+      toast.success("Vehicle updated successfully!", { position: "top-right" });
       setTimeout(() => navigate("/Chauffeur"), 3000);
-      console.log(response.Nom)
-
-
-
-      // Handle response
-    })
-
-    .catch(err => {
-      console.warn(err)
-      toast.error('Email exist Already !', {
-        position: toast.POSITION.TOP_RIGHT
-      });
-    })
-
-  }
-
+    } catch (err) {
+      toast.error("Error updating vehicle!", { position: "top-right" });
+    }
+  };
 
   return (
     <div className="new">
@@ -172,195 +101,197 @@ const UpdChauf = () => {
       <div className="newContainer">
         <Navbar />
         <div className="top">
-          <h1>Mettre  a jour Agent : {form.Nom} </h1>
+          <h1>Mettre à jour Agent : {form.Nom || "N/A"}</h1>
         </div>
         <div className="bottom">
           <div className="right">
-            <form action="" id="login" method="put" onSubmit={handleSubmit} >
+            <form id="login" method="PUT" onSubmit={handleSubmit}>
+              {/* General Fields */}
               <p className="item">
                 <label>Nom :</label><br />
-                <input type="text" onChange={onChangeHandler} name="Nom" className='InputBox' id="Nom" value={form.Nom || ""
-                } required />
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="Nom"
+                  className="InputBox"
+                  id="Nom"
+                  value={form.Nom || ""}
+                  required
+                />
               </p>
-
               <p className="item">
-                <label>Prenom :</label><br />
-                <input type="text" onChange={onChangeHandler} name="Prenom" className='InputBox' id="Prenom" value={form.Prenom || ""
-                } required />
+                <label>Prénom :</label><br />
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="Prenom"
+                  className="InputBox"
+                  id="Prenom"
+                  value={form.Prenom || ""}
+                  required
+                />
               </p>
-
               <p className="item">
                 <label>Email :</label><br />
-                <input type="email" onChange={onChangeHandler} name="email" className='InputBox' id="email" value={form.email || ""
-                } required disabled={role === "Agent"} />
+                <input
+                  type="email"
+                  onChange={onChangeHandler}
+                  name="email"
+                  className="InputBox"
+                  id="email"
+                  value={form.email || ""}
+                  required
+                  disabled={role === "Agent"}
+                />
               </p>
-
               <p className="item">
                 <label>Phone :</label><br />
-                <input type="text" onChange={onChangeHandler} name="phone" className='InputBox' id="phone" value={form.phone || ""
-                } required />
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="phone"
+                  className="InputBox"
+                  id="phone"
+                  value={form.phone || ""}
+                  required
+                />
               </p>
-              
+  
+              {/* Vehicle Details */}
               <p className="item">
-                <label>Phone :</label><br />
-                <input type="text" onChange={onChangeHandler} name="phone" className='InputBox' id="phone" value={form.phone || ""
-                } required />
+                <label>Modèle Voiture :</label><br />
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="modelle"
+                  className="InputBox"
+                  id="modelle"
+                  value={voiture?.modelle || ""}
+                  required
+                />
               </p>
-
-
               <p className="item">
-                <label>modelle voiture :</label><br />
-                <input type="text" onChange={onChangeHandler} name="modelle" className='InputBox' id="modelle" value={voiture.modelle || ""
-                } required />
+                <label>Immatriculation Voiture :</label><br />
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="immatriculation"
+                  className="InputBox"
+                  id="immatriculation"
+                  value={voiture?.immatriculation || ""}
+                  required
+                />
               </p>
-
+  
+              {/* Other Details */}
               <p className="item">
-                <label>immatriculation voiture :</label><br />
-                <input type="text" onChange={onChangeHandler} name="immatriculation" className='InputBox' id="immatriculation" value={voiture.immatriculation || ""
-                } required />
-              </p>
-
-
-              <p className="item">
-                <label>Gender :</label><br />
-
-                <select onChange={onChangeHandler} value={form.gender || ""} name="gender" id="gender" >
-                  <option value="-">-</option>
-                  <option value="male">male</option>
-                  <option value="female">female</option>
-
-
+                <label>Genre :</label><br />
+                <select
+                  onChange={onChangeHandler}
+                  value={form.gender || ""}
+                  name="gender"
+                  id="gender"
+                  required
+                >
+                  <option value="">-</option>
+                  <option value="male">Homme</option>
+                  <option value="female">Femme</option>
                 </select>
               </p>
-
-
-
               <p className="item">
-                <label>Nationalite :</label><br />
-                <select onChange={onChangeHandler} value={form.Nationalite || ""} name="Nationalite" id="Nationalite" >
-                  <option value="-">-</option>
-                  <option value="Tunisian">Tunisian</option>
-                  <option value="Francais">Francais</option>
-                  <option value="marocain">marocain</option>
-
-
+                <label>Nationalité :</label><br />
+                <select
+                  onChange={onChangeHandler}
+                  value={form.Nationalite || ""}
+                  name="Nationalite"
+                  id="Nationalite"
+                  required
+                >
+                  <option value="">-</option>
+                  <option value="Tunisian">Tunisienne</option>
+                  <option value="Francais">Française</option>
+                  <option value="Marocain">Marocaine</option>
                 </select>
               </p>
               <p className="item">
                 <label>N° Permis :</label><br />
-                <input type="text" onChange={onChangeHandler} name="cnicNo" className='InputBox' id="cnicNo" value={form.cnicNo || ""
-                } required disabled={role === "Agent"} />
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="cnicNo"
+                  className="InputBox"
+                  id="cnicNo"
+                  value={form.cnicNo || ""}
+                  required
+                  disabled={role === "Agent"}
+                />
               </p>
               <p className="item">
                 <label>Adresse :</label><br />
-                <input type="text" onChange={onChangeHandler} name="address" className='InputBox' id="address" value={form.address || ""
-                } required />
-              </p>
-              <p className="item">
-                <label>Code Postale :</label><br />
-                <input type="text" onChange={onChangeHandler} name="postalCode" className='InputBox' id="postalCode" value={form.postalCode || ""
-                } required />
-              </p>
-
-
-              <p className="item">
-                <label>photo de profil  :</label><br />
-                <img
-                  src={form.photoAvatar || ""}
-                  alt=""
-                  className="itemImg"
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="address"
+                  className="InputBox"
+                  id="address"
+                  value={form.address || ""}
+                  required
                 />
-
-                <input type="file" onChange={e => setphotoAvatar(e.target.files[0])} name="photoAvatar" className='InputBox' id="photoAvatar" />
-
               </p>
-
               <p className="item">
-                <label>photo de CIN  :</label><br />
-                <img
-                  src={form.photoCin || ""}
-                  alt=""
-                  className="itemImg"
+                <label>Code Postal :</label><br />
+                <input
+                  type="text"
+                  onChange={onChangeHandler}
+                  name="postalCode"
+                  className="InputBox"
+                  id="postalCode"
+                  value={form.postalCode || ""}
+                  required
                 />
-
-                <input type="file" onChange={e => setphotoCin(e.target.files[0])} name="photoCin" className='InputBox' id="photoCin" />
-
               </p>
+  
+              {/* File Uploads */}
+              {[
+                { label: "Photo de Profil", name: "photoAvatar" },
+                { label: "Photo de CIN", name: "photoCin" },
+                { label: "Photo de Permis Recto", name: "photoPermisRec" },
+                { label: "Photo de Permis Verso", name: "photoPermisVer" },
+                { label: "Photo de VTC", name: "photoVtc" },
+                { label: "Carte Grise", name: "cartegrise" },
+                { label: "Assurance", name: "assurance" },
+              ].map((field, idx) => (
+                <p className="item" key={idx}>
+                  <label>{field.label} :</label><br />
+                  <img
+                    src={voiture?.[field.name] || ""}
+                    alt=""
+                    className="itemImg"
+                  />
+                  <input
+                    type="file"
+                    onChange={(e) => setFieldValue(field.name, e.target.files[0])}
+                    name={field.name}
+                    className="InputBox"
+                    id={field.name}
+                  />
+                </p>
+              ))}
+  
+              {/* Submit Button */}
               <p className="item">
-                <label>photo de Permis Recto  :</label><br />
-                <img
-                  src={form.photoPermisRec || ""}
-                  alt=""
-                  className="itemImg"
-                />
-
-                <input type="file" onChange={e => setphotoPermisRec(e.target.files[0])} name="photoPermisRec" className='InputBox' id="photoPermisRec" />
-
-              </p>
-              <p className="item">
-                <label>photo de Permis Verso  :</label><br />
-                <img
-                  src={form.photoPermisVer || ""}
-                  alt=""
-                  className="itemImg"
-                />
-
-                <input type="file" onChange={e => setphotoPermisVer(e.target.files[0])} name="photoPermisVer" className='InputBox' id="photoPermisVer" />
-
-              </p>
-              <p className="item">
-                <label>photo de VTC  :</label><br />
-                <img
-                  src={form.photoVtc || ""}
-                  alt=""
-                  className="itemImg"
-                />
-
-                <input type="file" onChange={e => setphotoVtc(e.target.files[0])} name="photoVtc" className='InputBox' id="photoVtc" />
-
-              </p>
-
-
-
-              <p className="item">
-                <label>photo de cartegrise :</label><br />
-                <img
-                  src={voiture.cartegrise || ""}
-                  alt=""
-                  className="itemImg"
-                />
-
-                <input type="file" onChange={e => setcartegrise(e.targetv.files[0])} name="cartegrise" className='InputBox' id="cartegrise" />
-
-              </p>
-
-
-
-              <p className="item">
-                <label>photo de assurance  :</label><br />
-                <img
-                  src={voiture.assurance || ""}
-                  alt=""
-                  className="itemImg"
-                />
-
-                <input type="file" onChange={e => setassurance(e.targetv.files[0])} name="assurance" className='InputBox' id="assurance" />
-
-              </p>
-
-
-              <p className="item">
-                <button id="sub_btn" type="submit" value="login">Mis A Jour</button>
+                <button id="sub_btn" type="submit">
+                  Mettre à Jour
+                </button>
               </p>
               <ToastContainer />
             </form>
-
           </div>
         </div>
       </div>
     </div>
   );
+  
+};
 
-}
-
-export default UpdChauf
+export default UpdChauf;
