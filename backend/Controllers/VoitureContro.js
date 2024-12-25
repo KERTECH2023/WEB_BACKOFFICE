@@ -57,25 +57,29 @@ exports.updateVoiture = async (req, res) => {
     if (cartegriseUrl) voiture.cartegrise = cartegriseUrl;
     if (assuranceUrl) voiture.assurance = assuranceUrl;
 
-    const chauffeur = Chauffeur.findById(voiture.chauffeur);
+    // Recherche du chauffeur associé
+    const chauffeur = await Chauffeur.findById(voiture.chauffeur);
+    if (!chauffeur) {
+      return res.status(404).send({ message: "Chauffeur associé introuvable" });
+    }
 
-     // Update Realtime Database
-        const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID+"/carDetails");
-        
-        firebaseRef.update({
-          'immatriculation': immatriculation,
-          'modelle':  modelle,
-         });
+    // Mise à jour dans Firebase Realtime Database
+    const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID + "/carDetails");
+    await firebaseRef.update({
+      ...(immatriculation && { immatriculation: immatriculation }),
+      ...(modelle && { modelle: modelle }),
+    });
 
-    // Sauvegarder les modifications
+    // Sauvegarder les modifications dans MongoDB
     await voiture.save();
 
     res.status(200).send({ message: "Voiture mise à jour avec succès", voiture });
   } catch (err) {
     console.error("Erreur lors de la mise à jour :", err);
-    res.status(500).send({ message: "Erreur serveur lors de la mise à jour" });
+    res.status(500).send({ message: "Erreur serveur lors de la mise à jour", error: err.message });
   }
 };
+
 
 
 exports.getBychauff = async (req, res) => {
