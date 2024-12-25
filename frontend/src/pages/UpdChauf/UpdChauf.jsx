@@ -16,7 +16,7 @@ const UpdChauf = () => {
       photoPermisRec: null,
       photoPermisVer: null,
       photoVtc: null,
-      carteGrise: null,
+      cartegrise: null,
       assurance: null,
     }
   });
@@ -93,8 +93,8 @@ const UpdChauf = () => {
       Object.entries(formData.vehicle).forEach(([key, value]) => {
         vehicleFormData.append(key, value);
       });
-      if (formData.files.carteGrise) {
-        vehicleFormData.append('cartegrise', formData.files.carteGrise);
+      if (formData.files.cartegrise) {
+        vehicleFormData.append('cartegrise', formData.files.cartegrise);
       }
       if (formData.files.assurance) {
         vehicleFormData.append('assurance', formData.files.assurance);
@@ -193,15 +193,7 @@ const UpdChauf = () => {
               {renderField("Immatriculation Voiture", "immatriculation")}
               
               {/* Other Details */}
-              {renderField("Genre", "gender", "select", [
-                ["male", "Homme"],
-                ["female", "Femme"]
-              ])}
-              {renderField("Nationalité", "Nationalite", "select", [
-                ["Tunisian", "Tunisienne"],
-                ["Francais", "Française"],
-                ["Marocain", "Marocaine"]
-              ])}
+            
               {renderField("N° Permis", "cnicNo", "text", null, role === "Agent")}
               {renderField("Adresse", "address")}
               {renderField("Code Postal", "postalCode")}
