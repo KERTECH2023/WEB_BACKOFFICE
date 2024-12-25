@@ -83,7 +83,7 @@ const UpdChauf = () => {
         chauffeurFormData.append(key, value);
       });
       Object.entries(formData.files).forEach(([key, file]) => {
-        if (file && !['carteGrise', 'assurance'].includes(key)) {
+        if (file && !['cartegrise', 'assurance'].includes(key)) {
           chauffeurFormData.append(key, file);
         }
       });
