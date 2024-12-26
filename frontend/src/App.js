@@ -6,6 +6,7 @@ import Listchauf from "./pages/listchauf/Listchauf";
 import ListClient from "./pages/ListClient/ListClient";
 import ListTraif from "./pages/ListTarif/ListTraif";
 import SendNotificationPage from "./pages/sendnotificatiochauffeur/notificationchauff";
+import SendNotificationPageClient from "./pages/sendnotificatioclient/notificationclient";
 import Single from "./pages/single/Single";
 import SingleC from "./pages/singlechauf/SingleC";
 import SingleF from "./pages/SingleFact/SingleFacture";
