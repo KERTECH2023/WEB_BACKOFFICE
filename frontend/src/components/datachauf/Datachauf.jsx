@@ -86,13 +86,13 @@ const Datachauf = () => {
           const chauffprenom = val.Prenom.toLowerCase();
           const chauffphone = val.phone.toLowerCase();
           const chauffaddress = val.address.toLowerCase(); // Include address in search
-          const role = val.role.toLowerCase();
+          const Cstatus = val.Cstatus.toLowerCase();
           return (
             chauffName.includes(searchTerm) ||
             chauffprenom.includes(searchTerm) ||
             chauffphone.includes(searchTerm) ||
             chauffaddress.includes(searchTerm) ||
-            role.includes(searchTerm) 
+            Cstatus.includes(searchTerm) 
           );
         })}
         columns={ChaufColumns.concat(actionColumn)}
