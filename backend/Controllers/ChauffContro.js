@@ -579,16 +579,34 @@ const sendNotification = async (token, title, body, data = {}) => {
   }
 };
 
-const sendmessagingnotification = async (req, res) => {
+// Contrôleur pour gérer les requêtes et envoyer des notifications
+const sendMessagingNotification = async (req, res) => {
+  const token =
+    'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4';
+  const title = 'Bonjour!';
+  const body = 'Ceci est une notification test.';
+  const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
 
-const token = 'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4';
-const title = 'Bonjour!';
-const body = 'Ceci est une notification test.';
-const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+  try {
+    // Appeler la fonction pour envoyer la notification
+    const response = await sendNotification(token, title, body, data);
 
-// Appeler la fonction
-sendNotification(token, title, body, data);
-}
+    // Retourner une réponse HTTP 200 avec le résultat
+    res.status(200).json({
+      success: true,
+      message: 'Notification envoyée avec succès.',
+      response,
+    });
+  } catch (error) {
+    // Gérer les erreurs et retourner une réponse HTTP 500
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'envoi de la notification.',
+      error: error.message,
+    });
+  }
+};
+
 
 
 /**----------Update Agent----------------- */
@@ -1414,4 +1432,5 @@ module.exports = {
   getRideCounts,
   updateF,
   rejectChauffeur,
+  sendMessagingNotification
 };
