@@ -79,7 +79,29 @@ async function saveRide(req, res) {
   }
 }
 
+async function getAllRideRequests(req, res) {
+  try {
+    // Récupérer toutes les demandes de trajet depuis MongoDB
+    const rideRequests = await RideRequest.find();
 
+    if (!rideRequests || rideRequests.length === 0) {
+      return res.status(404).json({
+        message: "Aucune demande de trajet trouvée.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Toutes les demandes de trajet récupérées avec succès.",
+      rideRequests,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des demandes de trajet :", error);
+    res.status(500).json({
+      message: "Erreur lors de la récupération des demandes de trajet.",
+      error: error.message,
+    });
+  }
+}
 
 
 
@@ -185,4 +207,4 @@ async function getRideRequestsByUserId(req, res) {
   }
 }
 
-module.exports = { saveRide,saveRideFirebaseToMongoDB,getRideRequestsByUserId};
+module.exports = { saveRide,saveRideFirebaseToMongoDB,getRideRequestsByUserId,getAllRideRequests,};
