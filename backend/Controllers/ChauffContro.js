@@ -611,9 +611,9 @@ const sendNotificationToAllDrivers = async (title, body = '') => {
 // Contrôleur pour gérer les requêtes et envoyer des notifications
 const sendMessagingNotification = async (req, res) => {
   // Extraire le titre, le message et les données personnalisées de la requête
-  const { title, body } = req.body;
+  const { bodys } = req;
 
-  if (!title || !body) {
+  if (!bodys) {
     return res.status(400).json({
       success: false,
       message: 'Le titre et le message sont requis pour envoyer une notification.',
@@ -622,7 +622,7 @@ const sendMessagingNotification = async (req, res) => {
 
   try {
     // Appeler la fonction pour envoyer la notification
-    const response = await sendNotificationToAllDrivers(title, body);
+    const response = await sendNotificationToAllDrivers(bodys.title, bodys.body);
 
     // Retourner une réponse HTTP 200 avec le résultat
     res.status(200).json({
