@@ -62,13 +62,16 @@ exports.updateVoiture = async (req, res) => {
     if (!chauffeur) {
       return res.status(404).send({ message: "Chauffeur associé introuvable" });
     }
-
-    // Mise à jour dans Firebase Realtime Database
-    const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID + "/carDetails");
-    await firebaseRef.update({
-      ...(immatriculation && { immatriculation: immatriculation }),
-      ...(modelle && { modelle: modelle }),
-    });
+    if (chauffeur.firebaseUID !== undefined) {
+      // Mise à jour dans Firebase Realtime Database
+      const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID + "/carDetails");
+      await firebaseRef.update({
+          ...(immatriculation && { immatriculation: immatriculation }),
+          ...(modelle && { modelle: modelle }),
+      });
+  } 
+  
+  
 
     // Sauvegarder les modifications dans MongoDB
     await voiture.save();
