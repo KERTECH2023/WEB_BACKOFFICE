@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Sidebar from "../../components/sidebar/Sidebar"
+import Navbar from "../../components/navbar/Navbar"
 
 const SendNotificationPage = () => {
   const [title, setTitle] = useState('');
@@ -29,6 +31,10 @@ const SendNotificationPage = () => {
   };
 
   return (
+    <div className="list">
+          <Sidebar/>
+          <div className="listContainer">
+            <Navbar/>
     <div style={{ padding: '20px', maxWidth: '500px', margin: 'auto' }}>
       <h2>Envoyer une notification</h2>
       <form onSubmit={handleSubmit}>
@@ -102,6 +108,8 @@ const SendNotificationPage = () => {
         </div>
       )}
     </div>
+    </div>
+        </div>
   );
 };
 
