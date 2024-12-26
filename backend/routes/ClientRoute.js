@@ -39,10 +39,7 @@ router.put('/updateCl/:id',Multer.fields([
 
 ]),UploadImage,ClientContro.update);
 
-router.post(
-  "/sendnotificationclient",
-  ClientContro.sendmessagingnotificationclient
-);
+
 router.put('/updatestatus/:id', ClientContro.updatestatus);
 router.put('/updatestatuss/:id', ClientContro.updatestatuss);
 router.get('/getchdes', ClientContro.Clientdesa);
