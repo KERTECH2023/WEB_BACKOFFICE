@@ -21,7 +21,7 @@ const SendNotificationPageClient = () => {
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/chauff/sendnotificationclient`,
+        `${process.env.REACT_APP_BASE_URL}/Client/sendnotificationclient`,
         {
           method: 'POST',
           headers: {
