@@ -611,31 +611,32 @@ const sendNotificationToAllDrivers = async (title, body = '') => {
 
 // Contrôleur pour gérer les requêtes et envoyer des notifications
 const sendMessagingNotification = async (req, res) => {
-  // Extraire le titre, le message et les données personnalisées de la requête
-  const { title, body } = req;
-
-  if (!title || !body) {
-    return res.status(400).json({
-      success: false,
-      message: 'Le titre et le message sont requis pour envoyer une notification.',
-    });
-  }
-
   try {
-    // Appeler la fonction pour envoyer la notification
+    const { title, body } = req.body; // Changed from req to req.body
+
+    // Validate input
+    if (!title?.trim() || !body?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title and body are required for sending notifications.',
+      });
+    }
+
     const response = await sendNotificationToAllDrivers(title, body);
 
-    // Retourner une réponse HTTP 200 avec le résultat
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: 'Notification envoyée avec succès.',
-      response,
+      message: 'Notifications sent successfully.',
+      response: {
+        successCount: response.successCount,
+        failureCount: response.failureCount,
+      },
     });
   } catch (error) {
-    // Gérer les erreurs et retourner une réponse HTTP 500
-    res.status(500).json({
+    console.error('Notification controller error:', error);
+    return res.status(500).json({
       success: false,
-      message: 'Erreur lors de l\'envoi de la notification.',
+      message: 'Error sending notifications.',
       error: error.message,
     });
   }
