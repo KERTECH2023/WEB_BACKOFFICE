@@ -176,6 +176,13 @@ function App() {
             />
           </Route>
 
+          <Route path="Liscourse">
+            <Route
+              index
+              element={isLoggedIn ? <Liscourse /> : <Landingpage />}
+            />
+          </Route>
+
           <Route path="Rec">
             <Route
               index
