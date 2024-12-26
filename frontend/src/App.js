@@ -33,7 +33,7 @@ import Profile from "./pages/Profile/Profile";
 import ListContact from "./pages/ListContact/ListContact";
 import SingleCon from "./pages/SingleContact/SingleCon";
 import ListFacture from "./pages/Facture/Facture";
-
+import Liscourse from "./pages/Course/course";
 import "./style/dark.scss";
 import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
