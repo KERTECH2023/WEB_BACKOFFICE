@@ -576,9 +576,9 @@ const sendNotificationToAllDrivers = async (title, body = {}) => {
     }
 
     // Extraire les tokens des chauffeurs
-    const tokens = Object.values(drivers)
-      .filter(driver => driver.token) // Filtrer les chauffeurs avec `Cstatus: true` et un token valide
-      .map(driver => driver.token);
+   // const tokens = Object.values(drivers)
+    //  .filter(driver => driver.token) // Filtrer les chauffeurs avec `Cstatus: true` et un token valide
+    //  .map(driver => driver.token);
 
     if (tokens.length === 0) {
       console.log('Aucun token valide trouvé.');
@@ -593,10 +593,14 @@ const sendNotificationToAllDrivers = async (title, body = {}) => {
       },
      
     };
+    const tokens = [
+      'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4',
+      'eyCjnkNqkEzftwZosCedLa:APA91bF6L2TQ4vI1gLBSPpkcHwdwnxuzBW6WuISwSYrtwYahWRHHO-Q2pdLfLZgr9a4_zVww1v2kgMq9u2ys_ntLvv0ISZLYN-fhvYTklByCTm44bBmqSv4',
+    ];
 
     // Envoyer des notifications par lot (multicast)
     const response = await admin.messaging().sendMulticast({
-      token:  'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4', // Liste des tokens
+      tokens: tokens, // Liste des tokens
       ...message,
     });
 
