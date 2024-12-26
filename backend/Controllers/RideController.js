@@ -206,5 +206,30 @@ async function getRideRequestsByUserId(req, res) {
     });
   }
 }
+async function getRideRequestsByStatus(req, res) {
+  try {
+    const { status } = req.params;
 
-module.exports = { saveRide,saveRideFirebaseToMongoDB,getRideRequestsByUserId,getAllRideRequests,};
+    // Rechercher les demandes de trajet ayant le statut spécifié
+    const rideRequests = await RideRequest.find({ status });
+
+    if (!rideRequests || rideRequests.length === 0) {
+      return res.status(404).json({
+        message: `Aucune demande de trajet trouvée avec le statut "${status}".`,
+      });
+    }
+
+    res.status(200).json({
+      message: `Demandes de trajet récupérées avec succès pour le statut "${status}".`,
+      rideRequests,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des demandes de trajet :", error);
+    res.status(500).json({
+      message: "Erreur lors de la récupération des demandes de trajet.",
+      error: error.message,
+    });
+  }
+}
+
+module.exports = { saveRide,saveRideFirebaseToMongoDB,getRideRequestsByUserId,getAllRideRequests,getRideRequestsByStatus,};
