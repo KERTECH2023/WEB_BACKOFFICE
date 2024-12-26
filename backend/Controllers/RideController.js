@@ -231,5 +231,40 @@ async function getRideRequestsByStatus(req, res) {
     });
   }
 }
+async function updateRideRequestStatus(req, res) {
+  try {
+    const { rideRequestId } = req.params; // ID de la demande de trajet
+    const { status } = req.body; // Nouveau statut
 
-module.exports = { saveRide,saveRideFirebaseToMongoDB,getRideRequestsByUserId,getAllRideRequests,getRideRequestsByStatus,};
+    // Vérifier si le statut est fourni
+    if (!status) {
+      return res.status(400).json({ message: "Le champ 'status' est requis." });
+    }
+
+    // Mettre à jour le statut dans la base de données
+    const updatedRideRequest = await RideRequest.findByIdAndUpdate(
+      rideRequestId,
+      { status },
+      { new: true } // Retourner le document mis à jour
+    );
+
+    if (!updatedRideRequest) {
+      return res.status(404).json({
+        message: `Aucune demande de trajet trouvée avec l'ID ${rideRequestId}.`,
+      });
+    }
+
+    res.status(200).json({
+      message: "Le statut de la demande de trajet a été mis à jour avec succès.",
+      rideRequest: updatedRideRequest,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut :", error);
+    res.status(500).json({
+      message: "Erreur lors de la mise à jour du statut.",
+      error: error.message,
+    });
+  }
+}
+
+module.exports = { saveRide,saveRideFirebaseToMongoDB,getRideRequestsByUserId,getAllRideRequests,getRideRequestsByStatus,updateRideRequestStatus,};
