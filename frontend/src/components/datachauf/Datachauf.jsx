@@ -39,7 +39,7 @@ const Datachauf = () => {
       renderCell: (params) => {
         return (
           <div className="cellAction">
-            <Link to={`/consultC/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to={`/cosnultC/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
               <div className="viewButton">Consulté</div>
             </Link>
             <div>
