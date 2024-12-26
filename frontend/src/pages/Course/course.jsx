@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
+import Sidebar from "../../components/sidebar/Sidebar";
+import Navbar from "../../components/navbar/Navbar";
 import axios from "axios";
 
-const List = () => {
+const Liscourse = () => {
   const [rides, setRides] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -96,4 +96,4 @@ const List = () => {
   );
 };
 
-export default List;
+export default Liscourse;
