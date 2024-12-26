@@ -560,36 +560,77 @@ const login = (req, res) => {
 /**----------send notification Agent----------------- */
 
 
-const sendNotification = async (token, title, body, data = {}) => {
+
+
+
+
+const sendNotificationToAllDrivers = async (title, body = {}) => {
   try {
+    // Récupérer tous les chauffeurs depuis Firebase
+    const snapshot = await realtimeDB.ref('Drivers').once('value');
+    const drivers = snapshot.val();
+
+    if (!drivers) {
+      console.log('Aucun chauffeur trouvé.');
+      return;
+    }
+
+    // Extraire les tokens des chauffeurs
+    const tokens = Object.values(drivers)
+      .filter(driver => driver.token) // Filtrer les chauffeurs avec `Cstatus: true` et un token valide
+      .map(driver => driver.token);
+
+    if (tokens.length === 0) {
+      console.log('Aucun token valide trouvé.');
+      return;
+    }
+
+    // Message à envoyer
     const message = {
-      token: token, // Token de l'appareil cible
       notification: {
-        title: title, // Titre de la notification
-        body: body,  // Corps de la notification
+        title: title,
+        body: body,
       },
-      data: data, // Données supplémentaires (optionnel)
+     
     };
 
-    // Envoyer la notification
-    const response = await admin.messaging().send(message);
-    console.log('Notification envoyée avec succès:', response);
+    // Envoyer des notifications par lot (multicast)
+    const response = await admin.messaging().sendMulticast({
+      tokens: tokens, // Liste des tokens
+      ...message,
+    });
+
+    console.log('Notifications envoyées avec succès:', response.successCount);
+    console.log('Notifications échouées:', response.failureCount);
+
+    // Afficher les erreurs spécifiques
+    if (response.responses) {
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`Erreur pour le token ${tokens[idx]}:`, resp.error);
+        }
+      });
+    }
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification:', error);
+    console.error('Erreur lors de l\'envoi des notifications:', error);
   }
 };
 
 // Contrôleur pour gérer les requêtes et envoyer des notifications
 const sendMessagingNotification = async (req, res) => {
-  const token =
-    'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4';
-  const title = 'Bonjour!';
-  const body = 'Ceci est une notification test.';
-  const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+  // Extraire le titre, le message et les données personnalisées de la requête
+  const { title, body } = req.body;
+
+  if (!title || !body) {
+    return res.status(400).json({
+      success: false,
+      message: 'Le titre et le message sont requis pour envoyer une notification.',
+    });
+  }
 
   try {
     // Appeler la fonction pour envoyer la notification
-    const response = await sendNotification(token, title, body, data);
+    const response = await sendNotificationToAllDrivers(title, body);
 
     // Retourner une réponse HTTP 200 avec le résultat
     res.status(200).json({
@@ -606,6 +647,7 @@ const sendMessagingNotification = async (req, res) => {
     });
   }
 };
+
 
 
 
