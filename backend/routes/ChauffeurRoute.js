@@ -36,6 +36,12 @@ router.post(
   ChauffContro.register
 );
 
+
+router.post(
+  "/sendnotificationchauffeur",
+  ChauffContro.sendmessagingnotification
+);
+
 router.put(
   "/updatechauf/:id",
   Multer.fields([
