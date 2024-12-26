@@ -175,6 +175,13 @@ function App() {
               element={isLoggedIn ? <SendNotificationPage /> : <Landingpage />}
             />
           </Route>
+             <Route path="SendNotificationPageClient">
+            <Route
+              index
+              element={isLoggedIn ? <SendNotificationPageClient /> : <Landingpage />}
+            />
+          </Route>
+     
            
 
           <Route path="Liscourse">
