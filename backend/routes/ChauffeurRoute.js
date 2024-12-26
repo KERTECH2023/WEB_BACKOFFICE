@@ -39,7 +39,7 @@ router.post(
 
 router.post(
   "/sendnotificationchauffeur",
-  ChauffContro.sendMessagingNotification
+  ChauffContro.sendmessagingnotification
 );
 
 router.put(
