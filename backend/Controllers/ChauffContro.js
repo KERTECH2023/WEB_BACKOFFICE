@@ -560,133 +560,35 @@ const login = (req, res) => {
 /**----------send notification Agent----------------- */
 
 
-
-
-const sendNotificationToAllDrivers = async (title, body) => {
+const sendNotification = async (token, title, body, data = {}) => {
   try {
-    // Récupérer tous les chauffeurs depuis Firebase
-   // const snapshot = await realtimeDB.ref('Drivers').once('value');
-   // const drivers = snapshot.val();
-
-   // if (!drivers) {
-    //  console.log('Aucun chauffeur trouvé.');
-    //  return {
-      // successCount: 0,
-      //  failureCount: 0,
-     //   message: 'Aucun chauffeur trouvé dans la base de données.'
-     // };
-  //  }
-
-    // Extraire les tokens des chauffeurs avec Cstatus: true
-  //  const tokens = Object.values(drivers)
-    //  .filter(driver => driver.token && driver.Cstatus === true)
-  //    .map(driver => driver.token);
-
-  //  if (tokens.length === 0) {
-  //    console.log('Aucun token valide trouvé.');
-  //    return {
-      //  successCount: 0,
-      //  failureCount: 0,
-      //  message: 'Aucun chauffeur actif avec token valide trouvé.'
-    //  };
-    //}
-
-    const tokens = [
-      'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4',
-      'eyCjnkNqkEzftwZosCedLa:APA91bF6L2TQ4vI1gLBSPpkcHwdwnxuzBW6WuISwSYrtwYahWRHHO-Q2pdLfLZgr9a4_zVww1v2kgMq9u2ys_ntLvv0ISZLYN-fhvYTklByCTm44bBmqSv4',
-    ];
-
-    // Message à envoyer
     const message = {
+      token: token, // Token de l'appareil cible
       notification: {
-        title,
-        body,
+        title: title, // Titre de la notification
+        body: body,  // Corps de la notification
       },
+      data: data, // Données supplémentaires (optionnel)
     };
-
-    // Envoyer des notifications par lot (multicast)
-    const response = await admin.messaging().sendMulticast({
-      tokens,
-      ...message,
-    });
-
-    console.log('Notifications envoyées avec succès:', response.successCount);
-    console.log('Notifications échouées:', response.failureCount);
-
-    // Gérer les erreurs spécifiques
-    const errors = [];
-    if (response.responses) {
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          const errorMessage = `Erreur pour le token ${tokens[idx]}: ${resp.error.message}`;
-          console.error(errorMessage);
-          errors.push(errorMessage);
-        }
-      });
-    }
-
-    return {
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-      errors: errors.length > 0 ? errors : undefined,
-    };
-
-  } catch (error) {
-    console.error('Erreur lors de l\'envoi des notifications:', error);
-    throw new Error('Erreur lors de l\'envoi des notifications: ' + error.message);
-  }
-};
-
-const sendMessagingNotification = async (req, res) => {
-  try {
-    const { title, body } = req.body;
-
-    // Validation des entrées
-    if (!title?.trim() || !body?.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Le titre et le message sont requis pour envoyer une notification.'
-      });
-    }
 
     // Envoyer la notification
-    const response = await sendNotificationToAllDrivers(title, body);
-
-    // Si aucune notification n'a été envoyée mais sans erreur
-    if (response.successCount === 0 && !response.errors) {
-      return res.status(200).json({
-        success: true,
-        message: response.message || 'Aucune notification envoyée.',
-        response
-      });
-    }
-
-    // Si certaines notifications ont échoué
-    if (response.failureCount > 0) {
-      return res.status(207).json({
-        success: true,
-        message: `${response.successCount} notification(s) envoyée(s), ${response.failureCount} échec(s).`,
-        response
-      });
-    }
-
-    // Succès complet
-    return res.status(200).json({
-      success: true,
-      message: `${response.successCount} notification(s) envoyée(s) avec succès.`,
-      response
-    });
-
+    const response = await admin.messaging().send(message);
+    console.log('Notification envoyée avec succès:', response);
   } catch (error) {
-    console.error('Erreur controller notification:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Erreur lors de l\'envoi de la notification.',
-      error: error.message
-    });
+    console.error('Erreur lors de l\'envoi de la notification:', error);
   }
 };
 
+const sendmessagingnotification = async (req, res) => {
+  const {  body } = req;
+
+const token = 'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4';
+
+const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+
+// Appeler la fonction
+sendNotification(token, body.title, body.body, data);
+}
 
 
 /**----------Update Agent----------------- */
@@ -1512,5 +1414,5 @@ module.exports = {
   getRideCounts,
   updateF,
   rejectChauffeur,
-  sendMessagingNotification
+  sendmessagingnotification
 };
