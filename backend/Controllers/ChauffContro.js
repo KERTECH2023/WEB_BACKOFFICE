@@ -557,6 +557,40 @@ const login = (req, res) => {
   });
 };
 
+/**----------send notification Agent----------------- */
+
+
+const sendNotification = async (token, title, body, data = {}) => {
+  try {
+    const message = {
+      token: token, // Token de l'appareil cible
+      notification: {
+        title: title, // Titre de la notification
+        body: body,  // Corps de la notification
+      },
+      data: data, // Données supplémentaires (optionnel)
+    };
+
+    // Envoyer la notification
+    const response = await admin.messaging().send(message);
+    console.log('Notification envoyée avec succès:', response);
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de la notification:', error);
+  }
+};
+
+const sendmessagingnotification = async (req, res) => {
+
+const token = 'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4';
+const title = 'Bonjour!';
+const body = 'Ceci est une notification test.';
+const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+
+// Appeler la fonction
+sendNotification(token, title, body, data);
+}
+
+
 /**----------Update Agent----------------- */
 
 
