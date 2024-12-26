@@ -564,21 +564,13 @@ const login = (req, res) => {
 
 
 
-const sendNotificationToAllDrivers = async (title, body = {}) => {
+const sendNotificationToAllDrivers = async (title, body = '') => {
   try {
-    // Récupérer tous les chauffeurs depuis Firebase
-    const snapshot = await realtimeDB.ref('Drivers').once('value');
-    const drivers = snapshot.val();
-
-    if (!drivers) {
-      console.log('Aucun chauffeur trouvé.');
-      return;
-    }
-
-    // Extraire les tokens des chauffeurs
-   // const tokens = Object.values(drivers)
-    //  .filter(driver => driver.token) // Filtrer les chauffeurs avec `Cstatus: true` et un token valide
-    //  .map(driver => driver.token);
+    // Définir les tokens des chauffeurs
+    const tokens = [
+      'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4',
+      'eyCjnkNqkEzftwZosCedLa:APA91bF6L2TQ4vI1gLBSPpkcHwdwnxuzBW6WuISwSYrtwYahWRHHO-Q2pdLfLZgr9a4_zVww1v2kgMq9u2ys_ntLvv0ISZLYN-fhvYTklByCTm44bBmqSv4',
+    ];
 
     if (tokens.length === 0) {
       console.log('Aucun token valide trouvé.');
@@ -591,16 +583,11 @@ const sendNotificationToAllDrivers = async (title, body = {}) => {
         title: title,
         body: body,
       },
-     
     };
-    const tokens = [
-      'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4',
-      'eyCjnkNqkEzftwZosCedLa:APA91bF6L2TQ4vI1gLBSPpkcHwdwnxuzBW6WuISwSYrtwYahWRHHO-Q2pdLfLZgr9a4_zVww1v2kgMq9u2ys_ntLvv0ISZLYN-fhvYTklByCTm44bBmqSv4',
-    ];
 
     // Envoyer des notifications par lot (multicast)
     const response = await admin.messaging().sendMulticast({
-      tokens: tokens, // Liste des tokens
+      tokens: tokens, // Utiliser la liste de tokens ici
       ...message,
     });
 
@@ -619,6 +606,7 @@ const sendNotificationToAllDrivers = async (title, body = {}) => {
     console.error('Erreur lors de l\'envoi des notifications:', error);
   }
 };
+
 
 // Contrôleur pour gérer les requêtes et envoyer des notifications
 const sendMessagingNotification = async (req, res) => {
