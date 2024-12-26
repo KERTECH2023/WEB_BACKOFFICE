@@ -609,6 +609,37 @@ const sendmessagingnotification = async (req, res) => {
   res.status(200).send({ message: 'Notifications envoyées avec succès.' });
 };
 
+const sendmessagingnotificationclient = async (req, res) => {
+  const { body } = req;
+
+  const snapshot = await realtimeDB.ref('Users').once('value');
+  const users = snapshot.val();
+
+  if (!users) {
+    console.log('Aucun chauffeur trouvé.');
+    return;
+  }
+
+  // Extraire les tokens des chauffeurs
+    const tokens = Object.values(users) 
+    .filter(users => users.token) // Filtrer les chauffeurs avec Cstatus: true et un token valide
+    .map(users => users.token);
+
+  if (tokens.length === 0) {
+    console.log('Aucun token valide trouvé.');
+    return;
+  }
+
+ 
+
+  const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+
+  // Appeler la fonction pour envoyer les notifications
+  await sendNotificationToMultipleTokens(tokens, body.title, body.body, data);
+
+  res.status(200).send({ message: 'Notifications envoyées avec succès.' });
+};
+
 
 
 /**----------Update Agent----------------- */
@@ -1434,5 +1465,6 @@ module.exports = {
   getRideCounts,
   updateF,
   rejectChauffeur,
-  sendmessagingnotification
+  sendmessagingnotification,
+  sendmessagingnotificationclient
 };
