@@ -83,6 +83,13 @@ const Sidebar = () => {
           </li>
           </Link>
 
+          <Link to="/Liscourse" style={{ textDecoration: "none" }}>
+          <li>
+            <LocalShippingIcon className="icon" />
+            <span>Course</span>
+          </li>
+          </Link>
+
           <p className="title">LISTS DES COMPTES Désactivé</p>
           {(role === "Admin" || role === "Agentad") && (
           <Link to="/AgentDesactivé"  style={{ textDecoration: "none",color: "inherit" }}>
