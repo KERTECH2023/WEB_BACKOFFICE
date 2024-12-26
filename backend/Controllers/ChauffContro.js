@@ -560,35 +560,42 @@ const login = (req, res) => {
 /**----------send notification Agent----------------- */
 
 
-const sendNotification = async (token, title, body, data = {}) => {
+const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
   try {
-    const message = {
+    const messages = tokens.map((token) => ({
       token: token, // Token de l'appareil cible
       notification: {
         title: title, // Titre de la notification
         body: body,  // Corps de la notification
       },
       data: data, // Données supplémentaires (optionnel)
-    };
+    }));
 
-    // Envoyer la notification
-    const response = await admin.messaging().send(message);
-    console.log('Notification envoyée avec succès:', response);
+    const responses = await Promise.all(messages.map((message) => admin.messaging().send(message)));
+    console.log('Notifications envoyées avec succès:', responses);
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification:', error);
+    console.error('Erreur lors de l\'envoi des notifications:', error);
   }
 };
 
 const sendmessagingnotification = async (req, res) => {
-  const {  body } = req;
+  const { body } = req;
 
-const token = 'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4';
+  // Tokens prédéfinis
+  const tokens = [
+    'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4',
+    'eyCjnkNqkEzftwZosCedLa:APA91bF6L2TQ4vI1gLBSPpkcHwdwnxuzBW6WuISwSYrtwYahWRHHO-Q2pdLfLZgr9a4_zVww1v2kgMq9u2ys_ntLvv0ISZLYN-fhvYTklByCTm44bBmqSv4'
+   
+  ];
 
-const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+  const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
 
-// Appeler la fonction
-sendNotification(token, body.title, body.body, data);
-}
+  // Appeler la fonction pour envoyer les notifications
+  await sendNotificationToMultipleTokens(tokens, body.title, body.body, data);
+
+  res.status(200).send({ message: 'Notifications envoyées avec succès.' });
+};
+
 
 
 /**----------Update Agent----------------- */
