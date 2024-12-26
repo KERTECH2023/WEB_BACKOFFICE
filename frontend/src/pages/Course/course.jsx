@@ -58,24 +58,23 @@ const Liscourse = () => {
           <table>
             <thead>
               <tr>
-        <th>Nom de l'utilisateur</th>
-        <th>Montant de la course</th>
-        <th>Nom du conducteur</th>
-        <th>Destination</th>
-        <th>Adresse de départ</th>
-        <th>Statut</th>
-        <th>Action</th>
-      </tr>
+                <th>Nom</th>
+                <th>Nom du conducteur</th>
+                <th>Montant</th>
+                <th>Adresse source</th>
+                <th>Adresse destination</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
             </thead>
             <tbody>
               {rides.map((ride) => (
                 <tr key={ride._id}>
                   <td>{ride.userName}</td>
+                  <td>{ride.driverName}</td>
                   <td>{ride.fareAmount}</td>
-             
-                   <td>{ride.driverName}</td>
-                   <td>{ride.destination}</td>
                   <td>{ride.sourceAddress}</td>
+                  <td>{ride.destinationAddress}</td>
                   <td>{ride.status}</td>
                   <td>
                     <select
