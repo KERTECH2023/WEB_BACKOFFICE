@@ -6,7 +6,6 @@ import Listchauf from "./pages/listchauf/Listchauf";
 import ListClient from "./pages/ListClient/ListClient";
 import ListTraif from "./pages/ListTarif/ListTraif";
 import SendNotificationPage from "./pages/sendnotificatiochauffeur/notificationchauff";
-import SendNotificationPageClient from "./pages/sendnotificatioclient/notificationclient";
 import Single from "./pages/single/Single";
 import SingleC from "./pages/singlechauf/SingleC";
 import SingleF from "./pages/SingleFact/SingleFacture";
@@ -176,12 +175,7 @@ function App() {
               element={isLoggedIn ? <SendNotificationPage /> : <Landingpage />}
             />
           </Route>
-            <Route path="SendNotificationPageClient">
-            <Route
-              index
-              element={isLoggedIn ? <SendNotificationPageClient /> : <Landingpage />}
-            />
-          </Route>
+           
 
           <Route path="Liscourse">
             <Route
