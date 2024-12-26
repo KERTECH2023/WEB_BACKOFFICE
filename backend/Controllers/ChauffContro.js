@@ -596,7 +596,7 @@ const sendNotificationToAllDrivers = async (title, body = {}) => {
 
     // Envoyer des notifications par lot (multicast)
     const response = await admin.messaging().sendMulticast({
-      tokens: tokens, // Liste des tokens
+      token:  'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4', // Liste des tokens
       ...message,
     });
 
