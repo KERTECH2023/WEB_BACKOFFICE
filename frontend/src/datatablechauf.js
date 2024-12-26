@@ -85,4 +85,17 @@ export const ChaufColumns = [
       );
     },
   },
+  // Nouvelle colonne pour afficher l'adresse
+  {
+    field: "address",
+    headerName: "Adresse",
+    width: 200,
+    renderCell: (params) => {
+      return (
+        <div className="cellWithAddress">
+          {params.row.address}
+        </div>
+      );
+    },
+  },
 ];
