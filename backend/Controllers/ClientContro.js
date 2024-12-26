@@ -4,6 +4,7 @@ const config = require("../config.json");
 const jwt    =require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const admin = require("firebase-admin");
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
 /**--------------------Ajouter un agnet------------------------  */
@@ -271,6 +272,60 @@ encryptedPassword += cipher.final('hex');
       }
     });
   }
+
+
+
+/**----------send notification Agent----------------- */
+
+const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
+  try {
+    const messages = tokens.map((token) => ({
+      token: token, // Token de l'appareil cible
+      notification: {
+        title: title, // Titre de la notification
+        body: body,  // Corps de la notification
+      },
+      data: data, // Données supplémentaires (optionnel)
+    }));
+
+    const responses = await Promise.all(messages.map((message) => admin.messaging().send(message)));
+    console.log('Notifications envoyées avec succès:', responses);
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi des notifications:', error);
+  }
+};
+
+
+const sendmessagingnotificationclient = async (req, res) => {
+  const { body } = req;
+
+  const snapshot = await realtimeDB.ref('Users').once('value');
+  const users = snapshot.val();
+
+  if (!users) {
+    console.log('Aucun chauffeur trouvé.');
+    return;
+  }
+
+  // Extraire les tokens des chauffeurs
+    const tokens = Object.values(users) 
+    .filter(users => users.token) // Filtrer les chauffeurs avec Cstatus: true et un token valide
+    .map(users => users.token);
+
+  if (tokens.length === 0) {
+    console.log('Aucun token valide trouvé.');
+    return;
+  }
+
+ 
+
+  const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+
+  // Appeler la fonction pour envoyer les notifications
+  await sendNotificationToMultipleTokens(tokens, body.title, body.body, data);
+
+  res.status(200).send({ message: 'Notifications envoyées avec succès.' });
+};
 
   
 
