@@ -606,15 +606,17 @@ const update = async (req, res, next) => {
       return res.status(404).json({ message: "Chauffeur not found." });
     }
 
-    // Update Firebase Realtime Database
-    const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
-    await firebaseRef.update({
-      ...(photoAvatarUrl && { imageUrl: photoAvatarUrl }),
-      ...(body.Prenom && { name: body.Prenom }),
-      ...(body.email && { email: body.email }),
-      ...(body.phone && { phone: body.phone }),
-      ...(body.cnicNo && { cnicNo: body.cnicNo }),
-    });
+    if (chauffeur.firebaseUID !== undefined) { // Update Firebase Realtime Database
+      const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
+      await firebaseRef.update({
+        ...(photoAvatarUrl && { imageUrl: photoAvatarUrl }),
+        ...(body.Prenom && { name: body.Prenom }),
+        ...(body.email && { email: body.email }),
+        ...(body.phone && { phone: body.phone }),
+        ...(body.cnicNo && { cnicNo: body.cnicNo }),
+      });}
+
+   
 
     // Update Chauffeur in MongoDB
     await Chauffeur.findByIdAndUpdate(id, { $set: updateData });
