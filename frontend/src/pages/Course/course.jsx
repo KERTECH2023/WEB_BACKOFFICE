@@ -4,11 +4,11 @@ import Navbar from "../../components/navbar/Navbar";
 import axios from "axios";
 
 const Liscourse = () => {
-  const [rides, setRides] = useState([]);
-  const [filterStatus, setFilterStatus] = useState("all");
+  const [rides, setRides] = useState([]); // Liste des courses
+  const [filterStatus, setFilterStatus] = useState("all"); // Filtre par statut
+  const BASE_URL = process.env.REACT_APP_BASE_URL; // Base URL de l'API
 
-  const BASE_URL = process.env.REACT_APP_BASE_URL;
-
+  // Récupérer les courses en fonction du filtre
   useEffect(() => {
     fetchRides();
   }, [filterStatus]);
@@ -17,26 +17,22 @@ const Liscourse = () => {
     try {
       const endpoint =
         filterStatus === "all"
-          ? "/Ride/firebaseToMongoDB"
-          : `/Ride/ride-requests/status/${filterStatus}`;
-      const response = await axios.post(`${BASE_URL}${endpoint}`, {});
-      if (filterStatus === "all") {
-        setRides(response.data.rideRequests || []);
-      } else {
-        setRides(response.data.rideRequests || []);
-      }
+          ? "/ride/allRideRequests"
+          : `/ride/ride-requests/status/${filterStatus}`;
+      const response = await axios.get(`${BASE_URL}${endpoint}`);
+      setRides(response.data.rideRequests || []); // Mettre à jour les courses
     } catch (error) {
       console.error("Erreur lors de la récupération des courses :", error);
     }
   };
 
+  // Mettre à jour le statut d'une course
   const updateStatus = async (id, newStatus) => {
     try {
-      await axios.post(
-        `${BASE_URL}/Ride/rides/${id}/status`,
-        { status: newStatus }
-      );
-      fetchRides(); // Rafraîchir les données après mise à jour
+      await axios.patch(`${BASE_URL}/ride/rides/${id}/status`, {
+        status: newStatus,
+      });
+      fetchRides(); // Rafraîchir les données après la mise à jour
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut :", error);
     }
