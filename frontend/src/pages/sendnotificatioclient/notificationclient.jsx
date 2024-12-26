@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
 
 const SendNotificationPageClient = () => {
   const [title, setTitle] = useState('');
@@ -50,92 +49,71 @@ const SendNotificationPageClient = () => {
 
   return (
     <div className="list">
-          <Sidebar/>
-          <div className="listContainer">
-            <Navbar/>
-            <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-2xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">
-              Envoyer une notification client
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label
-                  htmlFor="title"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Titre
-                </label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  placeholder="Entrez le titre de la notification"
-                />
-              </div>
+      <div className="listContainer">
+        <div className="min-h-screen bg-gray-50 p-4">
+          <div className="max-w-2xl mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold">
+                  Envoyer une notification client
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="title"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Titre
+                    </label>
+                    <Input
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                      placeholder="Entrez le titre de la notification"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="body"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Message
-                </label>
-                <Textarea
-                  id="body"
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  required
-                  placeholder="Entrez le contenu de la notification"
-                  className="h-32"
-                />
-              </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="body"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Message
+                    </label>
+                    <Textarea
+                      id="body"
+                      value={body}
+                      onChange={(e) => setBody(e.target.value)}
+                      required
+                      placeholder="Entrez le contenu de la notification"
+                      className="h-32"
+                    />
+                  </div>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Envoi en cours...
-                  </>
-                ) : (
-                  'Envoyer'
+                  <Button type="submit" disabled={isLoading} className="w-full">
+                    {isLoading ? 'Envoi en cours...' : 'Envoyer'}
+                  </Button>
+                </form>
+
+                {responseMessage && (
+                  <Alert className={`mt-4 ${isError ? 'bg-red-50' : 'bg-green-50'}`}>
+                    <AlertDescription
+                      className={`text-sm ${isError ? 'text-red-800' : 'text-green-800'}`}
+                    >
+                      {responseMessage}
+                    </AlertDescription>
+                  </Alert>
                 )}
-              </Button>
-            </form>
-
-            {responseMessage && (
-              <Alert
-                className={`mt-4 ${
-                  isError ? 'bg-red-50' : 'bg-green-50'
-                }`}
-              >
-                <AlertDescription
-                  className={`text-sm ${
-                    isError ? 'text-red-800' : 'text-green-800'
-                  }`}
-                >
-                  {responseMessage}
-                </AlertDescription>
-              </Alert>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
-    </div>
-    </div>
-       
   );
 };
 
 export default SendNotificationPageClient;
-
