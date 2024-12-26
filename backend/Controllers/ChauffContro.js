@@ -569,6 +569,7 @@ const sendNotificationToAllDrivers = async (title, body = '') => {
     // Définir les tokens des chauffeurs
     const tokens = [
       'eyCjnkNqkEzftwZosCedLa:APA91bF6L2TQ4vI1gLBSPpkcHwdwnxuzBW6WuISwSYrtwYahWRHHO-Q2pdLfLZgr9a4_zVww1v2kgMq9u2ys_ntLvv0ISZLYN-fhvYTklByCTm44bBmqSv4',
+      'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4'
       
     ];
 
@@ -611,9 +612,9 @@ const sendNotificationToAllDrivers = async (title, body = '') => {
 // Contrôleur pour gérer les requêtes et envoyer des notifications
 const sendMessagingNotification = async (req, res) => {
   // Extraire le titre, le message et les données personnalisées de la requête
-  const { bodys } = req;
+  const { title, body } = req;
 
-  if (!bodys) {
+  if (!title || !body) {
     return res.status(400).json({
       success: false,
       message: 'Le titre et le message sont requis pour envoyer une notification.',
@@ -622,7 +623,7 @@ const sendMessagingNotification = async (req, res) => {
 
   try {
     // Appeler la fonction pour envoyer la notification
-    const response = await sendNotificationToAllDrivers(bodys.title, bodys.body);
+    const response = await sendNotificationToAllDrivers(title, body);
 
     // Retourner une réponse HTTP 200 avec le résultat
     res.status(200).json({
