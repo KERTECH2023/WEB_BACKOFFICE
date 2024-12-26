@@ -7,12 +7,21 @@ import { ToastContainer, toast } from "react-toastify";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import "react-toastify/dist/ReactToastify.css";
 
-// Define ChaufColumns with address field
+// Define ChaufColumns with all fields
 export const ChaufColumns = [
   { field: "id", headerName: "ID", width: 70 },
   { field: "Nom", headerName: "Nom", width: 130 },
   { field: "Prenom", headerName: "Prenom", width: 130 },
-  { field: "phone", headerName: "Téléphone", width: 130 },
+  { 
+    field: "phone", 
+    headerName: "Téléphone", 
+    width: 130,
+    renderCell: (params) => (
+      <div className="cellPhone">
+        {params.row.phone || "Non spécifié"}
+      </div>
+    )
+  },
   { 
     field: "address", 
     headerName: "Adresse", 
@@ -20,6 +29,26 @@ export const ChaufColumns = [
     renderCell: (params) => (
       <div className="cellAddress">
         {params.row.address || "Non spécifié"}
+      </div>
+    )
+  },
+  {
+    field: "status",
+    headerName: "Compte Status",
+    width: 130,
+    renderCell: (params) => (
+      <div className={`cellStatus ${params.row.status}`}>
+        {params.row.status || "Inactif"}
+      </div>
+    )
+  },
+  {
+    field: "role",
+    headerName: "Rôle",
+    width: 130,
+    renderCell: (params) => (
+      <div className="cellRole">
+        {params.row.role || "Non assigné"}
       </div>
     )
   }
@@ -98,13 +127,17 @@ const Datachauf = () => {
           const searchTerm = search.toLowerCase();
           const chauffName = val.Nom.toLowerCase();
           const chauffprenom = val.Prenom.toLowerCase();
-          const chauffphone = val.phone.toLowerCase();
+          const chauffphone = (val.phone || "").toLowerCase();
           const chauffAddress = (val.address || "").toLowerCase();
+          const chauffStatus = (val.status || "").toLowerCase();
+          const chauffRole = (val.role || "").toLowerCase();
           
           return chauffName.includes(searchTerm) || 
                  chauffprenom.includes(searchTerm) ||
                  chauffphone.includes(searchTerm) ||
-                 chauffAddress.includes(searchTerm);
+                 chauffAddress.includes(searchTerm) ||
+                 chauffStatus.includes(searchTerm) ||
+                 chauffRole.includes(searchTerm);
         })}
         columns={ChaufColumns.concat(actionColumn)}
         pageSize={9}
