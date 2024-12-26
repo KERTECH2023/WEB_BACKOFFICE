@@ -147,6 +147,12 @@ const Sidebar = () => {
             <span>Notifications</span>
           </li>
           </Link>
+          <Link to="/SendNotificationPage" style={{ textDecoration: "none" }}>
+          <li>
+            <NotificationsNoneIcon className="icon" />
+            <span>Notifier chauffeurs</span>
+          </li>
+          </Link>
           <Link to="/ConsultInvoices" style={{ textDecoration: "none" }}>
           <li>
             <CreditScoreIcon className="icon" />
