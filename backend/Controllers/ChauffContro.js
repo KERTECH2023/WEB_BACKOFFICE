@@ -568,8 +568,8 @@ const sendNotificationToAllDrivers = async (title, body = '') => {
   try {
     // Définir les tokens des chauffeurs
     const tokens = [
-      'epQ5MVxSS0GaPtPivOXIhj:APA91bE-Dt8VfjVfRjs8JpbWSHJS8R1OKXDzmqoetiYSu1SwK1O4UdI6jsX8T5-fU53PlRfyL7zR1DO7yuzR56YEfW4KOGDJCXSkIP67uJ8CMb0kXPt1-O4',
       'eyCjnkNqkEzftwZosCedLa:APA91bF6L2TQ4vI1gLBSPpkcHwdwnxuzBW6WuISwSYrtwYahWRHHO-Q2pdLfLZgr9a4_zVww1v2kgMq9u2ys_ntLvv0ISZLYN-fhvYTklByCTm44bBmqSv4',
+      
     ];
 
     if (tokens.length === 0) {
