@@ -84,6 +84,8 @@ const Liscourse = () => {
                       }
                     >
                       <option value="Pending">En attente</option>
+                      
+            <option value="Ended">Terminer</option>
                       <option value="Accepted">Accepté</option>
                       <option value="Rejected">Rejeté</option>
                     </select>
