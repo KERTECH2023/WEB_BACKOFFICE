@@ -49,7 +49,8 @@ const Liscourse = () => {
             onChange={(e) => setFilterStatus(e.target.value)}
           >
             <option value="all">Tous</option>
-            <option value="Pending">En attente</option>
+            <option value="Ended">Terminer</option>
+            
             <option value="Accepted">Accepté</option>
             <option value="Rejected">Rejeté</option>
           </select>
