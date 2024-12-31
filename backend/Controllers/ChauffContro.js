@@ -562,25 +562,29 @@ const login = (req, res) => {
 
 const sendNotificationMiseajour = async () => {
   try {
-    const token = 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ'; // Remplacez par votre token spécifique
-    const title = 'Mise a jour'; // Titre de la notification
-    const body = 'Corps de la notification';  // Corps de la notification
-    const data = { key: 'value' }; // Données supplémentaires (optionnel)
-
+    // Configuration de la notification
     const message = {
-      token: token, // Token de l'appareil cible
+      token: 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ',
       notification: {
-        title: title, // Titre de la notification
-        body: body,  // Corps de la notification
-        click_action : "https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp"
+        title: 'Mise à jour',
+        body: 'Corps de la notification',
+        click_action: 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'
       },
-      data: data, // Données supplémentaires (optionnel)
+      data: { key: 'value' },
+      android: {
+        priority: 'high',
+        notification: {
+          clickAction: 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'
+        }
+      }
     };
 
     const response = await admin.messaging().send(message);
     console.log('Notification envoyée avec succès:', response);
+    return response;
   } catch (error) {
     console.error('Erreur lors de l\'envoi de la notification:', error);
+    throw error;
   }
 };
 
