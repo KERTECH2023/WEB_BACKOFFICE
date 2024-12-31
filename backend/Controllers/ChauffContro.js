@@ -573,6 +573,12 @@ const sendNotificationMiseajour = async () => {
         title: title,
         body:clickActionUrl,
       },
+       android:{
+        ttl:"86400s",
+         notification{
+         click_action: clickActionUrl
+       }
+     },
      
     };
 
