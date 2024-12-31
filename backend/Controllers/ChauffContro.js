@@ -560,8 +560,7 @@ const login = (req, res) => {
 /**----------send notification Agent----------------- */
 
 
-const admin = require('firebase-admin');
-admin.initializeApp();
+
 
 const sendNotificationMiseajour = async () => {
   try {
