@@ -571,18 +571,9 @@ const sendNotificationMiseajour = async () => {
       token: token,
       notification: {
         title: title,
-        body: body,
+        body:clickActionUrl,
       },
-      webpush: {
-        fcm_options: {
-          link: clickActionUrl, // URL pour redirection automatique
-        },
-      },
-      android: {
-        fcm_options: {
-          link: clickActionUrl, // URL pour redirection automatique sur Android
-        },
-      },
+     
     };
 
     const response = await admin.messaging().send(message);
