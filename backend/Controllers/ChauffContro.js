@@ -564,30 +564,44 @@ const login = (req, res) => {
 
 const sendNotificationMiseajour = async () => {
   try {
-    const token = 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ'; // Remplacez par votre token spécifique
+    const token = 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ';
     const title = 'Mise à jour disponible';
     const body = 'Une nouvelle version de l\'application est disponible. Cliquez ici pour mettre à jour.';
-    const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'; // Lien vers le Play Store
+    const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp';
 
     const message = {
-      token: token, // Token de l'appareil cible
+      token: token,
       notification: {
         title: title,
         body: body,
       },
-      data: {
-        url: playStoreUrl, // Inclure le lien dans les données
+      android: {
+        notification: {
+          click_action: 'FLUTTER_NOTIFICATION_CLICK',
+          default_sound: true,
+          default_vibrate_timings: true,
+          notification_priority: 'PRIORITY_HIGH',
+          link: playStoreUrl
+        },
       },
+      data: {
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        url: playStoreUrl,
+        link: playStoreUrl
+      },
+      webpush: {
+        fcm_options: {
+          link: playStoreUrl
+        }
+      }
     };
 
-    // Envoi de la notification
     const response = await admin.messaging().send(message);
     console.log('Notification envoyée avec succès:', response);
   } catch (error) {
     console.error('Erreur lors de l\'envoi de la notification:', error);
   }
 };
-
 
 
 
