@@ -7,6 +7,25 @@ const moment = require('moment-timezone');
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
 
+
+
+
+const clearActiveDrivers = () => {
+  const activeDriversRef = realtimeDB.ref("ActiveDrivers");
+
+  setInterval(async () => {
+    try {
+      await activeDriversRef.remove();
+      console.log("Les données de la table ActiveDrivers ont été supprimées.");
+    } catch (error) {
+      console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
+    }
+  }, 10000); // 10 secondes
+};
+
+// Appeler la fonction pour démarrer la suppression automatique
+clearActiveDrivers();
+
 // Fonction générique pour mettre à jour tous les chauffeurs avec un tarif
 const updateAllChauffeursWithTarif = async (tariffId) => {
   try {
@@ -95,7 +114,7 @@ cron.schedule('00 05 * * *', () => {
 
 
 
-//lksdjfkjdsfjhddjdfjhfdhjdsfjjfdhjhksfdjdfj
+
 
 // Afficher tous les tarifs
 exports.showtarifs = async (req, res) => {
