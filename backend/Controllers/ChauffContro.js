@@ -562,25 +562,28 @@ const login = (req, res) => {
 
 const sendNotificationMiseajour = async () => {
   try {
-    const token = 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ'; // Token spécifique
-    const title = 'Mise à jour'; // Titre de la notification
-    const body = 'Cliquez ici pour accéder à la mise à jour'; // Corps de la notification
-    const clickActionUrl = 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'; // Lien direct
+    const token = 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ'; // Remplacez par le token de votre appareil cible
+    const title = 'Mise à jour disponible'; // Titre de la notification
+    const body = 'Une nouvelle version de l\'application est disponible. Cliquez ici pour mettre à jour.'; // Corps de la notification
+    const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'; // Lien vers le Play Store
 
     const message = {
-      token: token,
+      token: token, // Token de l'appareil cible
       notification: {
-        title: title,
-        body: body, // Correct body here
+        title: title, // Titre de la notification
+        body: body,  // Corps de la notification
       },
       android: {
-        ttl: 86400000, // 24 hours in milliseconds
         notification: {
-          click_action: clickActionUrl, // Correct usage of click action
+          click_action: 'OPEN_URL',  // Action de clic sur la notification
         },
+      },
+      data: { // Données supplémentaires (optionnel)
+        url: playStoreUrl, // Ajoutez l'URL ici
       },
     };
 
+    // Envoi de la notification
     const response = await admin.messaging().send(message);
     console.log('Notification envoyée avec succès:', response);
   } catch (error) {
