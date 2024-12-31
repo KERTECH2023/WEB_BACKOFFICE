@@ -566,7 +566,9 @@ const sendNotificationMiseajour = async () => {
       token: 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ',
       notification: {
         title: 'Mise à jour',
-        body: 'Corps de la notification'
+        body: 'Corps de la notification',
+        clickAction: 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'
+        }
       },
       data: { 
         key: 'value',
