@@ -10,6 +10,7 @@ const realtimeDB = firestoreModule.firestoreApp.database();
 
 
 
+// Supprime les données de la table ActiveDrivers toutes les 30 minutes
 const clearActiveDrivers = () => {
   const activeDriversRef = realtimeDB.ref("ActiveDrivers");
 
@@ -20,11 +21,12 @@ const clearActiveDrivers = () => {
     } catch (error) {
       console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
     }
-  }, 10000); // 10 secondes
+  }, 30 * 60 * 1000); // 30 minutes = 30 * 60 * 1000 ms
 };
 
 // Appeler la fonction pour démarrer la suppression automatique
 clearActiveDrivers();
+
 
 // Fonction générique pour mettre à jour tous les chauffeurs avec un tarif
 const updateAllChauffeursWithTarif = async (tariffId) => {
