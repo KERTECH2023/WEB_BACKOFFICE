@@ -574,12 +574,12 @@ const sendNotificationMiseajour = async () => {
         body: body,
       },
       webpush: {
-        fcmOptions: {
+        fcm_options: {
           link: clickActionUrl, // URL pour redirection automatique
         },
       },
       android: {
-        fcmOptions: {
+        fcm_options: {
           link: clickActionUrl, // URL pour redirection automatique sur Android
         },
       },
