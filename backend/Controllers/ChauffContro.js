@@ -560,6 +560,34 @@ const login = (req, res) => {
 /**----------send notification Agent----------------- */
 
 
+const sendNotificationMiseajour = async () => {
+  try {
+    const token = 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ'; // Remplacez par votre token spécifique
+    const title = 'Mise a jour'; // Titre de la notification
+    const body = 'Corps de la notification';  // Corps de la notification
+    const data = { key: 'value' }; // Données supplémentaires (optionnel)
+
+    const message = {
+      token: token, // Token de l'appareil cible
+      notification: {
+        title: title, // Titre de la notification
+        body: body,  // Corps de la notification
+        click_action : "https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp"
+      },
+      data: data, // Données supplémentaires (optionnel)
+    };
+
+    const response = await admin.messaging().send(message);
+    console.log('Notification envoyée avec succès:', response);
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de la notification:', error);
+  }
+};
+
+
+
+
+
 const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
   try {
     const messages = tokens.map((token) => ({
@@ -1466,5 +1494,6 @@ module.exports = {
   updateF,
   rejectChauffeur,
   sendmessagingnotification,
-  sendmessagingnotificationclient
+  sendmessagingnotificationclient,
+  sendNotificationMiseajour
 };
