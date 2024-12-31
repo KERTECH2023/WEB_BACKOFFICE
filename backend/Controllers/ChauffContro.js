@@ -562,17 +562,17 @@ const login = (req, res) => {
 
 const sendNotificationMiseajour = async () => {
   try {
-    // Configuration de la notification
     const message = {
       token: 'focF1dloQPakOLn-o0NP-T:APA91bGDYNTCLcLalXKz0-xy-Oy2EnaMSQoJcB51CmkTVy24JVYGVvhbNBPcG6JZL1dkuyH7VkO1GungMHS8Hx4TEqE_ocZq9yx0tSgKskfD_F0ESQ6JkPQ',
       notification: {
         title: 'Mise à jour',
-        body: 'Corps de la notification',
-        click_action: 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'
+        body: 'Corps de la notification'
       },
-      data: { key: 'value' },
+      data: { 
+        key: 'value',
+        link: 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'
+      },
       android: {
-        priority: 'high',
         notification: {
           clickAction: 'https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp'
         }
@@ -580,10 +580,9 @@ const sendNotificationMiseajour = async () => {
     };
 
     const response = await admin.messaging().send(message);
-    console.log('Notification envoyée avec succès:', response);
     return response;
   } catch (error) {
-    console.error('Erreur lors de l\'envoi de la notification:', error);
+    console.error('Erreur:', error);
     throw error;
   }
 };
