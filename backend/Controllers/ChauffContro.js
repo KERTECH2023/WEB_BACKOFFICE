@@ -571,15 +571,14 @@ const sendNotificationMiseajour = async () => {
       token: token,
       notification: {
         title: title,
-        body:clickActionUrl,
+        body: body, // Correct body here
       },
-       android:{
-        ttl:"86400s",
-         notification{
-         click_action: clickActionUrl
-       }
-     },
-     
+      android: {
+        ttl: 86400000, // 24 hours in milliseconds
+        notification: {
+          click_action: clickActionUrl, // Correct usage of click action
+        },
+      },
     };
 
     const response = await admin.messaging().send(message);
@@ -588,6 +587,7 @@ const sendNotificationMiseajour = async () => {
     console.error('Erreur lors de l\'envoi de la notification:', error);
   }
 };
+
 
 
 
