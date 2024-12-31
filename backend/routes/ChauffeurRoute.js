@@ -43,6 +43,11 @@ router.post(
 );
 
 router.post(
+  "/sendmiseajour",
+  ChauffContro.sendNotificationMiseajour
+);
+
+router.post(
   "/sendnotificationclient",
   ChauffContro.sendmessagingnotificationclient
 );
