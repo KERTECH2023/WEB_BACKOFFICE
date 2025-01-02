@@ -490,11 +490,16 @@ async function sendConfirmationEmail(Email, Password) {
             <p>Si vous n'avez pas créé ce compte, veuillez nous contacter.</p>
                <div class="footer">
             <div class="download-section">
-             <h2>Téléchargez notre application</h2>
+             <h2>Téléchargez notre application IOS</h2>
 <div class="store-buttons">
     <a href="https://apps.apple.com/app/flash-driver/id6737412071" class="store-button" target="_blank" rel="noopener noreferrer">
         App Store
     </a>
+    
+</div>
+
+<h2>Téléchargez notre application Android</h2>
+<div class="store-buttons">
     <a href="https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp" class="store-button" target="_blank" rel="noopener noreferrer">
         Google Play
     </a>
@@ -1375,7 +1380,10 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
     from: "Flash Driver <noreplyflashdriver@gmail.com>",
     to: Email,
     subject: "Flash Driver Compte Validé",
-    html: `<!DOCTYPE html>
+    html: `
+
+
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -1433,15 +1441,20 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
             <p><strong>Email:</strong> ${Email}</p>
             ${chauffeurPassword ? `<p><strong>Mot de passe:</strong> ${chauffeurPassword}</p>` : ""}
             
+            <h2>Téléchargez notre application IOS</h2>
             <div class="store-buttons">
-                <a href="https://apps.apple.com/app/flashdriver-driver/id6737279801" class="store-button" target="_blank" rel="noopener noreferrer">
+                <a href="https://apps.apple.com/app/flash-driver/id6737412071" class="store-button" target="_blank" rel="noopener noreferrer">
                     App Store
                 </a>
-                <a href="https://play.google.com/store/apps/details?id=com.flashdriversdriver.app" class="store-button" target="_blank" rel="noopener noreferrer">
+                
+            </div>
+            
+            <h2>Téléchargez notre application Android</h2>
+            <div class="store-buttons">
+                <a href="https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp" class="store-button" target="_blank" rel="noopener noreferrer">
                     Google Play
                 </a>
             </div>
-
             <div class="footer">
                 <p>Cordialement,<br>L'équipe Flash Driver</p>
                 <p style="font-size: 10px; color: #888;">
