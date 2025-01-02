@@ -1443,7 +1443,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
             
             <h2>Téléchargez notre application IOS</h2>
             <div class="store-buttons">
-                <a href="https://apps.apple.com/app/flash-driver/id6737412071" class="store-button" target="_blank" rel="noopener noreferrer">
+                <a href="https://apps.apple.com/app/flashdriver-driver/id6737279801" class="store-button" target="_blank" rel="noopener noreferrer">
                     App Store
                 </a>
                 
@@ -1451,7 +1451,7 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
             
             <h2>Téléchargez notre application Android</h2>
             <div class="store-buttons">
-                <a href="https://play.google.com/store/apps/details?id=com.tunisieuber.clientapp" class="store-button" target="_blank" rel="noopener noreferrer">
+                <a href="https://play.google.com/store/apps/details?id=com.flashdriversdriver.app" class="store-button" target="_blank" rel="noopener noreferrer">
                     Google Play
                 </a>
             </div>
