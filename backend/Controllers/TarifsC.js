@@ -2,6 +2,7 @@ const Chauffeur = require("../Models/Chauffeur");
 const Tarifs = require("../Models/Tarifs");
 const Tarifsn = require("../Models/TarifsDeNuit");
 const Tarifj = require("../Models/TarifsDeJour");
+const Tariftempfort = require("../Models/TarifsDeTempsFort");
 const cron = require('node-cron');
 const moment = require('moment-timezone');
 const firestoreModule = require("../services/config");
