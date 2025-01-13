@@ -12,7 +12,75 @@ const updateAllChauffeursWithPeakTarif = async (tariffId) => {
     console.error("Erreur lors de la mise à jour des chauffeurs :", error.message);
   }
 };
+// Mise à jour d'un tarif de temps fort spécifique
+exports.updatePeakTarif = async (req, res) => {
+  const { id } = req.params;
+  const { startHour, endHour, baseFare, farePerKm, farePerMinute } = req.body;
 
+  try {
+    // Validation des champs
+    if (!startHour || !endHour || baseFare === undefined || 
+        farePerKm === undefined || farePerMinute === undefined) {
+      return res.status(400).send({
+        message: "Veuillez fournir tous les champs requis."
+      });
+    }
+
+    // Conversion en nombres
+    const baseFareNum = Number(baseFare);
+    const farePerKmNum = Number(farePerKm);
+    const farePerMinuteNum = Number(farePerMinute);
+
+    if (isNaN(baseFareNum) || isNaN(farePerKmNum) || isNaN(farePerMinuteNum)) {
+      return res.status(400).send({
+        message: "Les tarifs doivent être des nombres valides."
+      });
+    }
+
+    // Recherche et mise à jour du tarif
+    const updatedTarif = await TarifsDeTempsFort.findByIdAndUpdate(
+      id,
+      {
+        startHour,
+        endHour,
+        baseFare: baseFareNum,
+        farePerKm: farePerKmNum,
+        farePerMinute: farePerMinuteNum
+      },
+      { new: true }
+    );
+
+    if (!updatedTarif) {
+      return res.status(404).send({
+        message: "Tarif non trouvé."
+      });
+    }
+
+    // Mise à jour dans Firebase
+    const firebaseRef = realtimeDB.ref("tarifsDeTempsFort");
+    await firebaseRef.update({
+      startHour,
+      endHour,
+      baseFare: baseFareNum,
+      farePerKm: farePerKmNum,
+      farePerMinute: farePerMinuteNum
+    });
+
+    // Mise à jour des chauffeurs si nécessaire
+    await updateAllChauffeursWithPeakTarif(updatedTarif._id);
+
+    res.status(200).send({
+      message: "Tarif mis à jour avec succès",
+      tarif: updatedTarif
+    });
+
+  } catch (error) {
+    res.status(500).send({
+      message: "Erreur lors de la mise à jour du tarif",
+      error: error.message
+    });
+  }
+};
 // Afficher tous les tarifs de temps fort
 exports.showPeakTarifs = async (req, res) => {
   try {
