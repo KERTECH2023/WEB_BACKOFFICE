@@ -9,82 +9,54 @@ const DataTarif = () => {
   const [search, setSearch] = useState("");
   const [selectedTarif, setSelectedTarif] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTarif, setNewTarif] = useState({
-    baseFare: "",
-    farePerKm: "",
+  const [newTarif, setNewTarif] = useState({ 
+    baseFare: "", 
+    farePerKm: "", 
     farePerMinute: "",
-    type: "day", // Par défaut : jour
+    type: "day" // Added type to distinguish between day and night tariffs
   });
   const [isAddingTarif, setIsAddingTarif] = useState(false);
 
-  // Charger les tarifs au chargement du composant
   useEffect(() => {
     getTariffs();
   }, []);
 
-  // Récupérer les tarifs
   const getTariffs = async () => {
-    try {
-      const dayResponse = await axios.get(
-        process.env.REACT_APP_BASE_URL + "/Tarj/show"
-      );
-      const nightResponse = await axios.get(
-        process.env.REACT_APP_BASE_URL + "/Tarn/show"
-      );
-      const peakResponse = await axios.get(
-        process.env.REACT_APP_BASE_URL + "/Tart/show"
-      ); // Tarifs Temps Fort
-
-      if (
-        dayResponse.status === 200 &&
-        nightResponse.status === 200 &&
-        peakResponse.status === 200
-      ) {
-        setData([
-          ...dayResponse.data.map((tariff) => ({ ...tariff, type: "day" })),
-          ...nightResponse.data.map((tariff) => ({ ...tariff, type: "night" })),
-          ...peakResponse.data.map((tariff) => ({ ...tariff, type: "peak" })), // Ajouter les temps forts
-        ]);
-      }
-    } catch (error) {
-      toast.error("Erreur lors du chargement des tarifs.");
+    // Changed to support both day and night tariffs
+    const dayResponse = await axios.get(process.env.REACT_APP_BASE_URL + "/Tarj/show");
+    const nightResponse = await axios.get(process.env.REACT_APP_BASE_URL + "/Tarn/show");
+    
+    if (dayResponse.status === 200 && nightResponse.status === 200) {
+      setData([
+        ...dayResponse.data.map(tariff => ({...tariff, type: 'day'})),
+        ...nightResponse.data.map(tariff => ({...tariff, type: 'night'}))
+      ]);
     }
   };
 
-  // Gestion de la recherche
   const handleSearchTerm = (e) => {
     setSearch(e.target.value);
   };
 
-  // Modifier un tarif
   const handleEdit = (tarif) => {
     setSelectedTarif(tarif);
     setNewTarif({
       baseFare: tarif.baseFare,
       farePerKm: tarif.farePerKm,
       farePerMinute: tarif.farePerMinute,
-      type: tarif.type,
+      type: tarif.type
     });
     setIsModalOpen(true);
   };
 
-  // Mettre à jour un tarif
   const handleUpdate = async () => {
     try {
-      const apiEndpoint =
-        newTarif.type === "day"
-          ? "/Tarj/update"
-          : newTarif.type === "night"
-          ? "/Tarn/update"
-          : "/Tart/update"; // Temps Fort
-      const response = await axios.put(
-        process.env.REACT_APP_BASE_URL + apiEndpoint,
-        {
-          tarifId: selectedTarif.id,
-          ...newTarif,
-        }
-      );
-
+      const apiEndpoint = newTarif.type === 'day' ? '/Tarj/update' : '/Tarn/update';
+      const response = await axios.put(process.env.REACT_APP_BASE_URL + apiEndpoint, {
+        tarifId: selectedTarif.id,
+        ...newTarif
+      });
+      
       if (response.status === 200) {
         toast.success("Tarif mis à jour avec succès !");
         setIsModalOpen(false);
@@ -95,23 +67,14 @@ const DataTarif = () => {
     }
   };
 
-  // Ajouter un nouveau tarif
   const handleAddTarif = async () => {
     if (isAddingTarif) {
       try {
-        const apiEndpoint =
-          newTarif.type === "day"
-            ? "/Tarj/tarif"
-            : newTarif.type === "night"
-            ? "/Tarn/tarif"
-            : "/Tart/tarif"; // Temps Fort
-        const response = await axios.post(
-          process.env.REACT_APP_BASE_URL + apiEndpoint,
-          {
-            ...newTarif,
-          }
-        );
-
+        const apiEndpoint = newTarif.type === 'day' ? '/Tarj/tarif' : '/Tarn/tarif';
+        const response = await axios.post(process.env.REACT_APP_BASE_URL + apiEndpoint, {
+          ...newTarif
+        });
+        
         if (response.status === 200) {
           toast.success("Nouveau tarif ajouté avec succès !");
           setIsAddingTarif(false);
@@ -141,14 +104,13 @@ const DataTarif = () => {
       <div className="mb-3 d-flex">
         {isAddingTarif && (
           <>
-            <select
-              value={newTarif.type}
+            <select 
+              value={newTarif.type} 
               onChange={(e) => setNewTarif({ ...newTarif, type: e.target.value })}
               className="form-control me-2"
             >
               <option value="day">Tarif Jour</option>
               <option value="night">Tarif Nuit</option>
-              <option value="peak">Tarif Temps Fort</option> {/* Nouveau type */}
             </select>
             <input
               type="text"
@@ -168,9 +130,7 @@ const DataTarif = () => {
               type="text"
               placeholder="Fare Per Minute"
               value={newTarif.farePerMinute}
-              onChange={(e) =>
-                setNewTarif({ ...newTarif, farePerMinute: e.target.value })
-              }
+              onChange={(e) => setNewTarif({ ...newTarif, farePerMinute: e.target.value })}
               className="form-control me-2"
             />
           </>
@@ -188,7 +148,7 @@ const DataTarif = () => {
           { field: "baseFare", headerName: "Base Fare", width: 120 },
           { field: "farePerKm", headerName: "Fare Per Km", width: 120 },
           { field: "farePerMinute", headerName: "Fare Per Minute", width: 150 },
-          { field: "type", headerName: "Type", width: 150 },
+          { field: "type", headerName: "Type", width: 100 },
           {
             field: "action",
             headerName: "Action",
@@ -227,13 +187,10 @@ const DataTarif = () => {
                   <select
                     className="form-control"
                     value={newTarif.type}
-                    onChange={(e) =>
-                      setNewTarif({ ...newTarif, type: e.target.value })
-                    }
+                    onChange={(e) => setNewTarif({ ...newTarif, type: e.target.value })}
                   >
                     <option value="day">Tarif Jour</option>
                     <option value="night">Tarif Nuit</option>
-                    <option value="peak">Tarif Temps Fort</option>
                   </select>
                 </div>
                 <div className="mb-3">
@@ -242,9 +199,7 @@ const DataTarif = () => {
                     type="text"
                     className="form-control"
                     value={newTarif.baseFare}
-                    onChange={(e) =>
-                      setNewTarif({ ...newTarif, baseFare: e.target.value })
-                    }
+                    onChange={(e) => setNewTarif({ ...newTarif, baseFare: e.target.value })}
                   />
                 </div>
                 <div className="mb-3">
@@ -253,9 +208,7 @@ const DataTarif = () => {
                     type="text"
                     className="form-control"
                     value={newTarif.farePerKm}
-                    onChange={(e) =>
-                      setNewTarif({ ...newTarif, farePerKm: e.target.value })
-                    }
+                    onChange={(e) => setNewTarif({ ...newTarif, farePerKm: e.target.value })}
                   />
                 </div>
                 <div className="mb-3">
@@ -264,9 +217,7 @@ const DataTarif = () => {
                     type="text"
                     className="form-control"
                     value={newTarif.farePerMinute}
-                    onChange={(e) =>
-                      setNewTarif({ ...newTarif, farePerMinute: e.target.value })
-                    }
+                    onChange={(e) => setNewTarif({ ...newTarif, farePerMinute: e.target.value })}
                   />
                 </div>
               </div>
