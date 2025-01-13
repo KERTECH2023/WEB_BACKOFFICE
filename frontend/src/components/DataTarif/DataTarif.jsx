@@ -30,9 +30,9 @@ const DataTarif = () => {
       update: process.env.REACT_APP_BASE_URL + "/Tarn/update"
     },
     peakTime: {
-      show: "https://api.backofficegc.com/tart/show",
-      add: process.env.REACT_APP_BASE_URL + "/tart/tarif",
-      update: process.env.REACT_APP_BASE_URL + "/tart/update"
+      show: process.env.REACT_APP_BASE_URL + "/Tart/show",
+      add: process.env.REACT_APP_BASE_URL + "/Tart/tarif",
+      update: process.env.REACT_APP_BASE_URL + "/Tart/update"
     }
   };
 
