@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const TarifsDeTempsFortController = require('../Controllers/TarifsDeTempsFortController');
+const tarifsTempsFortController  = require('../Controllers/TarifsDeTempsFortController');
 
 router.get('/show', tarifsTempsFortController.showtarifs);
 
