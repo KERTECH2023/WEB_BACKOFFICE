@@ -55,6 +55,8 @@ async function updateTariff(type) {
       config = await Tarifsn.findOne({});
     } else if (type === 'journalier') {
       config = await Tarifj.findOne({});
+    }else if (type === 'tempfort') {
+      config = await Tariftempfort.findOne({});
     } else {
       console.error('Type de tarif invalide');
       return;
@@ -100,6 +102,37 @@ async function updateTariff(type) {
 // Planification des tâches cron
 cron.schedule('00 21 * * *', () => {
   updateTariff('nocturne');
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis"
+});
+
+// Planification des tâches cron
+cron.schedule('00 11 * * *', () => {
+  updateTariff('tempfort');
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis"
+});
+
+cron.schedule('00 13 * * *', () => {
+  updateTariff('journalier');
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis"
+});
+
+
+// Planification des tâches cron
+cron.schedule('00 17 * * *', () => {
+  updateTariff('tempfort');
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis"
+});
+
+cron.schedule('00 19 * * *', () => {
+  updateTariff('journalier');
 }, {
   scheduled: true,
   timezone: "Africa/Tunis"
