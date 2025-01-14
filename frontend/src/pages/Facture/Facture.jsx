@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 import "./ListFact.scss";
-import Sidebar from "../../components/sidebar/Sidebar"
-import Navbar from "../../components/navbar/Navbar"
+import Sidebar from "../../components/sidebar/Sidebar";
+import Navbar from "../../components/navbar/Navbar";
 
-import Datachauf from "../../components/datachauf/Datachauf"
+import DataFact from "../../components/dataFacture/dataFacture";
 const ListFacture = () => {
   return (
     <div className="list">
@@ -17,3 +17,4 @@ const ListFacture = () => {
 };
 
 export default ListFacture;
+
