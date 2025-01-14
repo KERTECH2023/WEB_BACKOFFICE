@@ -9,7 +9,6 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { Card, CardContent } from "@/components/ui/card";
 
 const Datachauf = () => {
   const [data, setData] = useState([]);
@@ -191,14 +190,23 @@ const Datachauf = () => {
         </div>
       </div>
 
-      <Card className="mb-4">
-        <CardContent className="flex items-center justify-between p-4">
-          <div className="text-lg font-semibold">Solde Total:</div>
-          <div className="text-xl font-bold">
-            {totalBalance !== null ? `${totalBalance.toFixed(2)} DT` : 'Chargement...'}
-          </div>
-        </CardContent>
-      </Card>
+      <div 
+        style={{
+          padding: '16px',
+          marginBottom: '16px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}
+      >
+        <span style={{ fontSize: '16px', fontWeight: 600 }}>Solde Total:</span>
+        <span style={{ fontSize: '18px', fontWeight: 700 }}>
+          {totalBalance !== null ? `${totalBalance.toFixed(2)} DT` : 'Chargement...'}
+        </span>
+      </div>
 
       <div className="search">
         <input
