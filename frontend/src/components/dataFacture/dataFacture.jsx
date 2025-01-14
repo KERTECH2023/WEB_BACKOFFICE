@@ -9,6 +9,7 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Datachauf = () => {
   const [data, setData] = useState([]);
@@ -16,6 +17,7 @@ const Datachauf = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
+  const [totalBalance, setTotalBalance] = useState(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,14 +30,27 @@ const Datachauf = () => {
 
   useEffect(() => {
     getChauffeurs();
+    getTotalBalance();
   }, []);
+
+  const getTotalBalance = async () => {
+    try {
+      const response = await axios.get("https://api.backofficegc.com/Solde/soldetotal");
+      if (response.status === 200) {
+        setTotalBalance(response.data.soldeTotal);
+      }
+    } catch (error) {
+      console.error("Error fetching total balance:", error);
+      toast.error("Erreur lors du chargement du solde total");
+    }
+  };
 
   const getDriverBalance = async (firebaseUID) => {
     try {
-      const response = await axios.get(https://api.backofficegc.com/Solde/solde/${firebaseUID});
+      const response = await axios.get(`https://api.backofficegc.com/Solde/solde/${firebaseUID}`);
       return response.data;
     } catch (error) {
-      console.error(Error fetching balance for driver ${firebaseUID}:, error);
+      console.error(`Error fetching balance for driver ${firebaseUID}:`, error);
       return null;
     }
   };
@@ -74,7 +89,7 @@ const Datachauf = () => {
         searchParams.delete(key);
       }
     });
-    navigate(${location.pathname}?${searchParams.toString()}, { replace: true });
+    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
 
   useEffect(() => {
@@ -99,7 +114,6 @@ const Datachauf = () => {
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if (response.status === 200) {
         const validatedDrivers = response.data.filter(driver => driver.Cstatus === "Validé");
-        // Enrichir les données avec les soldes
         const driversWithBalance = await enrichDataWithBalance(validatedDrivers);
         setData(driversWithBalance);
         setFilteredData(driversWithBalance);
@@ -115,6 +129,7 @@ const Datachauf = () => {
 
   const handleRefresh = () => {
     getChauffeurs();
+    getTotalBalance();
   };
 
   const columns = [
@@ -128,7 +143,7 @@ const Datachauf = () => {
       width: 130,
       valueFormatter: (params) => {
         if (params.value === 'N/A') return 'N/A';
-        return ${params.value.toFixed(2)} DT;
+        return `${params.value.toFixed(2)} DT`;
       },
     },
     {
@@ -138,12 +153,12 @@ const Datachauf = () => {
       renderCell: (params) => {
         return (
           <div className="cellAction">
-            <Link to={/cosnultC/${params.row.id}} style={{ textDecoration: "none", color: "inherit" }}>
+            <Link to={`/cosnultC/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
               <div className="viewButton">Consulté</div>
             </Link>
             <div>
               {(role === "Admin" || role === "Agentad") && (
-                <Link to={/updateCh/${params.row.id}} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link to={`/updateCh/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div className="upButton">Mettre a jour</div>
                 </Link>
               )}
@@ -175,6 +190,15 @@ const Datachauf = () => {
           </Button>
         </div>
       </div>
+
+      <Card className="mb-4">
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="text-lg font-semibold">Solde Total:</div>
+          <div className="text-xl font-bold">
+            {totalBalance !== null ? `${totalBalance.toFixed(2)} DT` : 'Chargement...'}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="search">
         <input
