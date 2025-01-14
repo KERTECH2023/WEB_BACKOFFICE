@@ -1,8 +1,8 @@
 const express = require("express");
-const syncSoldeDat = require("../controllers/SoldeController");
+const syncSoldeData = require("../controllers/SoldeController");
 const router = express.Router();
 
-router.get("/solde", syncSoldeDat.syncSoldeData);
+router.get("/solde", syncSoldeData.getSoldeById);
 
 module.exports = router;
 
