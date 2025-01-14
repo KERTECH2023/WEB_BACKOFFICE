@@ -4,7 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import "./dataFacture.css";
+import "./datachauf.scss";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
@@ -16,6 +16,7 @@ const Datachauf = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
+  const [totalSolde, setTotalSolde] = useState(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,7 +29,20 @@ const Datachauf = () => {
 
   useEffect(() => {
     getChauffeurs();
+    getTotalSolde();
   }, []);
+
+  const getTotalSolde = async () => {
+    try {
+      const response = await axios.get('https://api.backofficegc.com/Solde/soldetotal');
+      if (response.data) {
+        setTotalSolde(response.data.soldeTotal);
+      }
+    } catch (error) {
+      console.error('Error fetching total balance:', error);
+      toast.error('Erreur lors du chargement du solde total');
+    }
+  };
 
   const getDriverBalance = async (firebaseUID) => {
     try {
@@ -99,7 +113,6 @@ const Datachauf = () => {
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if (response.status === 200) {
         const validatedDrivers = response.data.filter(driver => driver.Cstatus === "Validé");
-        // Enrichir les données avec les soldes
         const driversWithBalance = await enrichDataWithBalance(validatedDrivers);
         setData(driversWithBalance);
         setFilteredData(driversWithBalance);
@@ -115,6 +128,7 @@ const Datachauf = () => {
 
   const handleRefresh = () => {
     getChauffeurs();
+    getTotalSolde();
   };
 
   const columns = [
@@ -128,7 +142,7 @@ const Datachauf = () => {
       width: 130,
       valueFormatter: (params) => {
         if (params.value === 'N/A') return 'N/A';
-        return `${params.value.toFixed(2)} DT`;
+        return `${Number(params.value).toFixed(2)} DT`;
       },
     },
     {
@@ -164,6 +178,20 @@ const Datachauf = () => {
 
   return (
     <div className="datatable">
+      <div style={{
+        backgroundColor: '#ffffff',
+        padding: '15px',
+        marginBottom: '20px',
+        textAlign: 'center',
+        borderRadius: '4px',
+        border: '1px solid #e0e0e0'
+      }}>
+        <div style={{ fontSize: '18px', marginBottom: '5px' }}>Solde Total</div>
+        <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+            {totalSolde !== null ? `${totalSolde} DT` : 'Chargement...'}
+        </div>
+      </div>
+
       <div className="datatableTitle">
         Liste Des Chauffeurs Validés
         <div>
