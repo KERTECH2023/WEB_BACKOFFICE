@@ -16,7 +16,6 @@ const Datachauf = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const [totalBalance, setTotalBalance] = useState(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,20 +28,7 @@ const Datachauf = () => {
 
   useEffect(() => {
     getChauffeurs();
-    getTotalBalance();
   }, []);
-
-  const getTotalBalance = async () => {
-    try {
-      const response = await axios.get("https://api.backofficegc.com/Solde/soldetotal");
-      if (response.status === 200) {
-        setTotalBalance(response.data.soldeTotal);
-      }
-    } catch (error) {
-      console.error("Error fetching total balance:", error);
-      toast.error("Erreur lors du chargement du solde total");
-    }
-  };
 
   const getDriverBalance = async (firebaseUID) => {
     try {
@@ -113,6 +99,7 @@ const Datachauf = () => {
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if (response.status === 200) {
         const validatedDrivers = response.data.filter(driver => driver.Cstatus === "Validé");
+        // Enrichir les données avec les soldes
         const driversWithBalance = await enrichDataWithBalance(validatedDrivers);
         setData(driversWithBalance);
         setFilteredData(driversWithBalance);
@@ -128,7 +115,6 @@ const Datachauf = () => {
 
   const handleRefresh = () => {
     getChauffeurs();
-    getTotalBalance();
   };
 
   const columns = [
@@ -188,24 +174,6 @@ const Datachauf = () => {
             Rafraîchir
           </Button>
         </div>
-      </div>
-
-      <div 
-        style={{
-          padding: '16px',
-          marginBottom: '16px',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }}
-      >
-        <span style={{ fontSize: '16px', fontWeight: 600 }}>Solde Total:</span>
-        <span style={{ fontSize: '18px', fontWeight: 700 }}>
-          {totalBalance !== null ? `${totalBalance.toFixed(2)} DT` : 'Chargement...'}
-        </span>
       </div>
 
       <div className="search">
