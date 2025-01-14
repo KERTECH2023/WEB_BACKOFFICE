@@ -49,18 +49,21 @@ const Datachauf = () => {
   };
 
   useEffect(() => {
-    const filtered = data.filter((row) => {
+    // Première étape : filtrer seulement les chauffeurs validés
+    const validatedDrivers = data.filter(driver => driver.Cstatus === "Validé");
+    
+    // Deuxième étape : appliquer le filtre de recherche sur les chauffeurs validés
+    const searchFiltered = validatedDrivers.filter((row) => {
       const searchTerm = search.toLowerCase();
       return (
         (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
         (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
         (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
-        (row.address && row.address.toLowerCase().includes(searchTerm)) ||
-        (row.Cstatus && row.Cstatus.toLowerCase().includes(searchTerm))
+        (row.address && row.address.toLowerCase().includes(searchTerm))
       );
     });
 
-    setFilteredData(filtered);
+    setFilteredData(searchFiltered);
   }, [search, data]);
 
   const getChauffeurs = async () => {
@@ -69,8 +72,10 @@ const Datachauf = () => {
       setError(null);
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if (response.status === 200) {
-        setData(response.data);
-        setFilteredData(response.data);
+        // Filtrer directement les chauffeurs validés lors du chargement initial
+        const validatedDrivers = response.data.filter(driver => driver.Cstatus === "Validé");
+        setData(validatedDrivers);
+        setFilteredData(validatedDrivers);
       }
     } catch (error) {
       console.error("Error fetching chauffeurs:", error);
@@ -90,16 +95,6 @@ const Datachauf = () => {
     { field: "Prenom", headerName: "Prénom", width: 150 },
     { field: "phone", headerName: "Téléphone", width: 130 },
     { field: "address", headerName: "Adresse", width: 200 },
-    { 
-      field: "Cstatus", 
-      headerName: "Statut", 
-      width: 130,
-      renderCell: (params) => (
-        <div className={`status ${params.value ? params.value.toLowerCase() : ''}`}>
-          {params.value}
-        </div>
-      ),
-    },
     {
       field: "action",
       headerName: "Action",
@@ -134,7 +129,7 @@ const Datachauf = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Listes Des Chauffeurs
+        Liste Des Chauffeurs Validés
         <div>
           <Link to="/Chauffeur/new" className="link">
             Ajouter
