@@ -1,6 +1,6 @@
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
-
+const Decimal = require("decimal.js");
 
 
 const getSoldeById = async (req, res) => {
@@ -47,18 +47,19 @@ const getTotalSolde = async (req, res) => {
     }
 
     const driversData = snapshot.val();
-    let totalSolde = 0;
+    let totalSolde = new Decimal(0);
 
-    // Calcul du solde total
+    // Calcul précis du solde total
     for (const driverId in driversData) {
       const driver = driversData[driverId];
-      if (driver.solde !== undefined && typeof driver.solde === "number") {
-        totalSolde += driver.solde;
+      if (driver.solde !== undefined && !isNaN(driver.solde)) {
+        // Ajouter le solde avec précision
+        totalSolde = totalSolde.plus(new Decimal(driver.solde));
       }
     }
 
     return res.status(200).json({
-      totalSolde: totalSolde,
+      totalSolde: totalSolde.toFixed(2), // Formatage du résultat à deux décimales
     });
   } catch (error) {
     console.error("Erreur lors du calcul du solde total :", error);
