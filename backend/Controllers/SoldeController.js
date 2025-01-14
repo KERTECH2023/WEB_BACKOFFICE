@@ -1,6 +1,6 @@
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
-const Decimal = require("decimal.js");
+
 
 
 const getSoldeById = async (req, res) => {
@@ -47,16 +47,19 @@ const getTotalSolde = async (req, res) => {
     }
 
     const driversData = snapshot.val();
-    let totalSolde = new Decimal(0);
+    let totalSoldeCents = 0;
 
-    // Calcul précis du solde total
+    // Calcul précis du solde total en centimes
     for (const driverId in driversData) {
       const driver = driversData[driverId];
       if (driver.solde !== undefined && !isNaN(driver.solde)) {
-        // Ajouter le solde avec précision
-        totalSolde = totalSolde.plus(new Decimal(driver.solde));
+        // Convertir en centimes pour éviter les erreurs de flottants
+        totalSoldeCents += Math.round(driver.solde * 100);
       }
     }
+
+    // Retourner le solde total en euros (ou autres unités)
+    const totalSolde = totalSoldeCents / 100;
 
     return res.status(200).json({
       totalSolde: totalSolde.toFixed(2), // Formatage du résultat à deux décimales
