@@ -169,7 +169,7 @@ const Sidebar = () => {
           <Link to="/ConsultInvoices" style={{ textDecoration: "none" }}>
           <li>
             <CreditScoreIcon className="icon" />
-            <span>Facturation</span>
+            <span>Solde</span>
           </li>
           </Link>
           
