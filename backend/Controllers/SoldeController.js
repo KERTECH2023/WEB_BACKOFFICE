@@ -5,13 +5,13 @@ const realtimeDB = firestoreModule.firestoreApp.database();
 
 const getSoldeById = async (req, res) => {
   try {
-    const driverId = req.params.driverId; // ID du chauffeur depuis les paramètres de la requête
+    const driverId = req.params.driverId; // ID of the driver from the request parameters
     
     if (!driverId) {
       return res.status(400).json({ error: "ID du chauffeur requis" });
     }
 
-    // Récupération des données du chauffeur depuis Firebase
+    // Fetching driver data from Firebase Realtime Database
     const driverRef = realtimeDB.ref(`Drivers/${driverId}`);
     const snapshot = await driverRef.once("value");
 
@@ -21,7 +21,7 @@ const getSoldeById = async (req, res) => {
 
     const driverData = snapshot.val();
 
-    // Extraction et retour du solde
+    // Extract and return the solde
     if (driverData.solde === undefined) {
       return res.status(404).json({ error: "Solde non trouvé pour ce chauffeur" });
     }
