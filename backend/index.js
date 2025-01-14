@@ -22,7 +22,7 @@ const tar = require("./routes/TarifRoute");
 const tarj = require("./routes/TarifRouteJour.js");
 const tart = require("./routes/tarifsRoutes.js");
 const tarn = require("./routes/TarifRouteNuit.js");
-const Solde = require("./routes/SoldeRoute.js");
+// const Solde = require("./routes/SoldeRoute.js");
 const con = require("./routes/ContactRoute");
 const rides = require("./routes/RideRoute");
 const factureRoute = require("./routes/factureRoutes.js")
@@ -82,7 +82,7 @@ app.use("/Tar", tar);
 app.use("/Tarj", tarj);
 app.use("/Tart", tart);
 app.use("/Tarn", tarn);
-app.use("/Solde", Solde);
+// app.use("/Solde", Solde);
 app.use("/Con", con);
 app.use("/facture",factureRoute);
 
