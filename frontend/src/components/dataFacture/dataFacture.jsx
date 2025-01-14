@@ -9,45 +9,31 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
-const DataFact = () => {
+const Datachauf = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
+  
   const navigate = useNavigate();
   const location = useLocation();
+  const role = window.localStorage.getItem("userRole");
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSearch(params.get("search") || "");
-    setSelectedMonth(params.get("month") || new Date().getMonth() + 1);
-    setSelectedYear(params.get("year") || new Date().getFullYear());
   }, [location]);
 
   useEffect(() => {
-    generateAndGetFactures();
-  }, [selectedMonth, selectedYear]);
+    getChauffeurs();
+  }, []);
 
   const handleSearchTerm = (e) => {
     const value = e.target.value.toLowerCase();
     setSearch(value);
     updateURL({ search: value });
-  };
-
-  const handleMonthFilter = (e) => {
-    setSelectedMonth(e.target.value);
-    updateURL({ month: e.target.value });
-  };
-
-  const handleYearFilter = (e) => {
-    setSelectedYear(e.target.value);
-    updateURL({ year: e.target.value });
   };
 
   const updateURL = (params) => {
@@ -66,38 +52,29 @@ const DataFact = () => {
     const filtered = data.filter((row) => {
       const searchTerm = search.toLowerCase();
       return (
-        (row.nomChauffeur && row.nomChauffeur.toLowerCase().includes(searchTerm)) ||
-        (row.numero && row.numero.toLowerCase().includes(searchTerm))
+        (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
+        (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
+        (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
+        (row.address && row.address.toLowerCase().includes(searchTerm)) ||
+        (row.Cstatus && row.Cstatus.toLowerCase().includes(searchTerm))
       );
     });
 
-    console.log("Filtered data:", filtered);
     setFilteredData(filtered);
   }, [search, data]);
 
-  const generateAndGetFactures = async () => {
+  const getChauffeurs = async () => {
     try {
       setLoading(true);
       setError(null);
-
-     // New API call to firebaseToMongoDB
-      await axios.post(`${process.env.REACT_APP_BASE_URL}/Ride/firebaseToMongoDB`, {});
-      
-      // First, generate all invoices
-      await axios.get(`${process.env.REACT_APP_BASE_URL}/facture/generate/all`);
-      
-      // Then fetch the invoices
-      console.log(`Fetching factures for month ${selectedMonth} and year ${selectedYear}...`);
-      const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/facture/factures/filter?mois=${selectedMonth}&annee=${selectedYear}`);
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if (response.status === 200) {
-        const factures = response.data;
-        console.log("Factures fetched:", factures);
-        setData(factures);
-        setFilteredData(factures);
+        setData(response.data);
+        setFilteredData(response.data);
       }
     } catch (error) {
-      console.error("Error with factures:", error);
-      setError("Une erreur est survenue lors de la gestion des factures.");
+      console.error("Error fetching chauffeurs:", error);
+      setError("Une erreur est survenue lors du chargement des chauffeurs.");
       toast.error("Erreur lors du chargement des données");
     } finally {
       setLoading(false);
@@ -105,75 +82,17 @@ const DataFact = () => {
   };
 
   const handleRefresh = () => {
-    generateAndGetFactures();
-  };
-
-  const handleExport = () => {
-    toast.info("Fonctionnalité d'exportation à implémenter");
-  };
-
-  const formatDate = (date) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('fr-FR');
+    getChauffeurs();
   };
 
   const columns = [
-    { field: "numero", headerName: "Numéro", width: 150 },
-    {
-      field: "nomChauffeur", 
-      headerName: "Nom du chauffeur", 
-      width: 200,
-      valueGetter: (params) => `${params.row.nomChauffeur || ''}`,
-    },
+    { field: "Nom", headerName: "Nom", width: 150 },
+    { field: "Prenom", headerName: "Prénom", width: 150 },
+    { field: "phone", headerName: "Téléphone", width: 130 },
+    { field: "address", headerName: "Adresse", width: 200 },
     { 
-      field: "periode", 
-      headerName: "Période", 
-      width: 150,
-      valueGetter: (params) => {
-        const mois = new Date(0, params.row.mois - 1).toLocaleString('fr-FR', { month: 'long' });
-        return `${mois} ${params.row.annee}`;
-      }
-    },
-    { field: "nbTrajet", headerName: "Nombre de trajets", width: 150 },
-    { field: "annulation", headerName: "Nombre de annulation", width: 150 ,
-      valueFormatter: (params) => {
-        if (params.value == null) {
-          return 0;
-        }
-        return `${params.value}`;
-      },
-    },
-    {
-      field: "montantTTC",
-      headerName: "Montant TTC",
-      width: 130,
-      valueFormatter: (params) => {
-        if (params.value == null) {
-          return '';
-        }
-        return `${params.value.toFixed(2)} DT`;
-      },
-    },
-    {
-      field: "fraisDeService",
-      headerName: "Frais de service",
-      width: 130,
-      valueFormatter: (params) => {
-        if (params.value == null) {
-          return '';
-        }
-        return `${params.value.toFixed(2)} DT`;
-      },
-    },
-    {
-      field: "dateEcheance",
-      headerName: "Date d'échéance",
-      width: 130,
-      valueGetter: (params) => formatDate(params.row.dateEcheance),
-    },
-    {
-      field: "status",
-      headerName: "Status",
+      field: "Cstatus", 
+      headerName: "Statut", 
       width: 130,
       renderCell: (params) => (
         <div className={`status ${params.value ? params.value.toLowerCase() : ''}`}>
@@ -186,19 +105,18 @@ const DataFact = () => {
       headerName: "Action",
       width: 300,
       renderCell: (params) => {
-        const role = window.localStorage.getItem("userRole");
         return (
           <div className="cellAction">
-            {(role === "Admin" || role === "Agentad") && (
-              <>
-                <Link
-                  to={`/consultF/${params.row._id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div className="viewButton">Consulter</div>
+            <Link to={`/cosnultC/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+              <div className="viewButton">Consulté</div>
+            </Link>
+            <div>
+              {(role === "Admin" || role === "Agentad") && (
+                <Link to={`/updateCh/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  <div className="upButton">Mettre a jour</div>
                 </Link>
-              </>
-            )}
+              )}
+            </div>
           </div>
         );
       },
@@ -216,52 +134,26 @@ const DataFact = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Liste des Factures
+        Listes Des Chauffeurs
         <div>
-          <Button startIcon={<RefreshIcon />} onClick={handleRefresh}>
+          <Link to="/Chauffeur/new" className="link">
+            Ajouter
+          </Link>
+          <Button startIcon={<RefreshIcon />} onClick={handleRefresh} style={{ marginLeft: '10px' }}>
             Rafraîchir
-          </Button>
-          <Button startIcon={<FileDownloadIcon />} onClick={handleExport}>
-            Exporter
           </Button>
         </div>
       </div>
-      <div className="filters">
-        <div className="search">
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            onChange={handleSearchTerm}
-            value={search}
-            className="find"
-          />
-          <SearchOutlinedIcon />
-        </div>
-        <select
-          onChange={handleMonthFilter}
-          value={selectedMonth}
-          className="filterSelect"
-        >
-          {[...Array(12)].map((_, i) => (
-            <option key={i} value={i + 1}>
-              {new Date(0, i).toLocaleString('default', { month: 'long' })}
-            </option>
-          ))}
-        </select>
-        <select
-          onChange={handleYearFilter}
-          value={selectedYear}
-          className="filterSelect"
-        >
-          {[...Array(5)].map((_, i) => {
-            const year = new Date().getFullYear() + i;
-            return (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            );
-          })}
-        </select>
+
+      <div className="search">
+        <input
+          type="text"
+          placeholder="Rechercher..."
+          onChange={handleSearchTerm}
+          value={search}
+          className="find"
+        />
+        <SearchOutlinedIcon />
       </div>
 
       <DataGrid
@@ -271,11 +163,11 @@ const DataFact = () => {
         pageSize={9}
         rowsPerPageOptions={[9]}
         checkboxSelection
-        getRowId={(row) => row._id}
+        getRowId={(row) => row.id}
       />
       <ToastContainer />
     </div>
   );
 };
 
-export default DataFact;
+export default Datachauf;
