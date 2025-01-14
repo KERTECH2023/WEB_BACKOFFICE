@@ -1,5 +1,5 @@
 import React from 'react';
-import "./listchauf.scss"
+import "./ListFact.scss";
 import Sidebar from "../../components/sidebar/Sidebar"
 import Navbar from "../../components/navbar/Navbar"
 
