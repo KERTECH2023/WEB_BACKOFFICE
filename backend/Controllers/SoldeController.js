@@ -36,7 +36,37 @@ const getSoldeById = async (req, res) => {
   }
 };
 
-module.exports = {
-  getSoldeById,
+const getTotalSolde = async (req, res) => {
+  try {
+    // Référence à la collection des chauffeurs
+    const driversRef = realtimeDB.ref("Drivers");
+    const snapshot = await driversRef.once("value");
+
+    if (!snapshot.exists()) {
+      return res.status(404).json({ error: "Aucun chauffeur trouvé" });
+    }
+
+    const driversData = snapshot.val();
+    let totalSolde = 0;
+
+    // Calcul du solde total
+    for (const driverId in driversData) {
+      const driver = driversData[driverId];
+      if (driver.solde !== undefined && typeof driver.solde === "number") {
+        totalSolde += driver.solde;
+      }
+    }
+
+    return res.status(200).json({
+      totalSolde: totalSolde,
+    });
+  } catch (error) {
+    console.error("Erreur lors du calcul du solde total :", error);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
 };
 
+module.exports = {
+  getSoldeById,
+  getTotalSolde,
+};
