@@ -35,8 +35,10 @@ const Datachauf = () => {
   const getTotalSolde = async () => {
     try {
       const response = await axios.get('https://api.backofficegc.com/Solde/soldetotal');
-      if (response.data) {
-        setTotalSolde(response.data.soldeTotal);
+      if (response.data && response.data.totalSolde !== undefined) {
+        setTotalSolde(response.data.totalSolde); // Correction ici
+      } else {
+        setTotalSolde('N/A');
       }
     } catch (error) {
       console.error('Error fetching total balance:', error);
@@ -158,7 +160,7 @@ const Datachauf = () => {
             <div>
               {(role === "Admin" || role === "Agentad") && (
                 <Link to={`/updateCh/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                  <div className="upButton">Mettre a jour</div>
+                  <div className="upButton">Mettre à jour</div>
                 </Link>
               )}
             </div>
@@ -188,7 +190,7 @@ const Datachauf = () => {
       }}>
         <div style={{ fontSize: '18px', marginBottom: '5px' }}>Solde Total</div>
         <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-            {totalSolde !== null ? `${totalSolde} DT` : 'Chargement...'}
+          {totalSolde !== null ? `${totalSolde} DT` : 'Chargement...'}
         </div>
       </div>
 
