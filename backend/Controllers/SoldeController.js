@@ -49,5 +49,5 @@ const syncSoldeData = async (req, res) => {
   }
 };
 
-module.exports = { syncSoldeData };
+
 
