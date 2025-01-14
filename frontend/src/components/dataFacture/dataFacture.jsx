@@ -4,7 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import "./dataFacture.css";
+import "./datachauf.scss";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
@@ -30,6 +30,35 @@ const Datachauf = () => {
     getChauffeurs();
   }, []);
 
+  const getDriverBalance = async (firebaseUID) => {
+    try {
+      const response = await axios.get(`https://api.backofficegc.com/Solde/solde/${firebaseUID}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching balance for driver ${firebaseUID}:`, error);
+      return null;
+    }
+  };
+
+  const enrichDataWithBalance = async (drivers) => {
+    const enrichedDrivers = await Promise.all(
+      drivers.map(async (driver) => {
+        if (driver.firebaseUID) {
+          const balanceData = await getDriverBalance(driver.firebaseUID);
+          return {
+            ...driver,
+            solde: balanceData ? balanceData.solde : 'N/A'
+          };
+        }
+        return {
+          ...driver,
+          solde: 'N/A'
+        };
+      })
+    );
+    return enrichedDrivers;
+  };
+
   const handleSearchTerm = (e) => {
     const value = e.target.value.toLowerCase();
     setSearch(value);
@@ -49,10 +78,7 @@ const Datachauf = () => {
   };
 
   useEffect(() => {
-    // Première étape : filtrer seulement les chauffeurs validés
     const validatedDrivers = data.filter(driver => driver.Cstatus === "Validé");
-    
-    // Deuxième étape : appliquer le filtre de recherche sur les chauffeurs validés
     const searchFiltered = validatedDrivers.filter((row) => {
       const searchTerm = search.toLowerCase();
       return (
@@ -72,10 +98,11 @@ const Datachauf = () => {
       setError(null);
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if (response.status === 200) {
-        // Filtrer directement les chauffeurs validés lors du chargement initial
         const validatedDrivers = response.data.filter(driver => driver.Cstatus === "Validé");
-        setData(validatedDrivers);
-        setFilteredData(validatedDrivers);
+        // Enrichir les données avec les soldes
+        const driversWithBalance = await enrichDataWithBalance(validatedDrivers);
+        setData(driversWithBalance);
+        setFilteredData(driversWithBalance);
       }
     } catch (error) {
       console.error("Error fetching chauffeurs:", error);
@@ -95,6 +122,15 @@ const Datachauf = () => {
     { field: "Prenom", headerName: "Prénom", width: 150 },
     { field: "phone", headerName: "Téléphone", width: 130 },
     { field: "address", headerName: "Adresse", width: 200 },
+    {
+      field: "solde",
+      headerName: "Solde",
+      width: 130,
+      valueFormatter: (params) => {
+        if (params.value === 'N/A') return 'N/A';
+        return `${params.value.toFixed(2)} DT`;
+      },
+    },
     {
       field: "action",
       headerName: "Action",
