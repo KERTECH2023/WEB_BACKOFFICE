@@ -1,5 +1,5 @@
 const express = require("express");
-const syncSoldeData = require("../controllers/SoldeController");
+const syncSoldeData = require("../Controllers/SoldeController");
 const router = express.Router();
 
 router.get("/solde", syncSoldeData.getSoldeById);
