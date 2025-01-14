@@ -107,6 +107,22 @@ cron.schedule('00 21 * * *', () => {
   timezone: "Africa/Tunis"
 });
 
+
+// Planification des tâches cron
+cron.schedule('30 07 * * *', () => {
+  updateTariff('tempfort');
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis"
+});
+
+cron.schedule('00 09 * * *', () => {
+  updateTariff('journalier');
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis"
+});
+
 // Planification des tâches cron
 cron.schedule('00 11 * * *', () => {
   updateTariff('tempfort');
