@@ -1,53 +1,42 @@
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
-const mongoose = require("mongoose");
 
-// Définir le schéma et le modèle MongoDB pour le solde
-const soldeSchema = new mongoose.Schema({
-  driverId: { type: String, required: true, unique: true },
-  solde: { type: Number, required: true },
-});
 
-const SoldeModel = mongoose.model("Solde", soldeSchema);
 
-// Fonction pour récupérer les données depuis Firebase et les sauvegarder dans MongoDB
-const syncSoldeData = async (req, res) => {
+const getSoldeById = async (req, res) => {
   try {
-    // Récupérer les données de la table Drivers dans Firebase
-    const driversSnapshot = await realtimeDB.ref("Drivers").once("value");
-
-    if (!driversSnapshot.exists()) {
-      return res.status(404).json({ message: "Aucune donnée trouvée dans Drivers." });
+    const driverId = req.params.driverId; // ID du chauffeur depuis les paramètres de la requête
+    
+    if (!driverId) {
+      return res.status(400).json({ error: "ID du chauffeur requis" });
     }
 
-    const driversData = driversSnapshot.val();
-    const soldeData = [];
+    // Récupération des données du chauffeur depuis Firebase
+    const driverRef = realtimeDB.ref(`Drivers/${driverId}`);
+    const snapshot = await driverRef.once("value");
 
-    // Parcourir les données des chauffeurs
-    for (const driverId in driversData) {
-      if (driversData.hasOwnProperty(driverId)) {
-        const { solde } = driversData[driverId];
-        if (typeof solde === "number") {
-          soldeData.push({ driverId, solde });
-        }
-      }
+    if (!snapshot.exists()) {
+      return res.status(404).json({ error: "Chauffeur non trouvé" });
     }
 
-    // Sauvegarder ou mettre à jour les données dans MongoDB
-    for (const data of soldeData) {
-      await SoldeModel.updateOne(
-        { driverId: data.driverId },
-        { $set: { solde: data.solde } },
-        { upsert: true }
-      );
+    const driverData = snapshot.val();
+
+    // Extraction et retour du solde
+    if (driverData.solde === undefined) {
+      return res.status(404).json({ error: "Solde non trouvé pour ce chauffeur" });
     }
 
-    return res.status(200).json({ message: "Synchronisation réussie.", data: soldeData });
+    return res.status(200).json({
+      driverId: driverId,
+      solde: driverData.solde,
+    });
   } catch (error) {
-    console.error("Erreur lors de la synchronisation :", error);
-    return res.status(500).json({ message: "Erreur lors de la synchronisation des données." });
+    console.error("Erreur lors de la récupération du solde :", error);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-
+module.exports = {
+  getSoldeById,
+};
 
