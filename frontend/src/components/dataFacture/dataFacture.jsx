@@ -25,11 +25,14 @@ const BalanceActions = ({ row, role, onUpdate }) => {
 
   return (
     <div className="cellAction">
-      <Link to={`/cosnultC/${row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+      <Link
+        to={`/consultC/${row.id}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
         <div className="viewButton">Consulté</div>
       </Link>
-      {(role === "Admin" || role === "Agentad") && (
-        isEditing ? (
+      {(role === "Admin" || role === "Agentad") &&
+        (isEditing ? (
           <>
             <input
               type="number"
@@ -45,8 +48,7 @@ const BalanceActions = ({ row, role, onUpdate }) => {
           <Button onClick={handleUpdateClick} variant="outlined" size="small">
             Modifier Solde
           </Button>
-        )
-      )}
+        ))}
     </div>
   );
 };
@@ -75,17 +77,21 @@ const Datachauf = () => {
 
   const getTotalSolde = async () => {
     try {
-      const response = await axios.get('https://api.backofficegc.com/Solde/soldetotal');
-      setTotalSolde(response.data?.totalSolde || 'N/A');
+      const response = await axios.get(
+        "https://api.backofficegc.com/Solde/soldetotal"
+      );
+      setTotalSolde(response.data?.totalSolde || "N/A");
     } catch (error) {
-      console.error('Error fetching total balance:', error);
-      toast.error('Erreur lors du chargement du solde total');
+      console.error("Error fetching total balance:", error);
+      toast.error("Erreur lors du chargement du solde total");
     }
   };
 
   const getDriverBalance = async (firebaseUID) => {
     try {
-      const response = await axios.get(`https://api.backofficegc.com/Solde/solde/${firebaseUID}`);
+      const response = await axios.get(
+        `https://api.backofficegc.com/Solde/solde/${firebaseUID}`
+      );
       return response.data;
     } catch (error) {
       console.error(`Error fetching balance for driver ${firebaseUID}:`, error);
@@ -100,12 +106,12 @@ const Datachauf = () => {
           const balanceData = await getDriverBalance(driver.firebaseUID);
           return {
             ...driver,
-            solde: balanceData ? balanceData.solde : 'N/A',
+            solde: balanceData ? balanceData.solde : "N/A",
           };
         }
         return {
           ...driver,
-          solde: 'N/A',
+          solde: "N/A",
         };
       })
     );
@@ -127,16 +133,22 @@ const Datachauf = () => {
         searchParams.delete(key);
       }
     });
-    navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
+    navigate(`${location.pathname}?${searchParams.toString()}`, {
+      replace: true,
+    });
   };
 
   const getChauffeurs = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
+      const response = await axios.get(
+        process.env.REACT_APP_BASE_URL + "/Chauff/affiche"
+      );
       if (response.status === 200) {
-        const validatedDrivers = response.data.filter(driver => driver.Cstatus === "Validé");
+        const validatedDrivers = response.data.filter(
+          (driver) => driver.Cstatus === "Validé"
+        );
         const driversWithBalance = await enrichDataWithBalance(validatedDrivers);
         setData(driversWithBalance);
         setFilteredData(driversWithBalance);
@@ -152,15 +164,23 @@ const Datachauf = () => {
 
   const updateDriverBalance = async (firebaseUID, newBalance) => {
     try {
-      await axios.put(`https://api.backofficegc.com/Solde/update/${firebaseUID}`, {
-        solde: parseFloat(newBalance),
-      });
+      await axios.put(
+        `https://api.backofficegc.com/Solde/update/${firebaseUID}`,
+        {
+          solde: parseFloat(newBalance),
+        }
+      );
       toast.success("Solde mis à jour avec succès !");
       getChauffeurs();
     } catch (error) {
       console.error(`Error updating balance for driver ${firebaseUID}:`, error);
       toast.error("Erreur lors de la mise à jour du solde");
     }
+  };
+
+  const handleRefresh = () => {
+    getChauffeurs();
+    getTotalSolde();
   };
 
   const columns = [
@@ -173,7 +193,7 @@ const Datachauf = () => {
       headerName: "Solde",
       width: 130,
       valueFormatter: (params) => {
-        if (params.value === 'N/A') return 'N/A';
+        if (params.value === "N/A") return "N/A";
         return `${Number(params.value).toFixed(2)} DT`;
       },
     },
@@ -191,30 +211,27 @@ const Datachauf = () => {
     },
   ];
 
-useEffect(() => {
-  const validatedDrivers = data.filter((driver) => driver.Cstatus === "Validé");
-  
-  // Filtrage par recherche
-  const searchFiltered = validatedDrivers.filter((row) => {
-    const searchTerm = search.toLowerCase();
-    return (
-      (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
-      (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
-      (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
-      (row.address && row.address.toLowerCase().includes(searchTerm))
-    );
-  });
+  useEffect(() => {
+    const validatedDrivers = data.filter((driver) => driver.Cstatus === "Validé");
+    const searchFiltered = validatedDrivers.filter((row) => {
+      const searchTerm = search.toLowerCase();
+      return (
+        (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
+        (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
+        (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
+        (row.address && row.address.toLowerCase().includes(searchTerm))
+      );
+    });
 
-  // Tri par solde décroissant
-  const sortedData = searchFiltered.sort((a, b) => {
-    const soldeA = parseFloat(a.solde) || 0;
-    const soldeB = parseFloat(b.solde) || 0;
-    return soldeB - soldeA; // Tri décroissant
-  });
+    // Tri par solde décroissant
+    const sortedData = searchFiltered.sort((a, b) => {
+      const soldeA = parseFloat(a.solde) || 0;
+      const soldeB = parseFloat(b.solde) || 0;
+      return soldeB - soldeA;
+    });
 
-  setFilteredData(sortedData);
-}, [search, data]);
-
+    setFilteredData(sortedData);
+  }, [search, data]);
 
   if (loading) {
     return <CircularProgress />;
@@ -226,17 +243,19 @@ useEffect(() => {
 
   return (
     <div className="datatable">
-      <div style={{
-        backgroundColor: '#ffffff',
-        padding: '15px',
-        marginBottom: '20px',
-        textAlign: 'center',
-        borderRadius: '4px',
-        border: '1px solid #e0e0e0'
-      }}>
-        <div style={{ fontSize: '18px', marginBottom: '5px' }}>Solde Total</div>
-        <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-          {totalSolde !== null ? `${totalSolde} DT` : 'Chargement...'}
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          padding: "15px",
+          marginBottom: "20px",
+          textAlign: "center",
+          borderRadius: "4px",
+          border: "1px solid #e0e0e0",
+        }}
+      >
+        <div style={{ fontSize: "18px", marginBottom: "5px" }}>Solde Total</div>
+        <div style={{ fontSize: "24px", fontWeight: "bold" }}>
+          {totalSolde !== null ? `${totalSolde} DT` : "Chargement..."}
         </div>
       </div>
 
@@ -246,7 +265,11 @@ useEffect(() => {
           <Link to="/Chauffeur/new" className="link">
             Ajouter
           </Link>
-          <Button startIcon={<RefreshIcon />} onClick={handleRefresh} style={{ marginLeft: '10px' }}>
+          <Button
+            startIcon={<RefreshIcon />}
+            onClick={handleRefresh}
+            style={{ marginLeft: "10px" }}
+          >
             Rafraîchir
           </Button>
         </div>
