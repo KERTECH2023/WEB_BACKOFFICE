@@ -14,6 +14,10 @@ const tarifSchema = new mongoose.Schema({
     type: Number,
     
   },
+  FraisDeService: {
+    type: Number,
+    
+  },
   
   // Add other properties specific to your tariff model if needed
 });
