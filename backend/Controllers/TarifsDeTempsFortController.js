@@ -5,7 +5,6 @@ const moment = require('moment-timezone');
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
 
-// Fonction générique pour mettre à jour tous les chauffeurs avec un tarif
 const updateAllChauffeursWithTarif = async (tariffId) => {
   try {
     await Chauffeur.updateMany({}, { $set: { tarif: tariffId } });
@@ -15,11 +14,6 @@ const updateAllChauffeursWithTarif = async (tariffId) => {
   }
 };
 
-
-
-//lksdjfkjdsfjhddjdfjhfdhjdsfjjfdhjhksfdjdfj
-
-// Afficher tous les tarifs
 exports.showtarifs = async (req, res) => {
   try {
     const data = await Tarifs.find();
@@ -29,20 +23,19 @@ exports.showtarifs = async (req, res) => {
   }
 };
 
-
-// Ajouter ou mettre à jour un tarif, et mettre à jour les chauffeurs
 exports.addTarifAndUpdateChauffeurs = async (req, res) => {
-  const { baseFare, farePerKm, farePerMinute } = req.body;
+  const { baseFare, farePerKm, farePerMinute, fraisDeService } = req.body;
 
   try {
     // Validation des données
     if (
       baseFare === undefined ||
       farePerKm === undefined ||
-      farePerMinute === undefined
+      farePerMinute === undefined ||
+      fraisDeService === undefined
     ) {
       return res.status(400).send({
-        message: "Veuillez fournir baseFare, farePerKm et farePerMinute.",
+        message: "Veuillez fournir baseFare, farePerKm, farePerMinute et fraisDeService.",
       });
     }
 
@@ -50,15 +43,17 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
     const baseFareNum = Number(baseFare);
     const farePerKmNum = Number(farePerKm);
     const farePerMinuteNum = Number(farePerMinute);
+    const fraisDeServiceNum = Number(fraisDeService);
 
     // Vérification des valeurs après conversion
     if (
       isNaN(baseFareNum) ||
       isNaN(farePerKmNum) ||
-      isNaN(farePerMinuteNum)
+      isNaN(farePerMinuteNum) ||
+      isNaN(fraisDeServiceNum)
     ) {
       return res.status(400).send({
-        message: "Les valeurs baseFare, farePerKm et farePerMinute doivent être des nombres valides.",
+        message: "Les valeurs baseFare, farePerKm, farePerMinute et fraisDeService doivent être des nombres valides.",
       });
     }
 
@@ -70,6 +65,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       existingTarif.baseFare = baseFareNum;
       existingTarif.farePerKm = farePerKmNum;
       existingTarif.farePerMinute = farePerMinuteNum;
+      existingTarif.fraisDeService = fraisDeServiceNum;
 
       const updatedTarif = await existingTarif.save();
 
@@ -79,6 +75,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
         baseFare: baseFareNum,
         farePerKm: farePerKmNum,
         farePerMinute: farePerMinuteNum,
+        fraisDeService: fraisDeServiceNum
       });
 
       // Mise à jour des chauffeurs avec le tarif mis à jour
@@ -95,6 +92,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       baseFare: baseFareNum,
       farePerKm: farePerKmNum,
       farePerMinute: farePerMinuteNum,
+      fraisDeService: fraisDeServiceNum
     });
     const savedTarif = await newTarif.save();
 
@@ -104,6 +102,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       baseFare: baseFareNum,
       farePerKm: farePerKmNum,
       farePerMinute: farePerMinuteNum,
+      fraisDeService: fraisDeServiceNum
     });
 
     // Mise à jour des chauffeurs avec le nouveau tarif
@@ -118,12 +117,8 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
   }
 };
 
-
-
-
-
 exports.updateTarifAndMajoration = async (req, res) => {
-  const { tarifId, baseFare, farePerKm, farePerMinute } = req.body;
+  const { tarifId, baseFare, farePerKm, farePerMinute, fraisDeService } = req.body;
 
   try {
     // Vérifier si les données nécessaires sont fournies
@@ -131,10 +126,11 @@ exports.updateTarifAndMajoration = async (req, res) => {
       !tarifId ||
       baseFare === undefined ||
       farePerKm === undefined ||
-      farePerMinute === undefined
+      farePerMinute === undefined ||
+      fraisDeService === undefined
     ) {
       return res.status(400).send({
-        message: "Veuillez fournir tarifId, baseFare, farePerKm et farePerMinute.",
+        message: "Veuillez fournir tarifId, baseFare, farePerKm, farePerMinute et fraisDeService.",
       });
     }
 
@@ -142,15 +138,17 @@ exports.updateTarifAndMajoration = async (req, res) => {
     const baseFareNum = Number(baseFare);
     const farePerKmNum = Number(farePerKm);
     const farePerMinuteNum = Number(farePerMinute);
+    const fraisDeServiceNum = Number(fraisDeService);
 
     // Vérifier que les valeurs converties sont valides
     if (
       isNaN(baseFareNum) ||
       isNaN(farePerKmNum) ||
-      isNaN(farePerMinuteNum)
+      isNaN(farePerMinuteNum) ||
+      isNaN(fraisDeServiceNum)
     ) {
       return res.status(400).send({
-        message: "Les valeurs baseFare, farePerKm et farePerMinute doivent être des nombres valides.",
+        message: "Les valeurs baseFare, farePerKm, farePerMinute et fraisDeService doivent être des nombres valides.",
       });
     }
 
@@ -163,6 +161,7 @@ exports.updateTarifAndMajoration = async (req, res) => {
     existingTarif.baseFare = baseFareNum;
     existingTarif.farePerKm = farePerKmNum;
     existingTarif.farePerMinute = farePerMinuteNum;
+    existingTarif.fraisDeService = fraisDeServiceNum;
 
     const updatedTarif = await existingTarif.save();
 
@@ -172,6 +171,7 @@ exports.updateTarifAndMajoration = async (req, res) => {
       baseFare: baseFareNum,
       farePerKm: farePerKmNum,
       farePerMinute: farePerMinuteNum,
+      fraisDeService: fraisDeServiceNum
     });
 
     // Réponse de succès
