@@ -14,6 +14,10 @@ const tariftempfortSchema = new mongoose.Schema({
     type: Number,
     
   },
+    FraisDeService: {
+    type: Number,
+    
+  },
   
   // Add other properties specific to your tarifjourf model if needed
 });
