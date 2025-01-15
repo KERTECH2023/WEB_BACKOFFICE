@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get("/solde/:driverId", syncSoldeData.getSoldeById);
 router.get("/soldetotal", syncSoldeData.getTotalSolde);
-router.put("/solde/:driverId", syncSoldeData.updateSolde);
+router.put("/update/:driverId", syncSoldeData.updateSolde);
 
 module.exports = router;
 
