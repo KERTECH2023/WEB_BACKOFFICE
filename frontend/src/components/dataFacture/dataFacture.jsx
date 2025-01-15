@@ -10,6 +10,47 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
+const BalanceActions = ({ row, role, onUpdate }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newBalance, setNewBalance] = useState(row.solde);
+
+  const handleUpdateClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = () => {
+    onUpdate(row.firebaseUID, newBalance);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="cellAction">
+      <Link to={`/cosnultC/${row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+        <div className="viewButton">Consulté</div>
+      </Link>
+      {(role === "Admin" || role === "Agentad") && (
+        isEditing ? (
+          <>
+            <input
+              type="number"
+              value={newBalance}
+              onChange={(e) => setNewBalance(e.target.value)}
+              style={{ width: "100px", marginRight: "10px" }}
+            />
+            <Button onClick={handleSaveClick} variant="contained" size="small">
+              Enregistrer
+            </Button>
+          </>
+        ) : (
+          <Button onClick={handleUpdateClick} variant="outlined" size="small">
+            Modifier Solde
+          </Button>
+        )
+      )}
+    </div>
+  );
+};
+
 const Datachauf = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +58,7 @@ const Datachauf = () => {
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [totalSolde, setTotalSolde] = useState(null);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const role = window.localStorage.getItem("userRole");
@@ -35,11 +76,7 @@ const Datachauf = () => {
   const getTotalSolde = async () => {
     try {
       const response = await axios.get('https://api.backofficegc.com/Solde/soldetotal');
-      if (response.data && response.data.totalSolde !== undefined) {
-        setTotalSolde(response.data.totalSolde);
-      } else {
-        setTotalSolde('N/A');
-      }
+      setTotalSolde(response.data?.totalSolde || 'N/A');
     } catch (error) {
       console.error('Error fetching total balance:', error);
       toast.error('Erreur lors du chargement du solde total');
@@ -56,21 +93,6 @@ const Datachauf = () => {
     }
   };
 
-  const updateDriverBalance = async (firebaseUID, newBalance) => {
-    try {
-      const response = await axios.put(`https://api.backofficegc.com/Solde/solde/${firebaseUID}`, {
-        solde: newBalance,
-      });
-      if (response.status === 200) {
-        toast.success("Solde mis à jour avec succès");
-        handleRefresh();
-      }
-    } catch (error) {
-      console.error(`Erreur lors de la mise à jour du solde pour ${firebaseUID}:`, error);
-      toast.error("Erreur lors de la mise à jour du solde");
-    }
-  };
-
   const enrichDataWithBalance = async (drivers) => {
     const enrichedDrivers = await Promise.all(
       drivers.map(async (driver) => {
@@ -78,12 +100,12 @@ const Datachauf = () => {
           const balanceData = await getDriverBalance(driver.firebaseUID);
           return {
             ...driver,
-            solde: balanceData ? balanceData.solde : 'N/A'
+            solde: balanceData ? balanceData.solde : 'N/A',
           };
         }
         return {
           ...driver,
-          solde: 'N/A'
+          solde: 'N/A',
         };
       })
     );
@@ -108,21 +130,6 @@ const Datachauf = () => {
     navigate(`${location.pathname}?${searchParams.toString()}`, { replace: true });
   };
 
-  useEffect(() => {
-    const validatedDrivers = data.filter(driver => driver.Cstatus === "Validé");
-    const searchFiltered = validatedDrivers.filter((row) => {
-      const searchTerm = search.toLowerCase();
-      return (
-        (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
-        (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
-        (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
-        (row.address && row.address.toLowerCase().includes(searchTerm))
-      );
-    });
-
-    setFilteredData(searchFiltered);
-  }, [search, data]);
-
   const getChauffeurs = async () => {
     try {
       setLoading(true);
@@ -143,9 +150,17 @@ const Datachauf = () => {
     }
   };
 
-  const handleRefresh = () => {
-    getChauffeurs();
-    getTotalSolde();
+  const updateDriverBalance = async (firebaseUID, newBalance) => {
+    try {
+      await axios.put(`https://api.backofficegc.com/Solde/update/${firebaseUID}`, {
+        solde: parseFloat(newBalance),
+      });
+      toast.success("Solde mis à jour avec succès !");
+      getChauffeurs();
+    } catch (error) {
+      console.error(`Error updating balance for driver ${firebaseUID}:`, error);
+      toast.error("Erreur lors de la mise à jour du solde");
+    }
   };
 
   const columns = [
@@ -166,48 +181,34 @@ const Datachauf = () => {
       field: "action",
       headerName: "Action",
       width: 400,
-      renderCell: (params) => {
-        const [isEditing, setIsEditing] = useState(false);
-        const [newBalance, setNewBalance] = useState(params.row.solde);
-
-        const handleUpdateClick = () => {
-          setIsEditing(true);
-        };
-
-        const handleSaveClick = () => {
-          updateDriverBalance(params.row.firebaseUID, newBalance);
-          setIsEditing(false);
-        };
-
-        return (
-          <div className="cellAction">
-            <Link to={`/cosnultC/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-              <div className="viewButton">Consulté</div>
-            </Link>
-            {role === "Admin" || role === "Agentad" ? (
-              isEditing ? (
-                <>
-                  <input
-                    type="number"
-                    value={newBalance}
-                    onChange={(e) => setNewBalance(e.target.value)}
-                    style={{ width: "100px", marginRight: "10px" }}
-                  />
-                  <Button onClick={handleSaveClick} variant="contained" size="small">
-                    Enregistrer
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={handleUpdateClick} variant="outlined" size="small">
-                  Modifier Solde
-                </Button>
-              )
-            ) : null}
-          </div>
-        );
-      },
+      renderCell: (params) => (
+        <BalanceActions
+          row={params.row}
+          role={role}
+          onUpdate={updateDriverBalance}
+        />
+      ),
     },
   ];
+
+  useEffect(() => {
+    const validatedDrivers = data.filter(driver => driver.Cstatus === "Validé");
+    const searchFiltered = validatedDrivers.filter((row) => {
+      const searchTerm = search.toLowerCase();
+      return (
+        (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
+        (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
+        (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
+        (row.address && row.address.toLowerCase().includes(searchTerm))
+      );
+    });
+    setFilteredData(searchFiltered);
+  }, [search, data]);
+
+  const handleRefresh = () => {
+    getChauffeurs();
+    getTotalSolde();
+  };
 
   if (loading) {
     return <CircularProgress />;
