@@ -20,7 +20,8 @@ const Liscourse = () => {
           ? "/ride/allRideRequests"
           : `/ride/ride-requests/status/${filterStatus}`;
       const response = await axios.get(`${BASE_URL}${endpoint}`);
-      setRides(response.data.rideRequests || []); // Mettre à jour les courses
+      // Inverser l'ordre des courses pour afficher la dernière en premier
+      setRides((response.data.rideRequests || []).reverse());
     } catch (error) {
       console.error("Erreur lors de la récupération des courses :", error);
     }
@@ -50,7 +51,6 @@ const Liscourse = () => {
           >
             <option value="all">Tous</option>
             <option value="Ended">Terminer</option>
-            
             <option value="Accepted">Accepté</option>
             <option value="Rejected">Rejeté</option>
           </select>
@@ -63,7 +63,6 @@ const Liscourse = () => {
                 <th>Nom du conducteur</th>
                 <th>Montant</th>
                 <th>Adresse source</th>
-                <th>Adresse destination</th>
                 <th>Statut</th>
                 <th>Action</th>
               </tr>
@@ -75,7 +74,6 @@ const Liscourse = () => {
                   <td>{ride.driverName}</td>
                   <td>{ride.fareAmount}</td>
                   <td>{ride.sourceAddress}</td>
-                  <td>{ride.destinationAddress}</td>
                   <td>{ride.status}</td>
                   <td>
                     <select
@@ -85,8 +83,7 @@ const Liscourse = () => {
                       }
                     >
                       <option value="Pending">En attente</option>
-                      
-            <option value="Ended">Terminer</option>
+                      <option value="Ended">Terminer</option>
                       <option value="Accepted">Accepté</option>
                       <option value="Rejected">Rejeté</option>
                     </select>
