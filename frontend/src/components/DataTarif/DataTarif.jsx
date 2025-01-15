@@ -13,6 +13,7 @@ const DataTarif = () => {
     baseFare: "",
     farePerKm: "",
     farePerMinute: "",
+    fraisDeService: "", // Added new field
     type: "day"
   });
   const [isAddingTarif, setIsAddingTarif] = useState(false);
@@ -66,7 +67,7 @@ const DataTarif = () => {
   };
 
   const validateTarifData = (tarifData) => {
-    const numericFields = ['baseFare', 'farePerKm', 'farePerMinute'];
+    const numericFields = ['baseFare', 'farePerKm', 'farePerMinute', 'fraisDeService']; // Added fraisDeService
     for (const field of numericFields) {
       if (isNaN(parseFloat(tarifData[field])) || parseFloat(tarifData[field]) < 0) {
         toast.error(`Le champ ${field} doit être un nombre positif`);
@@ -82,6 +83,7 @@ const DataTarif = () => {
       baseFare: tarif.baseFare,
       farePerKm: tarif.farePerKm,
       farePerMinute: tarif.farePerMinute,
+      fraisDeService: tarif.fraisDeService, // Added fraisDeService
       type: tarif.type
     });
     setIsModalOpen(true);
@@ -119,7 +121,13 @@ const DataTarif = () => {
         if (response.status === 200) {
           toast.success("Nouveau tarif ajouté avec succès !");
           setIsAddingTarif(false);
-          setNewTarif({ baseFare: "", farePerKm: "", farePerMinute: "", type: "day" });
+          setNewTarif({ 
+            baseFare: "", 
+            farePerKm: "", 
+            farePerMinute: "", 
+            fraisDeService: "", // Added fraisDeService
+            type: "day" 
+          });
           getTariffs();
         }
       } catch (error) {
@@ -135,6 +143,7 @@ const DataTarif = () => {
     { field: "baseFare", headerName: "Base Fare", width: 120 },
     { field: "farePerKm", headerName: "Fare Per Km", width: 120 },
     { field: "farePerMinute", headerName: "Fare Per Minute", width: 150 },
+    { field: "fraisDeService", headerName: "Frais de Service", width: 150 }, // Added new column
     { 
       field: "type", 
       headerName: "Type", 
@@ -202,6 +211,15 @@ const DataTarif = () => {
         min="0"
         step="0.01"
       />
+      <input
+        type="number"
+        placeholder="Frais de Service"
+        value={newTarif.fraisDeService}
+        onChange={(e) => setNewTarif({ ...newTarif, fraisDeService: e.target.value })}
+        className="form-control"
+        min="0"
+        step="0.01"
+      />
     </div>
   );
 
@@ -231,7 +249,7 @@ const DataTarif = () => {
                 <option value="peakTime">Temps Fort</option>
               </select>
             </div>
-            {['baseFare', 'farePerKm', 'farePerMinute'].map((field) => (
+            {['baseFare', 'farePerKm', 'farePerMinute', 'fraisDeService'].map((field) => (
               <div className="mb-3" key={field}>
                 <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)} :</label>
                 <input
