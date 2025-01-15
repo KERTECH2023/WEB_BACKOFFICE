@@ -191,24 +191,30 @@ const Datachauf = () => {
     },
   ];
 
-  useEffect(() => {
-    const validatedDrivers = data.filter(driver => driver.Cstatus === "Validé");
-    const searchFiltered = validatedDrivers.filter((row) => {
-      const searchTerm = search.toLowerCase();
-      return (
-        (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
-        (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
-        (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
-        (row.address && row.address.toLowerCase().includes(searchTerm))
-      );
-    });
-    setFilteredData(searchFiltered);
-  }, [search, data]);
+useEffect(() => {
+  const validatedDrivers = data.filter((driver) => driver.Cstatus === "Validé");
+  
+  // Filtrage par recherche
+  const searchFiltered = validatedDrivers.filter((row) => {
+    const searchTerm = search.toLowerCase();
+    return (
+      (row.Nom && row.Nom.toLowerCase().includes(searchTerm)) ||
+      (row.Prenom && row.Prenom.toLowerCase().includes(searchTerm)) ||
+      (row.phone && row.phone.toLowerCase().includes(searchTerm)) ||
+      (row.address && row.address.toLowerCase().includes(searchTerm))
+    );
+  });
 
-  const handleRefresh = () => {
-    getChauffeurs();
-    getTotalSolde();
-  };
+  // Tri par solde décroissant
+  const sortedData = searchFiltered.sort((a, b) => {
+    const soldeA = parseFloat(a.solde) || 0;
+    const soldeB = parseFloat(b.solde) || 0;
+    return soldeB - soldeA; // Tri décroissant
+  });
+
+  setFilteredData(sortedData);
+}, [search, data]);
+
 
   if (loading) {
     return <CircularProgress />;
