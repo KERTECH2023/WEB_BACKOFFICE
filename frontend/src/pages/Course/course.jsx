@@ -15,6 +15,10 @@ const Liscourse = () => {
 
   const fetchRides = async () => {
     try {
+      // Appeler l'API pour synchroniser Firebase avec MongoDB
+      await axios.post(`${BASE_URL}/Ride/firebaseToMongoDB`, {});
+
+      // Récupérer les courses après la synchronisation
       const endpoint =
         filterStatus === "all"
           ? "/ride/allRideRequests"
