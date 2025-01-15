@@ -106,6 +106,14 @@ cron.schedule('00 21 * * *', () => {
   scheduled: true,
   timezone: "Africa/Tunis"
 });
+cron.schedule('00 05 * * *', () => {
+  updateTariff('journalier');
+}, {
+  scheduled: true,
+  timezone: "Africa/Tunis"
+});
+
+
 
 
 // Planification des tâches cron
@@ -124,7 +132,7 @@ cron.schedule('00 09 * * *', () => {
 });
 
 // Planification des tâches cron
-cron.schedule('00 11 * * *', () => {
+cron.schedule('00 12 * * *', () => {
   updateTariff('tempfort');
 }, {
   scheduled: true,
@@ -147,19 +155,14 @@ cron.schedule('00 17 * * *', () => {
   timezone: "Africa/Tunis"
 });
 
-cron.schedule('00 19 * * *', () => {
+cron.schedule('00 18 * * *', () => {
   updateTariff('journalier');
 }, {
   scheduled: true,
   timezone: "Africa/Tunis"
 });
 
-cron.schedule('00 05 * * *', () => {
-  updateTariff('journalier');
-}, {
-  scheduled: true,
-  timezone: "Africa/Tunis"
-});
+
 
 
 
