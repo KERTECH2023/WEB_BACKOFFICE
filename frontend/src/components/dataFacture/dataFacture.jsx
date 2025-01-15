@@ -36,7 +36,7 @@ const Datachauf = () => {
     try {
       const response = await axios.get('https://api.backofficegc.com/Solde/soldetotal');
       if (response.data && response.data.totalSolde !== undefined) {
-        setTotalSolde(response.data.totalSolde); // Correction ici
+        setTotalSolde(response.data.totalSolde);
       } else {
         setTotalSolde('N/A');
       }
@@ -53,6 +53,21 @@ const Datachauf = () => {
     } catch (error) {
       console.error(`Error fetching balance for driver ${firebaseUID}:`, error);
       return null;
+    }
+  };
+
+  const updateDriverBalance = async (firebaseUID, newBalance) => {
+    try {
+      const response = await axios.put(`https://api.backofficegc.com/Solde/solde/${firebaseUID}`, {
+        solde: newBalance,
+      });
+      if (response.status === 200) {
+        toast.success("Solde mis à jour avec succès");
+        handleRefresh();
+      }
+    } catch (error) {
+      console.error(`Erreur lors de la mise à jour du solde pour ${firebaseUID}:`, error);
+      toast.error("Erreur lors de la mise à jour du solde");
     }
   };
 
@@ -150,20 +165,44 @@ const Datachauf = () => {
     {
       field: "action",
       headerName: "Action",
-      width: 300,
+      width: 400,
       renderCell: (params) => {
+        const [isEditing, setIsEditing] = useState(false);
+        const [newBalance, setNewBalance] = useState(params.row.solde);
+
+        const handleUpdateClick = () => {
+          setIsEditing(true);
+        };
+
+        const handleSaveClick = () => {
+          updateDriverBalance(params.row.firebaseUID, newBalance);
+          setIsEditing(false);
+        };
+
         return (
           <div className="cellAction">
             <Link to={`/cosnultC/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
               <div className="viewButton">Consulté</div>
             </Link>
-            <div>
-              {(role === "Admin" || role === "Agentad") && (
-                <Link to={`/updateCh/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                  <div className="upButton">Mettre à jour</div>
-                </Link>
-              )}
-            </div>
+            {role === "Admin" || role === "Agentad" ? (
+              isEditing ? (
+                <>
+                  <input
+                    type="number"
+                    value={newBalance}
+                    onChange={(e) => setNewBalance(e.target.value)}
+                    style={{ width: "100px", marginRight: "10px" }}
+                  />
+                  <Button onClick={handleSaveClick} variant="contained" size="small">
+                    Enregistrer
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={handleUpdateClick} variant="outlined" size="small">
+                  Modifier Solde
+                </Button>
+              )
+            ) : null}
           </div>
         );
       },
