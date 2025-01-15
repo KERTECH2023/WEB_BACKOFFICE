@@ -223,12 +223,12 @@ const Datachauf = () => {
       );
     });
 
-    // Tri par solde décroissant
+
     const sortedData = searchFiltered.sort((a, b) => {
-      const soldeA = parseFloat(a.solde) || 0;
-      const soldeB = parseFloat(b.solde) || 0;
-      return soldeB - soldeA;
-    });
+  const soldeA = parseFloat(a.solde) || 0;
+  const soldeB = parseFloat(b.solde) || 0;
+  return soldeA - soldeB;
+});
 
     setFilteredData(sortedData);
   }, [search, data]);
