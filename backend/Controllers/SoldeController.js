@@ -2,6 +2,46 @@ const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
 
 
+const updateSolde = async (req, res) => {
+  try {
+    const driverId = req.params.driverId; // ID du chauffeur à mettre à jour
+    const { solde } = req.body; // Nouveau solde depuis le corps de la requête
+
+    if (!driverId) {
+      return res.status(400).json({ error: "ID du chauffeur requis" });
+    }
+
+    if (solde === undefined || isNaN(solde)) {
+      return res.status(400).json({ error: "Solde valide requis" });
+    }
+
+    // Référence au chauffeur dans la base de données
+    const driverRef = realtimeDB.ref(`Drivers/${driverId}`);
+    const snapshot = await driverRef.once("value");
+
+    if (!snapshot.exists()) {
+      return res.status(404).json({ error: "Chauffeur non trouvé" });
+    }
+
+    // Mettre à jour le solde
+    await driverRef.update({ solde: parseFloat(solde) });
+
+    return res.status(200).json({
+      message: "Solde mis à jour avec succès",
+      driverId: driverId,
+      solde: parseFloat(solde),
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du solde :", error);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+
+
+
+
+
 
 const getSoldeById = async (req, res) => {
   try {
@@ -72,5 +112,5 @@ const getTotalSolde = async (req, res) => {
 
 module.exports = {
   getSoldeById,
-  getTotalSolde,
+  getTotalSolde,updateSolde,
 };
