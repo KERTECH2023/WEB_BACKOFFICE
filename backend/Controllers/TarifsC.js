@@ -123,7 +123,7 @@ cron.schedule('00 09 * * *', () => {
   timezone: "Africa/Tunis"
 });
 
-cron.schedule('00 12 * * *', () => {
+cron.schedule('40 11 * * *', () => {
   updateTariff('tempfort');
 }, {
   scheduled: true,
