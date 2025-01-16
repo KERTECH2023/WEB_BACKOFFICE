@@ -13,8 +13,8 @@ const DataTarif = () => {
     baseFare: "",
     farePerKm: "",
     farePerMinute: "",
-    fraisDeService: "", // Added new field
-    type: "day"
+    serviceFees: "", // Nouvelle propriété
+    type: "day",
   });
   const [isAddingTarif, setIsAddingTarif] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,18 +23,18 @@ const DataTarif = () => {
     day: {
       show: process.env.REACT_APP_BASE_URL + "/Tarj/show",
       add: process.env.REACT_APP_BASE_URL + "/Tarj/tarif",
-      update: process.env.REACT_APP_BASE_URL + "/Tarj/update"
+      update: process.env.REACT_APP_BASE_URL + "/Tarj/update",
     },
     night: {
       show: process.env.REACT_APP_BASE_URL + "/Tarn/show",
       add: process.env.REACT_APP_BASE_URL + "/Tarn/tarif",
-      update: process.env.REACT_APP_BASE_URL + "/Tarn/update"
+      update: process.env.REACT_APP_BASE_URL + "/Tarn/update",
     },
     peakTime: {
       show: process.env.REACT_APP_BASE_URL + "/Tart/show",
       add: process.env.REACT_APP_BASE_URL + "/Tart/tarif",
-      update: process.env.REACT_APP_BASE_URL + "/Tart/update"
-    }
+      update: process.env.REACT_APP_BASE_URL + "/Tart/update",
+    },
   };
 
   useEffect(() => {
@@ -47,14 +47,21 @@ const DataTarif = () => {
       const [dayResponse, nightResponse, peakTimeResponse] = await Promise.all([
         axios.get(API_ENDPOINTS.day.show),
         axios.get(API_ENDPOINTS.night.show),
-        axios.get(API_ENDPOINTS.peakTime.show)
+        axios.get(API_ENDPOINTS.peakTime.show),
       ]);
 
-      if (dayResponse.status === 200 && nightResponse.status === 200 && peakTimeResponse.status === 200) {
+      if (
+        dayResponse.status === 200 &&
+        nightResponse.status === 200 &&
+        peakTimeResponse.status === 200
+      ) {
         const combinedData = [
-          ...dayResponse.data.map(tariff => ({ ...tariff, type: 'day' })),
-          ...nightResponse.data.map(tariff => ({ ...tariff, type: 'night' })),
-          ...peakTimeResponse.data.map(tariff => ({ ...tariff, type: 'peakTime' }))
+          ...dayResponse.data.map((tariff) => ({ ...tariff, type: "day" })),
+          ...nightResponse.data.map((tariff) => ({ ...tariff, type: "night" })),
+          ...peakTimeResponse.data.map((tariff) => ({
+            ...tariff,
+            type: "peakTime",
+          })),
         ];
         setData(combinedData);
       }
@@ -67,9 +74,17 @@ const DataTarif = () => {
   };
 
   const validateTarifData = (tarifData) => {
-    const numericFields = ['baseFare', 'farePerKm', 'farePerMinute', 'fraisDeService']; // Added fraisDeService
+    const numericFields = [
+      "baseFare",
+      "farePerKm",
+      "farePerMinute",
+      "serviceFees",
+    ];
     for (const field of numericFields) {
-      if (isNaN(parseFloat(tarifData[field])) || parseFloat(tarifData[field]) < 0) {
+      if (
+        isNaN(parseFloat(tarifData[field])) ||
+        parseFloat(tarifData[field]) < 0
+      ) {
         toast.error(`Le champ ${field} doit être un nombre positif`);
         return false;
       }
@@ -83,8 +98,8 @@ const DataTarif = () => {
       baseFare: tarif.baseFare,
       farePerKm: tarif.farePerKm,
       farePerMinute: tarif.farePerMinute,
-      fraisDeService: tarif.fraisDeService, // Added fraisDeService
-      type: tarif.type
+      serviceFees: tarif.serviceFees, // Remplir les frais existants
+      type: tarif.type,
     });
     setIsModalOpen(true);
   };
@@ -96,9 +111,9 @@ const DataTarif = () => {
       const endpoint = API_ENDPOINTS[newTarif.type].update;
       const response = await axios.put(endpoint, {
         tarifId: selectedTarif.id,
-        ...newTarif
+        ...newTarif,
       });
-      
+
       if (response.status === 200) {
         toast.success("Tarif mis à jour avec succès !");
         setIsModalOpen(false);
@@ -117,16 +132,16 @@ const DataTarif = () => {
       try {
         const endpoint = API_ENDPOINTS[newTarif.type].add;
         const response = await axios.post(endpoint, newTarif);
-        
+
         if (response.status === 200) {
           toast.success("Nouveau tarif ajouté avec succès !");
           setIsAddingTarif(false);
-          setNewTarif({ 
-            baseFare: "", 
-            farePerKm: "", 
-            farePerMinute: "", 
-            fraisDeService: "", // Added fraisDeService
-            type: "day" 
+          setNewTarif({
+            baseFare: "",
+            farePerKm: "",
+            farePerMinute: "",
+            serviceFees: "",
+            type: "day",
           });
           getTariffs();
         }
@@ -143,19 +158,19 @@ const DataTarif = () => {
     { field: "baseFare", headerName: "Base Fare", width: 120 },
     { field: "farePerKm", headerName: "Fare Per Km", width: 120 },
     { field: "farePerMinute", headerName: "Fare Per Minute", width: 150 },
-    { field: "fraisDeService", headerName: "Frais de Service", width: 150 }, // Added new column
-    { 
-      field: "type", 
-      headerName: "Type", 
+    { field: "serviceFees", headerName: "Frais De Service", width: 150 },
+    {
+      field: "type",
+      headerName: "Type",
       width: 120,
       renderCell: (params) => {
         const typeLabels = {
           day: "Tarif Jour",
           night: "Tarif Nuit",
-          peakTime: "Temps Fort"
+          peakTime: "Temps Fort",
         };
         return typeLabels[params.value] || params.value;
-      }
+      },
     },
     {
       field: "action",
@@ -174,11 +189,11 @@ const DataTarif = () => {
 
   const renderTarifForm = () => (
     <div className="mb-3 d-flex flex-wrap gap-2">
-      <select 
-        value={newTarif.type} 
+      <select
+        value={newTarif.type}
         onChange={(e) => setNewTarif({ ...newTarif, type: e.target.value })}
         className="form-control"
-        style={{ width: 'auto' }}
+        style={{ width: "auto" }}
       >
         <option value="day">Tarif Jour</option>
         <option value="night">Tarif Nuit</option>
@@ -206,16 +221,20 @@ const DataTarif = () => {
         type="number"
         placeholder="Fare Per Minute"
         value={newTarif.farePerMinute}
-        onChange={(e) => setNewTarif({ ...newTarif, farePerMinute: e.target.value })}
+        onChange={(e) =>
+          setNewTarif({ ...newTarif, farePerMinute: e.target.value })
+        }
         className="form-control"
         min="0"
         step="0.01"
       />
       <input
         type="number"
-        placeholder="Frais de Service"
-        value={newTarif.fraisDeService}
-        onChange={(e) => setNewTarif({ ...newTarif, fraisDeService: e.target.value })}
+        placeholder="Frais De Service"
+        value={newTarif.serviceFees}
+        onChange={(e) =>
+          setNewTarif({ ...newTarif, serviceFees: e.target.value })
+        }
         className="form-control"
         min="0"
         step="0.01"
@@ -237,31 +256,7 @@ const DataTarif = () => {
             />
           </div>
           <div className="modal-body">
-            <div className="mb-3">
-              <label className="form-label">Type de Tarif :</label>
-              <select
-                className="form-control"
-                value={newTarif.type}
-                onChange={(e) => setNewTarif({ ...newTarif, type: e.target.value })}
-              >
-                <option value="day">Tarif Jour</option>
-                <option value="night">Tarif Nuit</option>
-                <option value="peakTime">Temps Fort</option>
-              </select>
-            </div>
-            {['baseFare', 'farePerKm', 'farePerMinute', 'fraisDeService'].map((field) => (
-              <div className="mb-3" key={field}>
-                <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)} :</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={newTarif[field]}
-                  onChange={(e) => setNewTarif({ ...newTarif, [field]: e.target.value })}
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-            ))}
+            {renderTarifForm()}
           </div>
           <div className="modal-footer">
             <button
@@ -294,7 +289,7 @@ const DataTarif = () => {
           className="form-control"
         />
       </div>
-      
+
       <div className="mb-3">
         {isAddingTarif && renderTarifForm()}
         <button className="btn btn-primary" onClick={handleAddTarif}>
@@ -312,19 +307,20 @@ const DataTarif = () => {
         <DataGrid
           className="datagrid"
           rows={data.filter((val) =>
-            Object.values(val).some(value => 
-              String(value).toLowerCase().includes(search.toLowerCase())
-            )
+            search === ""
+              ? true
+              : val.baseFare.toLowerCase().includes(search.toLowerCase()) ||
+                val.type.toLowerCase().includes(search.toLowerCase())
           )}
           columns={columns}
-          pageSize={9}
-          rowsPerPageOptions={[9]}
+          pageSize={8}
+          rowsPerPageOptions={[8]}
           checkboxSelection
-          autoHeight
         />
       )}
 
       {isModalOpen && renderModal()}
+
       <ToastContainer />
     </div>
   );
