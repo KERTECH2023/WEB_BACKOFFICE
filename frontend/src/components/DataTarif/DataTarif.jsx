@@ -13,7 +13,7 @@ const DataTarif = () => {
     baseFare: "",
     farePerKm: "",
     farePerMinute: "",
-    serviceFees: "", // Nouvelle propriété
+    FraisDeService: "", // Nouvelle propriété
     type: "day",
   });
   const [isAddingTarif, setIsAddingTarif] = useState(false);
@@ -78,7 +78,7 @@ const DataTarif = () => {
       "baseFare",
       "farePerKm",
       "farePerMinute",
-      "serviceFees",
+      "FraisDeService",
     ];
     for (const field of numericFields) {
       if (
@@ -98,7 +98,7 @@ const DataTarif = () => {
       baseFare: tarif.baseFare,
       farePerKm: tarif.farePerKm,
       farePerMinute: tarif.farePerMinute,
-      serviceFees: tarif.serviceFees, // Remplir les frais existants
+      FraisDeService: tarif.FraisDeService, // Remplir les frais existants
       type: tarif.type,
     });
     setIsModalOpen(true);
@@ -140,7 +140,7 @@ const DataTarif = () => {
             baseFare: "",
             farePerKm: "",
             farePerMinute: "",
-            serviceFees: "",
+            FraisDeService: "",
             type: "day",
           });
           getTariffs();
@@ -158,7 +158,7 @@ const DataTarif = () => {
     { field: "baseFare", headerName: "Base Fare", width: 120 },
     { field: "farePerKm", headerName: "Fare Per Km", width: 120 },
     { field: "farePerMinute", headerName: "Fare Per Minute", width: 150 },
-    { field: "serviceFees", headerName: "Frais De Service", width: 150 },
+    { field: "FraisDeService", headerName: "Frais De Service", width: 150 },
     {
       field: "type",
       headerName: "Type",
@@ -231,9 +231,9 @@ const DataTarif = () => {
       <input
         type="number"
         placeholder="Frais De Service"
-        value={newTarif.serviceFees}
+        value={newTarif.FraisDeService}
         onChange={(e) =>
-          setNewTarif({ ...newTarif, serviceFees: e.target.value })
+          setNewTarif({ ...newTarif, FraisDeService: e.target.value })
         }
         className="form-control"
         min="0"
