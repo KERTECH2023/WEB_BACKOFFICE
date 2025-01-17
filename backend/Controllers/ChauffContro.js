@@ -564,6 +564,47 @@ const login = (req, res) => {
 
 /**----------send notification Agent----------------- */
 
+const setofflineEtsendnotificationChauffeurId = async (req, res) => {
+  const id = req.params.chauffeurId;
+
+  try {
+    // Récupérer la référence du chauffeur dans la base de données
+    const chauffeurRef = realtimeDB.ref(`Drivers/${id}`);
+    const snapshot = await chauffeurRef.once('value');
+    const chauffeur = snapshot.val();
+
+    if (!chauffeur) {
+      return res.status(404).send({ message: "Chauffeur non trouvé." });
+    }
+
+    // Mettre à jour le statut du chauffeur en "offline"
+    await chauffeurRef.update({ Status: "Offline" });
+
+    // Vérifier si le chauffeur a un token de notification
+    if (!chauffeur.token) {
+      return res.status(400).send({ message: "Le chauffeur n'a pas de token pour recevoir une notification." });
+    }
+
+    // Préparer la notification
+    const message = {
+      token: chauffeur.token, // Envoyer la notification à un seul chauffeur
+      notification: {
+        title: "Statut mis à jour",
+        body: "Votre statut a été changé en offline.",
+      },
+      data: { chauffeurId: id }, // Données supplémentaires (optionnel)
+    };
+
+    // Envoyer la notification
+    await admin.messaging().send(message);
+
+    res.status(200).send({ message: "Statut mis à jour et notification envoyée avec succès." });
+
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut et de l'envoi de la notification :", error);
+    res.status(500).send({ message: "Erreur serveur.", error: error.message });
+  }
+};
 
 
 
@@ -1532,5 +1573,6 @@ module.exports = {
   rejectChauffeur,
   sendmessagingnotification,
   sendmessagingnotificationclient,
-  sendNotificationMiseajour
+  sendNotificationMiseajour,
+  setofflineEtsendnotificationChauffeurId
 };
