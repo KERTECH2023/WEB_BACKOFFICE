@@ -695,11 +695,10 @@ const sendmessagingnotificationclient = async (req, res) => {
   res.status(200).send({ message: 'Notifications envoyées avec succès.' });
 };
 
-
-
 const sendmessagingnotificationofflinestatut = async () => {
   
-
+setInterval(async () => {
+    try {
   const snapshot = await realtimeDB.ref('Drivers').once('value');
   const drivers = snapshot.val();
 
@@ -710,7 +709,7 @@ const sendmessagingnotificationofflinestatut = async () => {
 
   // Extraire les tokens des chauffeurs avec un statut 'offline'
   const tokens = Object.values(drivers) 
-    .filter(driver => driver.status === 'offline' && driver.token) // Filtrer les chauffeurs offline avec un token valide
+    .filter(driver => driver.Status === 'Offline' && driver.token) // Filtrer les chauffeurs offline avec un token valide
     .map(driver => driver.token);
 
   if (tokens.length === 0) {
@@ -724,7 +723,16 @@ const sendmessagingnotificationofflinestatut = async () => {
   await sendNotificationToMultipleTokens(tokens, "Flash Driver", "Restez connecté pour recevoir plus de courses.", data);
 
   res.status(200).send({ message: 'Notifications envoyées avec succès.' });
+
+  } catch (error) {
+      console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
+    }
+  },  60 * 60 * 1000);
+};    
 };
+
+sendmessagingnotificationofflinestatut();
+
 
 
 
