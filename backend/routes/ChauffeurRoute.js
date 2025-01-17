@@ -15,6 +15,9 @@ const Multer = multer({
   limits: 1024 * 1024,
 });
 
+
+router.get("/setofflinechauffeur", ChauffContro.setofflineEtsendnotificationChauffeurId);
+
 router.get("/affiche", ChauffContro.recupereruse);
 router.get('/Chauff/factures/:id', ChauffContro.getFacturesByChauffeurId);
 router.get("/getchdes", ChauffContro.chauffdes);
