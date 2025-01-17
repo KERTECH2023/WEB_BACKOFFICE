@@ -697,6 +697,37 @@ const sendmessagingnotificationclient = async (req, res) => {
 
 
 
+const sendmessagingnotificationofflinestatut = async () => {
+  
+
+  const snapshot = await realtimeDB.ref('Drivers').once('value');
+  const drivers = snapshot.val();
+
+  if (!drivers) {
+    console.log('Aucun chauffeur trouvé.');
+    return;
+  }
+
+  // Extraire les tokens des chauffeurs avec un statut 'offline'
+  const tokens = Object.values(drivers) 
+    .filter(driver => driver.status === 'offline' && driver.token) // Filtrer les chauffeurs offline avec un token valide
+    .map(driver => driver.token);
+
+  if (tokens.length === 0) {
+    console.log('Aucun token valide trouvé pour les chauffeurs offline.');
+    return;
+  }
+
+  const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
+
+  // Appeler la fonction pour envoyer les notifications
+  await sendNotificationToMultipleTokens(tokens, "Flash Driver", "Restez connecté pour recevoir plus de courses.", data);
+
+  res.status(200).send({ message: 'Notifications envoyées avec succès.' });
+};
+
+
+
 /**----------Update Agent----------------- */
 
 
