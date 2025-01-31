@@ -27,7 +27,7 @@ exports.showtarifs = async (req, res) => {
 
 // Ajouter ou mettre à jour un tarif, et mettre à jour les chauffeurs
 exports.addTarifAndUpdateChauffeurs = async (req, res) => {
-  const { baseFare, farePerKm, farePerMinute, FraisDeService } = req.body;
+  const { baseFare, farePerKm, farePerMinute, FraisDeService,percentage } = req.body;
 
   try {
     // Validation des données
@@ -35,7 +35,9 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       baseFare === undefined ||
       farePerKm === undefined ||
       farePerMinute === undefined ||
-      FraisDeService === undefined
+      FraisDeService === undefined ||
+      percentage === undefined 
+
     ) {
       return res.status(400).send({
         message: "Veuillez fournir baseFare, farePerKm, farePerMinute et FraisDeService.",
@@ -47,13 +49,15 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
     const farePerKmNum = Number(farePerKm);
     const farePerMinuteNum = Number(farePerMinute);
     const FraisDeServiceNum = Number(FraisDeService);
+    const percentageNum = Number(percentage);
 
     // Vérification des valeurs après conversion
     if (
       isNaN(baseFareNum) ||
       isNaN(farePerKmNum) ||
       isNaN(farePerMinuteNum) ||
-      isNaN(FraisDeServiceNum)
+      isNaN(FraisDeServiceNum)||
+      isNaN(percentageNum)
     ) {
       return res.status(400).send({
         message: "Les valeurs doivent être des nombres valides.",
@@ -69,6 +73,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       existingTarif.farePerKm = farePerKmNum;
       existingTarif.farePerMinute = farePerMinuteNum;
       existingTarif.FraisDeService = FraisDeServiceNum;
+      existingTarif.percentage = percentageNum;
 
       const updatedTarif = await existingTarif.save();
 
@@ -79,6 +84,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
         farePerKm: farePerKmNum,
         farePerMinute: farePerMinuteNum,
         FraisDeService: FraisDeServiceNum,
+        percentage: percentageNum
       });
 
       // Mise à jour des chauffeurs avec le tarif mis à jour
@@ -96,6 +102,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       farePerKm: farePerKmNum,
       farePerMinute: farePerMinuteNum,
       FraisDeService: FraisDeServiceNum,
+      percentage: percentageNum
     });
     const savedTarif = await newTarif.save();
 
@@ -106,6 +113,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       farePerKm: farePerKmNum,
       farePerMinute: farePerMinuteNum,
       FraisDeService: FraisDeServiceNum,
+      percentage: percentageNum
     });
 
     // Mise à jour des chauffeurs avec le nouveau tarif
@@ -122,7 +130,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
 
 // Mise à jour d'un tarif spécifique
 exports.updateTarifAndMajoration = async (req, res) => {
-  const { tarifId, baseFare, farePerKm, farePerMinute, FraisDeService } = req.body;
+  const { tarifId, baseFare, farePerKm, farePerMinute, FraisDeService,percentage} = req.body;
 
   try {
     // Vérifier si les données nécessaires sont fournies
@@ -131,7 +139,10 @@ exports.updateTarifAndMajoration = async (req, res) => {
       baseFare === undefined ||
       farePerKm === undefined ||
       farePerMinute === undefined ||
-      FraisDeService === undefined
+      FraisDeService === undefined ||
+      percentage === undefined 
+
+
     ) {
       return res.status(400).send({
         message: "Veuillez fournir tarifId, baseFare, farePerKm, farePerMinute et FraisDeService.",
@@ -143,13 +154,15 @@ exports.updateTarifAndMajoration = async (req, res) => {
     const farePerKmNum = Number(farePerKm);
     const farePerMinuteNum = Number(farePerMinute);
     const FraisDeServiceNum = Number(FraisDeService);
+    const percentageNum = Number(percentage);
 
     // Vérifier que les valeurs converties sont valides
     if (
       isNaN(baseFareNum) ||
       isNaN(farePerKmNum) ||
       isNaN(farePerMinuteNum) ||
-      isNaN(FraisDeServiceNum)
+      isNaN(FraisDeServiceNum) ||
+      isNaN(percentageNum)
     ) {
       return res.status(400).send({
         message: "Les valeurs doivent être des nombres valides.",
@@ -166,6 +179,7 @@ exports.updateTarifAndMajoration = async (req, res) => {
     existingTarif.farePerKm = farePerKmNum;
     existingTarif.farePerMinute = farePerMinuteNum;
     existingTarif.FraisDeService = FraisDeServiceNum;
+    existingTarif.percentage = percentageNum;
 
     const updatedTarif = await existingTarif.save();
 
@@ -176,6 +190,7 @@ exports.updateTarifAndMajoration = async (req, res) => {
       farePerKm: farePerKmNum,
       farePerMinute: farePerMinuteNum,
       FraisDeService: FraisDeServiceNum,
+      percentage: percentageNum,
     });
 
     // Réponse de succès
