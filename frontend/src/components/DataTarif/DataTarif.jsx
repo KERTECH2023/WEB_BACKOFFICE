@@ -14,6 +14,7 @@ const DataTarif = () => {
     farePerKm: "",
     farePerMinute: "",
     FraisDeService: "", // Nouvelle propriété
+    percentage: "",
     type: "day",
   });
   const [isAddingTarif, setIsAddingTarif] = useState(false);
