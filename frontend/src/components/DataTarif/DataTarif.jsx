@@ -79,6 +79,7 @@ const DataTarif = () => {
       "farePerKm",
       "farePerMinute",
       "FraisDeService",
+      "percentage",
     ];
     for (const field of numericFields) {
       if (
@@ -99,6 +100,7 @@ const DataTarif = () => {
       farePerKm: tarif.farePerKm,
       farePerMinute: tarif.farePerMinute,
       FraisDeService: tarif.FraisDeService, // Remplir les frais existants
+      percentage: tarif.percentage, 
       type: tarif.type,
     });
     setIsModalOpen(true);
@@ -141,6 +143,7 @@ const DataTarif = () => {
             farePerKm: "",
             farePerMinute: "",
             FraisDeService: "",
+            percentage: "",
             type: "day",
           });
           getTariffs();
@@ -159,6 +162,8 @@ const DataTarif = () => {
     { field: "farePerKm", headerName: "Fare Per Km", width: 120 },
     { field: "farePerMinute", headerName: "Fare Per Minute", width: 150 },
     { field: "FraisDeService", headerName: "Frais De Service", width: 150 },
+    { field: "percentage", headerName: "percentage", width: 150 },
+    
     {
       field: "type",
       headerName: "Type",
@@ -234,6 +239,17 @@ const DataTarif = () => {
         value={newTarif.FraisDeService}
         onChange={(e) =>
           setNewTarif({ ...newTarif, FraisDeService: e.target.value })
+        }
+        className="form-control"
+        min="0"
+        step="0.01"
+      />
+      <input
+        type="number"
+        placeholder="percentage"
+        value={newTarif.percentage}
+        onChange={(e) =>
+          setNewTarif({ ...newTarif, percentage: e.target.value })
         }
         className="form-control"
         min="0"
