@@ -18,6 +18,10 @@ const tarifnuitSchema = new mongoose.Schema({
     type: Number,
     
   },
+  percentage: {
+    type: Number,
+    
+  },
   
   // Add other properties specific to your tarifnuitf model if needed
 });
