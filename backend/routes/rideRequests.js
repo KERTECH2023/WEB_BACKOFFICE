@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const RideRequests = require("../controllers/rideRequestsController");
+const RideRequests = require("../Controllers/rideRequestsController");
 
 // Route pour récupérer toutes les demandes
 router.get("/ride-requests", RideRequests.getAllRideRequests);
