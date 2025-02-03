@@ -13,23 +13,25 @@ const Liscourse = () => {
     fetchRides();
   }, [filterStatus]);
 
-  const fetchRides = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(API_URL);
-      let filteredRides = response.data;
+ const fetchRides = async () => {
+  setIsLoading(true);
+  try {
+    const response = await axios.get(API_URL);
 
-      if (filterStatus !== "all") {
-        filteredRides = filteredRides.filter(ride => ride.status === filterStatus);
-      }
-      
-      setRides(filteredRides.reverse());
-    } catch (error) {
-      console.error("Erreur lors de la récupération des courses :", error);
-    } finally {
-      setIsLoading(false);
+    // Convertir l'objet en tableau
+    let ridesArray = Object.values(response.data);
+
+    if (filterStatus !== "all") {
+      ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
     }
-  };
+    
+    setRides(ridesArray.reverse());
+  } catch (error) {
+    console.error("Erreur lors de la récupération des courses :", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="list">
