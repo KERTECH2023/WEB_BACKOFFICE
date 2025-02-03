@@ -72,7 +72,7 @@ const Liscourse = () => {
                     <td>{ride.userPhone}</td>
                     <td>{ride.sourceAddress}</td>
                     <td>{ride.destinationAddress}</td>
-                    <td>{ride.fareAmount} €</td>
+                    <td>{ride.fareAmount} DT</td>
                     <td>{ride.driverName} ({ride.driverPhone})</td>
                     <td>{ride.driverCarImmatriculation}</td>
                     <td>{ride.driverCarModelle}</td>
