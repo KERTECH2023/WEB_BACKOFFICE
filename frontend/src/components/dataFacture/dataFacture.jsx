@@ -162,21 +162,32 @@ const Datachauf = () => {
     }
   };
 
-  const updateDriverBalance = async (firebaseUID, newBalance) => {
+const updateDriverBalance = async (firebaseUID, addedBalance) => {
     try {
-      await axios.put(
-        `https://api.backofficegc.com/Solde/update/${firebaseUID}`,
-        {
-          solde: parseFloat(newBalance),
-        }
-      );
-      toast.success("Solde mis à jour avec succès !");
-      getChauffeurs();
+        // Récupérer le solde actuel du chauffeur
+        const response = await axios.get(
+            `https://api.backofficegc.com/Solde/solde/${firebaseUID}`
+        );
+        const currentBalance = response.data?.solde || 0;
+        
+        // Calculer le nouveau solde en ajoutant la valeur saisie
+        const newBalance = parseFloat(currentBalance) + parseFloat(addedBalance);
+
+        // Mettre à jour le solde
+        await axios.put(
+            `https://api.backofficegc.com/Solde/update/${firebaseUID}`,
+            {
+                solde: newBalance,
+            }
+        );
+        
+        toast.success("Solde mis à jour avec succès !");
+        getChauffeurs();
     } catch (error) {
-      console.error(`Error updating balance for driver ${firebaseUID}:`, error);
-      toast.error("Erreur lors de la mise à jour du solde");
+        console.error(`Error updating balance for driver ${firebaseUID}:`, error);
+        toast.error("Erreur lors de la mise à jour du solde");
     }
-  };
+};
 
   const handleRefresh = () => {
     getChauffeurs();
