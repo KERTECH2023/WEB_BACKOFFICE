@@ -4,7 +4,7 @@ import Login from "./pages/login/Login";
 import List from "./pages/list/List";
 import Listchauf from "./pages/listchauf/Listchauf";
 import ListClient from "./pages/ListClient/ListClient";
-
+import ListTraif from "./pages/ListTarif/ListTraif";
 import SendNotificationPage from "./pages/sendnotificatiochauffeur/notificationchauff";
 import SendNotificationPageClient from "./pages/sendnotificatioclient/notificationclient";
 import Single from "./pages/single/Single";
@@ -164,7 +164,12 @@ function App() {
               }
             />
           </Route>
-         
+          <Route path="Tarif">
+            <Route
+              index
+              element={isLoggedIn ? <ListTraif /> : <Landingpage />}
+            />
+          </Route>
           <Route path="SendNotificationPage">
             <Route
               index
