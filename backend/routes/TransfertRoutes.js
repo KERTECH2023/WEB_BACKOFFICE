@@ -1,10 +1,17 @@
-const express = require('express')
-const  router = express.Router()
+const express = require("express");
+const router = express.Router();
+const transContro = require("../Controllers/TransfertContro");
 
+// ✅ Récupérer tous les transferts
+router.get("/transfert", transContro.getAllTransfers);
 
-const transContro  = require('../Controllers/TransfertContro')
+// ✅ Créer un nouveau transfert
+router.post("/transfert", transContro.createTransfer);
 
-router.get('/transfert', transContro.getAllTransfers);
+// ✅ Mettre à jour un transfert et envoyer un email
+router.put("/transfert/:id", transContro.updatetransfertandsendmail);
 
+// ✅ Supprimer un transfert
+router.delete("/transfert/:id", transContro.deleteTransfer);
 
-module.exports = router
+module.exports = router;
