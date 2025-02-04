@@ -11,6 +11,7 @@ const TransferSchema = new mongoose.Schema({
   destination: { type: String },
   passengers: { type: String},
   price: { type: String },
+  accepter: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 
