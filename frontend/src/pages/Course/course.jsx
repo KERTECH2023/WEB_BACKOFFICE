@@ -116,16 +116,16 @@ const Liscourse = () => {
               <tbody>
                 {rides.map((ride) => (
                   <tr key={ride.id}>
-                    <td>{ride.userName || "N/A"}</td>
-                    <td>{ride.userPhone || "N/A"}</td>
-                    <td>{ride.sourceAddress || "N/A"}</td>
-                    <td>{ride.destinationAddress || "N/A"}</td>
-                    <td>{ride.fareAmount ? `${ride.fareAmount} DT` : "N/A"}</td>
+                    <td>{ride.userName || ""}</td>
+                    <td>{ride.userPhone || ""}</td>
+                    <td>{ride.sourceAddress || ""}</td>
+                    <td>{ride.destinationAddress || ""}</td>
+                    <td>{ride.fareAmount ? `${ride.fareAmount} DT` : ""}</td>
                     <td>{formatDriverInfo(ride)}</td>
-                    <td>{ride.carDetails?.carNumber || "N/A"}</td>
-                    <td>{ride.carDetails?.carModel || "N/A"}</td>
+                    <td>{ride.driverCarImmatriculation || ""}</td>
+                    <td>{ride.driverCarModelle || ""}</td>
                     <td className={getStatusClass(ride.status)}>
-                      {ride.status || "N/A"}
+                      {ride.status || ""}
                     </td>
                     <td>
                       {ride.time ? new Date(ride.time).toLocaleString() : "N/A"}
