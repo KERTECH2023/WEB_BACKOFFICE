@@ -32,6 +32,7 @@ import Log from "./pages/Log/Log";
 import Passwordforget from "./pages/Fpassword/Passwordforget";
 import Profile from "./pages/Profile/Profile";
 import ListContact from "./pages/ListContact/ListContact";
+import Transfert from "./pages/Transfert/Transfert.jsx";
 import SingleCon from "./pages/SingleContact/SingleCon";
 import ListFacture from "./pages/Facture/Facture";
 import Liscourse from "./pages/Course/course";
@@ -127,6 +128,13 @@ function App() {
             <Route
               index
               element={isLoggedIn ? <ListFacture /> : <Landingpage />}
+            />
+          </Route>
+
+                <Route path="Transfert">
+            <Route
+              index
+              element={isLoggedIn ? <Transfert /> : <Landingpage />}
             />
           </Route>
 
