@@ -7,6 +7,7 @@ const Liscourse = () => {
   const [rides, setRides] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const API_URL = "https://api.backofficegc.com/rideRequests/ride-requests";
 
   useEffect(() => {
@@ -15,14 +16,20 @@ const Liscourse = () => {
 
   const fetchRides = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await axios.get(API_URL);
-      let ridesArray = Object.values(response.data);
+      let ridesArray = Object.entries(response.data).map(([id, ride]) => ({
+        id,
+        ...ride
+      }));
+      
       if (filterStatus !== "all") {
         ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
       }
       setRides(ridesArray.reverse());
     } catch (error) {
+      setError("Erreur lors de la récupération des courses");
       console.error("Erreur lors de la récupération des courses :", error);
     } finally {
       setIsLoading(false);
@@ -30,15 +37,39 @@ const Liscourse = () => {
   };
 
   const handleDelete = async (rideId) => {
+    if (!rideId) {
+      alert("ID de course invalide");
+      return;
+    }
+
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette course ?")) {
+      return;
+    }
+
     try {
       await axios.delete(`${API_URL}/${rideId}`);
-      // Mettre à jour l'état local en filtrant la course supprimée
       setRides(rides.filter(ride => ride.id !== rideId));
       alert("Course supprimée avec succès");
     } catch (error) {
+      const errorMessage = error.response?.data?.error || "Erreur lors de la suppression de la course";
       console.error("Erreur lors de la suppression de la course :", error);
-      alert("Erreur lors de la suppression de la course");
+      alert(errorMessage);
     }
+  };
+
+  const formatDriverInfo = (ride) => {
+    if (!ride.driverName && !ride.driverPhone) return "Non assigné";
+    return `${ride.driverName || "N/A"} (${ride.driverPhone || "N/A"})`;
+  };
+
+  const getStatusClass = (status) => {
+    const statusClasses = {
+      Ended: "status-ended",
+      Accepted: "status-accepted",
+      Rejected: "status-rejected",
+      Arrived: "status-arrived"
+    };
+    return statusClasses[status] || "";
   };
 
   return (
@@ -47,18 +78,26 @@ const Liscourse = () => {
       <div className="listContainer">
         <Navbar />
         <div className="filter">
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+          <select 
+            value={filterStatus} 
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="filter-select"
+          >
             <option value="all">Tous</option>
             <option value="Ended">Terminé</option>
             <option value="Accepted">Accepté</option>
             <option value="Rejected">Rejeté</option>
+            <option value="Arrived">Arrivé</option>
           </select>
         </div>
+
+        {error && <div className="error-message">{error}</div>}
+        
         <div className="rides">
           {isLoading ? (
             <div className="loading">Chargement des données...</div>
           ) : (
-            <table>
+            <table className="rides-table">
               <thead>
                 <tr>
                   <th>Nom</th>
@@ -77,18 +116,27 @@ const Liscourse = () => {
               <tbody>
                 {rides.map((ride) => (
                   <tr key={ride.id}>
-                    <td>{ride.userName}</td>
-                    <td>{ride.userPhone}</td>
-                    <td>{ride.sourceAddress}</td>
-                    <td>{ride.destinationAddress}</td>
-                    <td>{ride.fareAmount} DT</td>
-                    <td>{ride.driverName} ({ride.driverPhone})</td>
-                    <td>{ride.driverCarImmatriculation}</td>
-                    <td>{ride.driverCarModelle}</td>
-                    <td>{ride.status}</td>
-                    <td>{new Date(ride.time).toLocaleString()}</td>
+                    <td>{ride.userName || "N/A"}</td>
+                    <td>{ride.userPhone || "N/A"}</td>
+                    <td>{ride.sourceAddress || "N/A"}</td>
+                    <td>{ride.destinationAddress || "N/A"}</td>
+                    <td>{ride.fareAmount ? `${ride.fareAmount} DT` : "N/A"}</td>
+                    <td>{formatDriverInfo(ride)}</td>
+                    <td>{ride.carDetails?.carNumber || "N/A"}</td>
+                    <td>{ride.carDetails?.carModel || "N/A"}</td>
+                    <td className={getStatusClass(ride.status)}>
+                      {ride.status || "N/A"}
+                    </td>
                     <td>
-                      <button onClick={() => handleDelete(ride.id)}>Supprimer</button>
+                      {ride.time ? new Date(ride.time).toLocaleString() : "N/A"}
+                    </td>
+                    <td>
+                      <button 
+                        onClick={() => handleDelete(ride.id)}
+                        className="delete-button"
+                      >
+                        Supprimer
+                      </button>
                     </td>
                   </tr>
                 ))}
