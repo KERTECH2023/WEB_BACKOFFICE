@@ -13,25 +13,33 @@ const Liscourse = () => {
     fetchRides();
   }, [filterStatus]);
 
- const fetchRides = async () => {
-  setIsLoading(true);
-  try {
-    const response = await axios.get(API_URL);
-
-    // Convertir l'objet en tableau
-    let ridesArray = Object.values(response.data);
-
-    if (filterStatus !== "all") {
-      ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
+  const fetchRides = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(API_URL);
+      let ridesArray = Object.values(response.data);
+      if (filterStatus !== "all") {
+        ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
+      }
+      setRides(ridesArray.reverse());
+    } catch (error) {
+      console.error("Erreur lors de la récupération des courses :", error);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setRides(ridesArray.reverse());
-  } catch (error) {
-    console.error("Erreur lors de la récupération des courses :", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
+
+  const handleDelete = async (rideId) => {
+    try {
+      await axios.delete(`${API_URL}/${rideId}`);
+      // Mettre à jour l'état local en filtrant la course supprimée
+      setRides(rides.filter(ride => ride.id !== rideId));
+      alert("Course supprimée avec succès");
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la course :", error);
+      alert("Erreur lors de la suppression de la course");
+    }
+  };
 
   return (
     <div className="list">
@@ -63,6 +71,7 @@ const Liscourse = () => {
                   <th>Modèle</th>
                   <th>Statut</th>
                   <th>Heure</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,6 +87,9 @@ const Liscourse = () => {
                     <td>{ride.driverCarModelle}</td>
                     <td>{ride.status}</td>
                     <td>{new Date(ride.time).toLocaleString()}</td>
+                    <td>
+                      <button onClick={() => handleDelete(ride.id)}>Supprimer</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
