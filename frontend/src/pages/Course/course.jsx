@@ -10,6 +10,63 @@ const Liscourse = () => {
   const [error, setError] = useState(null);
   const API_URL = "https://api.backofficegc.com/rideRequests/ride-requests";
 
+  // Styles intégrés
+  const styles = {
+    ridesTable: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      marginTop: '20px',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+    },
+    tableCell: {
+      padding: '12px',
+      border: '1px solid #ddd',
+      textAlign: 'left'
+    },
+    tableHeader: {
+      padding: '12px',
+      border: '1px solid #ddd',
+      textAlign: 'left',
+      backgroundColor: '#f5f5f5',
+      fontWeight: '600'
+    },
+    deleteButton: {
+      backgroundColor: '#F44336',
+      color: 'white',
+      border: 'none',
+      padding: '5px 10px',
+      borderRadius: '4px',
+      cursor: 'pointer'
+    },
+    filterSelect: {
+      padding: '8px',
+      margin: '10px 0',
+      borderRadius: '4px',
+      border: '1px solid #ddd',
+      backgroundColor: 'white',
+      minWidth: '150px'
+    },
+    errorMessage: {
+      color: '#F44336',
+      padding: '10px',
+      margin: '10px 0',
+      backgroundColor: '#FFEBEE',
+      borderRadius: '4px',
+      border: '1px solid #FFCDD2'
+    },
+    loading: {
+      padding: '20px',
+      textAlign: 'center',
+      color: '#666'
+    },
+    statusStyles: {
+      Ended: { color: '#2196F3', fontWeight: '500' },
+      Accepted: { color: '#4CAF50', fontWeight: '500' },
+      Rejected: { color: '#F44336', fontWeight: '500' },
+      Arrived: { color: '#9C27B0', fontWeight: '500' }
+    }
+  };
+
   useEffect(() => {
     fetchRides();
   }, [filterStatus]);
@@ -62,26 +119,16 @@ const Liscourse = () => {
     return `${ride.driverName || "N/A"} (${ride.driverPhone || "N/A"})`;
   };
 
-  const getStatusClass = (status) => {
-    const statusClasses = {
-      Ended: "status-ended",
-      Accepted: "status-accepted",
-      Rejected: "status-rejected",
-      Arrived: "status-arrived"
-    };
-    return statusClasses[status] || "";
-  };
-
   return (
     <div className="list">
       <Sidebar />
-      <div className="listContainer">
+      <div style={{ padding: '20px' }}>
         <Navbar />
-        <div className="filter">
+        <div style={{ marginBottom: '20px' }}>
           <select 
             value={filterStatus} 
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="filter-select"
+            style={styles.filterSelect}
           >
             <option value="all">Tous</option>
             <option value="Ended">Terminé</option>
@@ -91,49 +138,49 @@ const Liscourse = () => {
           </select>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <div style={styles.errorMessage}>{error}</div>}
         
         <div className="rides">
           {isLoading ? (
-            <div className="loading">Chargement des données...</div>
+            <div style={styles.loading}>Chargement des données...</div>
           ) : (
-            <table className="rides-table">
+            <table style={styles.ridesTable}>
               <thead>
                 <tr>
-                  <th>Nom</th>
-                  <th>Téléphone</th>
-                  <th>Adresse source</th>
-                  <th>Adresse destination</th>
-                  <th>Montant</th>
-                  <th>Conducteur</th>
-                  <th>Immatriculation</th>
-                  <th>Modèle</th>
-                  <th>Statut</th>
-                  <th>Heure</th>
-                  <th>Action</th>
+                  <th style={styles.tableHeader}>Nom</th>
+                  <th style={styles.tableHeader}>Téléphone</th>
+                  <th style={styles.tableHeader}>Adresse source</th>
+                  <th style={styles.tableHeader}>Adresse destination</th>
+                  <th style={styles.tableHeader}>Montant</th>
+                  <th style={styles.tableHeader}>Conducteur</th>
+                  <th style={styles.tableHeader}>Immatriculation</th>
+                  <th style={styles.tableHeader}>Modèle</th>
+                  <th style={styles.tableHeader}>Statut</th>
+                  <th style={styles.tableHeader}>Heure</th>
+                  <th style={styles.tableHeader}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {rides.map((ride) => (
                   <tr key={ride.id}>
-                    <td>{ride.userName || ""}</td>
-                    <td>{ride.userPhone || ""}</td>
-                    <td>{ride.sourceAddress || ""}</td>
-                    <td>{ride.destinationAddress || ""}</td>
-                    <td>{ride.fareAmount ? `${ride.fareAmount} DT` : ""}</td>
-                    <td>{formatDriverInfo(ride)}</td>
-                    <td>{ride.driverCarImmatriculation || ""}</td>
-                    <td>{ride.driverCarModelle || ""}</td>
-                    <td className={getStatusClass(ride.status)}>
+                    <td style={styles.tableCell}>{ride.userName || ""}</td>
+                    <td style={styles.tableCell}>{ride.userPhone || ""}</td>
+                    <td style={styles.tableCell}>{ride.sourceAddress || ""}</td>
+                    <td style={styles.tableCell}>{ride.destinationAddress || ""}</td>
+                    <td style={styles.tableCell}>{ride.fareAmount ? `${ride.fareAmount} DT` : ""}</td>
+                    <td style={styles.tableCell}>{formatDriverInfo(ride)}</td>
+                    <td style={styles.tableCell}>{ride.driverCarImmatriculation || ""}</td>
+                    <td style={styles.tableCell}>{ride.driverCarModelle || ""}</td>
+                    <td style={{...styles.tableCell, ...styles.statusStyles[ride.status]}}>
                       {ride.status || ""}
                     </td>
-                    <td>
+                    <td style={styles.tableCell}>
                       {ride.time ? new Date(ride.time).toLocaleString() : "N/A"}
                     </td>
-                    <td>
+                    <td style={styles.tableCell}>
                       <button 
                         onClick={() => handleDelete(ride.id)}
-                        className="delete-button"
+                        style={styles.deleteButton}
                       >
                         Supprimer
                       </button>
