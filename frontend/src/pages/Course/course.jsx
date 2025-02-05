@@ -93,6 +93,37 @@ const Liscourse = () => {
     }
   };
 
+  const fetchDriverInfo = async (immatriculation) => {
+    try {
+      const response = await axios.get(`https://api.backofficegc.com/driver/${immatriculation}`);
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération du chauffeur :", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const updateRidesWithDriverInfo = async () => {
+      const updatedRides = await Promise.all(
+        rides.map(async (ride) => {
+          if (!ride.driverName && !ride.driverPhone && ride.driverCarImmatriculation) {
+            const driverInfo = await fetchDriverInfo(ride.driverCarImmatriculation);
+            return driverInfo
+              ? { ...ride, driverName: driverInfo.name, driverPhone: driverInfo.phone }
+              : ride;
+          }
+          return ride;
+        })
+      );
+      setRides(updatedRides);
+    };
+
+    if (rides.length > 0) {
+      updateRidesWithDriverInfo();
+    }
+  }, [rides]);
+
   const handleDelete = async (rideId) => {
     if (!rideId) {
       alert("ID de course invalide");
@@ -178,10 +209,7 @@ const Liscourse = () => {
                       {ride.time ? new Date(ride.time).toLocaleString() : "N/A"}
                     </td>
                     <td style={styles.tableCell}>
-                      <button 
-                        onClick={() => handleDelete(ride.id)}
-                        style={styles.deleteButton}
-                      >
+                      <button onClick={() => handleDelete(ride.id)} style={styles.deleteButton}>
                         Supprimer
                       </button>
                     </td>
