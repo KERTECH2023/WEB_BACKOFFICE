@@ -95,7 +95,7 @@ const Liscourse = () => {
 
   const fetchDriverInfo = async (immatriculation) => {
     try {
-      const response = await axios.get(`https://api.backofficegc.com/driver/${immatriculation}`);
+      const response = await axios.get(`https://api.backofficegc.com/rideRequests/driver/${immatriculation}`);
       return response.data;
     } catch (error) {
       console.error("Erreur lors de la récupération du chauffeur :", error);
