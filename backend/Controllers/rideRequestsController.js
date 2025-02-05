@@ -84,9 +84,46 @@ const deleteRideRequest = async (req, res) => {
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
+const getDriverByImmatriculation = async (req, res) => {
+    try {
+      const immatriculation = req.params.immatriculation;
+      if (!immatriculation) {
+        return res.status(400).json({ error: "Immatriculation requise" });
+      }
+  
+      const driversRef = realtimeDB.ref("Drivers");
+      const snapshot = await driversRef.once("value");
+  
+      if (!snapshot.exists()) {
+        return res.status(404).json({ error: "Aucun chauffeur trouvé" });
+      }
+  
+      const drivers = snapshot.val();
+      let driverInfo = null;
+  
+      Object.keys(drivers).forEach((key) => {
+        if (drivers[key].carDetails && drivers[key].carDetails.immatriculation === immatriculation) {
+          driverInfo = {
+            name: drivers[key].name,
+            phone: drivers[key].phone,
+          };
+        }
+      });
+  
+      if (!driverInfo) {
+        return res.status(404).json({ error: "Chauffeur non trouvé" });
+      }
+  
+      return res.status(200).json(driverInfo);
+    } catch (error) {
+      console.error("Erreur lors de la récupération du chauffeur :", error);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+  };
 
 module.exports = {
   getAllRideRequests,
   updateRideRequest,
   deleteRideRequest,
+  getDriverByImmatriculation,
 };
