@@ -25,7 +25,7 @@ const createDriversNodeIfNotExists = async () => {
 
   try {
     const snapshot = await driversRef.once("value");
-    
+
     if (!snapshot.exists()) {
       // La référence "Drivers" n'existe pas, on la crée
       await driversRef.set({
@@ -273,41 +273,41 @@ const getRideCounts = async (req, res) => {
 };
 // Controller function to get factures by chauffeur ID
 const getFacturesByChauffeurId = (req, res) => {
-    const id = req.params.chauffeurId;
-  
-    console.log("Chauffeur ID:", id);
-  
-    Facture.find({ chauffeur: id })
-      .then(factures => {
-        res.status(200).send(factures);
-      })
-      .catch(err => {
-        console.error('Error while fetching factures:', err);
-        res.status(500).json({ error: 'An error occurred while fetching factures' });
-      });
-  };
-  const searchFacture = async (req, res) => {
-    const id = req.params.id;
-    console.log(id);
-    try {
-      const data = await Facture.findOne({
-      chauffeurId:id
-  });
-  
-      if (!data) {
-        return res
-          .status(404)
-          .send({ message: "Facture introuvable pour id " + id });
-      }
-  
-      res.json(data);
-      console.log(data);
-    } catch (err) {
-      res
-        .status(500)
-        .send({ message: "Erreur de récupération de la facture avec id=" + id });
+  const id = req.params.chauffeurId;
+
+  console.log("Chauffeur ID:", id);
+
+  Facture.find({ chauffeur: id })
+    .then(factures => {
+      res.status(200).send(factures);
+    })
+    .catch(err => {
+      console.error('Error while fetching factures:', err);
+      res.status(500).json({ error: 'An error occurred while fetching factures' });
+    });
+};
+const searchFacture = async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  try {
+    const data = await Facture.findOne({
+      chauffeurId: id
+    });
+
+    if (!data) {
+      return res
+        .status(404)
+        .send({ message: "Facture introuvable pour id " + id });
     }
-  };
+
+    res.json(data);
+    console.log(data);
+  } catch (err) {
+    res
+      .status(500)
+      .send({ message: "Erreur de récupération de la facture avec id=" + id });
+  }
+};
 const register = async (req, res) => {
   const {
     Nom,
@@ -344,11 +344,10 @@ const register = async (req, res) => {
     const preIndex = Math.floor(Math.random() * Prenom.length);
     const randomNumber = Math.floor(Math.random() * 90000);
 
-    nouveauUtilisateur.username = `${
-      Nom[Math.floor(Math.random() * Nom.length)]
-    }${Prenom[Math.floor(Math.random() * Prenom.length)]}${Math.floor(
-      Math.random() * 90000
-    )}`;
+    nouveauUtilisateur.username = `${Nom[Math.floor(Math.random() * Nom.length)]
+      }${Prenom[Math.floor(Math.random() * Prenom.length)]}${Math.floor(
+        Math.random() * 90000
+      )}`;
     nouveauUtilisateur.Nom = Nom;
     nouveauUtilisateur.Prenom = Prenom;
     nouveauUtilisateur.email = email;
@@ -646,7 +645,7 @@ const sendmessagingnotification = async (req, res) => {
   }
 
   // Extraire les tokens des chauffeurs
-    const tokens = Object.values(drivers) 
+  const tokens = Object.values(drivers)
     .filter(driver => driver.token) // Filtrer les chauffeurs avec Cstatus: true et un token valide
     .map(driver => driver.token);
 
@@ -655,7 +654,7 @@ const sendmessagingnotification = async (req, res) => {
     return;
   }
 
- 
+
 
   const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
 
@@ -677,7 +676,7 @@ const sendmessagingnotificationclient = async (req, res) => {
   }
 
   // Extraire les tokens des chauffeurs
-    const tokens = Object.values(users) 
+  const tokens = Object.values(users)
     .filter(users => users.token) // Filtrer les chauffeurs avec Cstatus: true et un token valide
     .map(users => users.token);
 
@@ -686,7 +685,7 @@ const sendmessagingnotificationclient = async (req, res) => {
     return;
   }
 
- 
+
 
   const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
 
@@ -757,9 +756,10 @@ const update = async (req, res, next) => {
         ...(body.email && { email: body.email }),
         ...(body.phone && { phone: body.phone }),
         ...(body.cnicNo && { cnicNo: body.cnicNo }),
-      });}
+      });
+    }
 
-   
+
 
     // Update Chauffeur in MongoDB
     await Chauffeur.findByIdAndUpdate(id, { $set: updateData });
@@ -947,17 +947,17 @@ const updatestatus = async (req, res, next) => {
       const userRecord = await admin.auth().getUserByEmail(chauffeurEmail);
       console.log("Existing user:", userRecord);
 
-  // Delete the user record if it exists
+      // Delete the user record if it exists
       console.log(userRecord.uid);
       await admin.auth().updateUser(userRecord.uid, {
         disabled: true
       });
 
-        // Update Realtime Database
-        const firebaseRef = realtimeDB.ref("Drivers/" + chauffeurUpdated.firebaseUID);
-        await firebaseRef.update({
-          'Cstatus': false
-        });
+      // Update Realtime Database
+      const firebaseRef = realtimeDB.ref("Drivers/" + chauffeurUpdated.firebaseUID);
+      await firebaseRef.update({
+        'Cstatus': false
+      });
 
       const usersRef = realtimeDB.ref("Users");
       usersRef.child(id).set(
@@ -1137,14 +1137,14 @@ const reactivateChauffeur = async (req, res) => {
       // Reactivate Firebase user account
       await admin.auth().updateUser(chauffeur.firebaseUID, { disabled: false });
       console.log("Firebase account reactivated for UID:", chauffeur.firebaseUID);
-    
+
       // Update Realtime Database
       const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
       await firebaseRef.update({
         'Cstatus': true
       });
-  
-   
+
+
     } catch (firebaseError) {
       console.error("Error reactivating Firebase user:", firebaseError);
       return res.status(500).send({
@@ -1224,30 +1224,30 @@ const updatestatuss = async (req, res, next) => {
       // Essayer de trouver un utilisateur existant par email
       firebaseUser = await admin.auth().getUserByEmail(chauffeurEmail);
       console.log("Existing Firebase user found:", firebaseUser);
-      const messagesms="Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
+      const messagesms = "Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
       // Si l'utilisateur existe, envoyer un email avec le mot de passe existant
       try {
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
-        
+
         await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
-        
+
         // Mettre à jour les données dans Realtime Database
         const activeDriver = {
           name: chauffeurUpdated.Nom,
-          DateNaissance: chauffeurUpdated.DateNaissance,
+          DateNaissance: "",
           address: chauffeurUpdated.address,
           cnicNo: chauffeurUpdated.cnicNo,
           gender: chauffeurUpdated.gender,
-          postalCode: chauffeurUpdated.postalCode,
+          postalCode: "",
           email: chauffeurUpdated.email,
           imageUrl: chauffeurUpdated.photoAvatar,
           phone: chauffeurUpdated.phone,
           Cstatus: true,
           carDetails: car
             ? {
-                immatriculation: car.immatriculation,
-                modelle: car.modelle,
-              }
+              immatriculation: car.immatriculation,
+              modelle: car.modelle,
+            }
             : null,
         };
 
@@ -1304,26 +1304,26 @@ const updatestatuss = async (req, res, next) => {
         // Ajouter les données dans Firebase Realtime Database
         const activeDriver = {
           name: chauffeurUpdated.Nom,
-          DateNaissance: chauffeurUpdated.DateNaissance,
+          DateNaissance: "",
           address: chauffeurUpdated.address,
           cnicNo: chauffeurUpdated.cnicNo,
           gender: chauffeurUpdated.gender,
-          postalCode: chauffeurUpdated.postalCode,
+          postalCode: "",
           email: chauffeurUpdated.email,
           imageUrl: chauffeurUpdated.photoAvatar,
           phone: chauffeurUpdated.phone,
           Cstatus: true,
           carDetails: car
             ? {
-                immatriculation: car.immatriculation,
-                modelle: car.modelle,
-              }
+              immatriculation: car.immatriculation,
+              modelle: car.modelle,
+            }
             : null,
         };
 
         const driversRef = realtimeDB.ref("Drivers");
         await driversRef.child(firebaseUser.uid).set(activeDriver);
-       
+
 
         // Envoyer un email de confirmation
         try {
@@ -1355,10 +1355,10 @@ const updatestatuss = async (req, res, next) => {
   }
 };
 
-   
 
 
-     
+
+
 
 async function sendConfirmationEmail(Email, chauffeurPassword) {
   // create reusable transporter object using the default SMTP transport
@@ -1487,14 +1487,14 @@ async function sendConfirmationEmail(Email, chauffeurPassword) {
 // Fonction pour envoyer un SMS
 async function sendSMSDirect(motdepasse, numtel) {
   // Suppression du "+" dans le numéro de téléphone
-  const formattedNumTel = numtel.replace(/\+/g, ""); 
+  const formattedNumTel = numtel.replace(/\+/g, "");
 
   // URL construite avec le numéro de téléphone formaté
-const url = "https://www.winsmspro.com/sms/sms/api?action=send-sms&api_key=DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6&to=" 
-              + formattedNumTel 
-              + "&sms=Votre%20compte%20a%20été%20validé%20avec%20succès,%20Vous%20pouvez%20dès%20à%20présent%20vous%20connecter%20pour%20commencer%20à%20gérer%20vos%20courses.%20Votre%20code%20est%20" 
-              + motdepasse 
-              + "&from=FLashDriver";
+  const url = "https://www.winsmspro.com/sms/sms/api?action=send-sms&api_key=DP36cCxU7I5o7YYka2zmRelWZDm86XuG5AAqU5Vj5Ob1MLnfyTDYQILEumw6&to="
+    + formattedNumTel
+    + "&sms=Votre%20compte%20a%20été%20validé%20avec%20succès,%20Vous%20pouvez%20dès%20à%20présent%20vous%20connecter%20pour%20commencer%20à%20gérer%20vos%20courses.%20Votre%20code%20est%20"
+    + motdepasse
+    + "&from=FLashDriver";
 
 
   https.get(url, (res) => {
@@ -1534,5 +1534,5 @@ module.exports = {
   sendmessagingnotification,
   sendmessagingnotificationclient,
   sendNotificationMiseajour,
-  
+
 };
