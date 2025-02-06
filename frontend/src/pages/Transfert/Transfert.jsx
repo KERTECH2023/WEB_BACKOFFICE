@@ -109,8 +109,6 @@ const LisTransfer = () => {
                   <td>{transfer.datevol}</td>
                   <td>{transfer.heurvol}</td>
                   <td>{transfer.numvol}</td>
-                  <td>{transfer.phone}</td>
-                  <td>{transfer.phone}</td>
                   <td>{transfer.airport}</td>
                   <td>{transfer.destination}</td>
                   <td>{transfer.passengers}</td>
