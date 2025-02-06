@@ -1,17 +1,28 @@
-// models/Tariftransfert.js
 const mongoose = require('mongoose');
 
-const TarifSchema = new mongoose.Schema({
-  prixdepersonne: { 
-    type: Number, 
-    required: true 
+const tarifTransfertSchema = new mongoose.Schema({
+  
+  prixdepersonne: {
+    type: Number,
+
   },
-  prixdebase: { 
-    type: Number, 
-    required: true 
+  prixdebase: {
+    type: Number,
+    
+  },
+ 
+  
+  // Add other properties specific to your tariff model if needed
+});
+tarifTransfertSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: function (doc, ret) {
+      delete ret._id;
+      
   }
-}, {
-  timestamps: true
 });
 
-module.exports = mongoose.model('Tariftransfert', TarifSchema);
+const tarifTransfert = mongoose.model('tarifTransfert', tarifTransfertSchema);
+
+module.exports = tarifTransfert;
