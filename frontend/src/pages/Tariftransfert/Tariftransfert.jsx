@@ -21,7 +21,7 @@ const TarifManager = () => {
     setIsLoading(true);
     setError("");
     try {
-      const response = await axios.get(`${BASE_URL}/tariftransfert`);
+      const response = await axios.get(`${BASE_URL}/tariftransfet`);
       if (response.data && response.data.length > 0) {
         const currentTarif = response.data[0];
         setTarif(currentTarif);
@@ -58,7 +58,7 @@ const TarifManager = () => {
   };
 
   const addTarif = async () => {
-    const response = await axios.post(`${BASE_URL}/tariftransfert/add`, {
+    const response = await axios.post(`${BASE_URL}/tariftransfet/add`, {
       prixdepersonne: Number(prixdepersonne),
       prixdebase: Number(prixdebase),
     });
@@ -70,7 +70,7 @@ const TarifManager = () => {
   };
 
   const updateTarif = async (id) => {
-    const response = await axios.put(`${BASE_URL}/tariftransfert/${id}`, {
+    const response = await axios.put(`${BASE_URL}/tariftransfet/${id}`, {
       prixdepersonne: Number(prixdepersonne),
       prixdebase: Number(prixdebase),
     });
