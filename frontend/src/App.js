@@ -21,6 +21,7 @@ import AgnetDesac from "./pages/AgentDesac/AgentDesac";
 import ChauffDesac from "./pages/ChaufDesac/ChauffDesac";
 import ClientDesa from "./pages/ClientDesa/ClientDesa";
 import UpdateStat from "./pages/UpdateStatus/UpdateStat";
+import TarifTransfert from "./pages/Tariftransfert/Tariftransfert";
 import SingleClient from "./pages/SingleClient/SingleClient";
 import UpdClientcl from "./pages/UpdClient_cl/UpdClient";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -135,6 +136,12 @@ function App() {
             <Route
               index
               element={isLoggedIn ? <Transfert /> : <Landingpage />}
+            />
+          </Route>
+                  <Route path="Tariftransfert">
+            <Route
+              index
+              element={isLoggedIn ? <TarifTransfert /> : <Landingpage />}
             />
           </Route>
 
