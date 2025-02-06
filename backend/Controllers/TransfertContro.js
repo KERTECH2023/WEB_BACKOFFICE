@@ -88,6 +88,9 @@ exports.updatetransfertandsendmail = async (req, res) => {
                     <p>Bonjour ${transfer.firstName} ${transfer.lastName},</p>
                     <p>Votre réservation a été validée avec succès.</p>
                     <p><strong>Email :</strong> ${transfer.email}</p>
+                    <p><strong>Num vol :</strong> ${transfer.numvol}</p>
+                    <p><strong>Date :</strong> ${transfer.datevol}</p>
+                    <p><strong>Heure :</strong> ${transfer.heurvol}</p>
                     <p><strong>Aéroport :</strong> ${transfer.airport}</p>
                     <p><strong>Destination :</strong> ${transfer.destination}</p>
                     <p><strong>Passagers :</strong> ${transfer.passengers}</p>
