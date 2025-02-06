@@ -1,7 +1,7 @@
 // TarifManager.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./TarifManager.css"; // Ajoutez des styles si nécessaire
+import "./TarifManager.scss"; // Ajoutez des styles si nécessaire
 
 const TariftransfertManager = () => {
   const [tarif, setTarif] = useState(null);
