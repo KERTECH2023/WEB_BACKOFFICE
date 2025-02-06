@@ -1,128 +1,110 @@
-import React, { useState, useEffect } from "react"; 
-import Sidebar from "../../components/sidebar/Sidebar";
-import Navbar from "../../components/navbar/Navbar";
+// TarifManager.js
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./LisTransfer.css"; // Ajout du fichier CSS pour le style
+import "./TarifManager.css"; // Ajoutez des styles si nécessaire
 
-const LisTransfer = () => {
-  const [transfers, setTransfers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [dateFilter, setDateFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState(""); // "accepted" ou "notAccepted"
-  
+const TariftransfertManager = () => {
+  const [tarif, setTarif] = useState(null);
+  const [prixdepersonne, setPrixDePersonne] = useState("");
+  const [prixdebase, setPrixDeBase] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
-    fetchTransfers();
+    fetchTarif();
   }, []);
 
-  const fetchTransfers = async () => {
+  const fetchTarif = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${BASE_URL}/transfer/transfert`);
-      setTransfers((response.data || []).reverse());
+      const response = await axios.get(`${BASE_URL}/tariftransfert`);
+      if (response.data.length > 0) {
+        setTarif(response.data[0]); // Récupérer le premier tarif s'il existe
+        setPrixDePersonne(response.data[0].prixdepersonne);
+        setPrixDeBase(response.data[0].prixdebase || "");
+      }
     } catch (error) {
-      console.error("Erreur lors de la récupération des transferts :", error);
+      console.error("Erreur lors de la récupération du tarif :", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // ✅ Accepter un transfert
-  const acceptTransfer = async (id) => {
-    try {
-      await axios.put(`${BASE_URL}/transfer/transfert/${id}`, { accepted: true });
-      alert("Transfert accepté avec succès !");
-      fetchTransfers(); // Rafraîchir la liste après acceptation
-    } catch (error) {
-      console.error("Erreur lors de l'acceptation du transfert :", error);
+  const handleAddOrUpdateTarif = async (event) => {
+    event.preventDefault();
+    if (tarif) {
+      // Si le tarif existe, mettez à jour
+      await updateTarif(tarif._id);
+    } else {
+      // Si le tarif n'existe pas, ajoutez un nouveau tarif
+      await addTarif();
     }
   };
 
-  // Filtrage des transferts
-  const filteredTransfers = transfers.filter((transfer) => {
-    const transferDate = new Date(transfer.createdAt).toISOString().split("T")[0];
-    const isDateMatch = !dateFilter || transferDate === dateFilter;
-    const isStatusMatch = !statusFilter || 
-      (statusFilter === "accepted" && transfer.accepted) ||
-      (statusFilter === "notAccepted" && !transfer.accepted);
+  const addTarif = async () => {
+    try {
+      await axios.post(`${BASE_URL}/tariftransfert/add`, {
+        prixdepersonne,
+        prixdebase,
+      });
+      alert("Tarif ajouté avec succès !");
+      fetchTarif(); // Rafraîchir la liste des tarifs
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du tarif :", error);
+    }
+  };
 
-    return isDateMatch && isStatusMatch;
-  });
+  const updateTarif = async (id) => {
+    try {
+      await axios.put(`${BASE_URL}/tariftransfert/${id}`, {
+        prixdepersonne,
+        prixdebase,
+      });
+      alert("Tarif mis à jour avec succès !");
+      fetchTarif(); // Rafraîchir la liste des tarifs
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du tarif :", error);
+    }
+  };
 
   return (
-    <div className="list">
-      <Sidebar />
-      <div className="listContainer">
-        <Navbar />
-        <h2>Liste des Transferts</h2>
-
-        {/* Filtres */}
-        <div className="filters">
-          <input 
-            type="date" 
-            value={dateFilter} 
-            onChange={(e) => setDateFilter(e.target.value)} 
-            className="filter-input"
-          />
-          <select 
-            value={statusFilter} 
-            onChange={(e) => setStatusFilter(e.target.value)} 
-            className="filter-select"
-          >
-            <option value="">Tous</option>
-            <option value="accepted">Accepté</option>
-            <option value="notAccepted">Non accepté</option>
-          </select>
+    <div className="tarif-manager">
+      <h2>Gestion des Tarifs</h2>
+      {isLoading ? (
+        <p>Chargement...</p>
+      ) : (
+        <form onSubmit={handleAddOrUpdateTarif}>
+          <div>
+            <label>Prix par personne (€):</label>
+            <input
+              type="number"
+              value={prixdepersonne}
+              onChange={(e) => setPrixDePersonne(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>Prix de base (€):</label>
+            <input
+              type="number"
+              value={prixdebase}
+              onChange={(e) => setPrixDeBase(e.target.value)}
+            />
+          </div>
+          <button type="submit">
+            {tarif ? "Mettre à jour le tarif" : "Ajouter un tarif"}
+          </button>
+        </form>
+      )}
+      {tarif && (
+        <div>
+          <h3>Tarif Actuel</h3>
+          <p>Prix par personne: {tarif.prixdepersonne} €</p>
+          <p>Prix de base: {tarif.prixdebase || "N/A"} €</p>
         </div>
-
-        {isLoading ? (
-          <p>Chargement...</p>
-        ) : (
-          <table className="transfer-table">
-            <thead>
-              <tr>
-                <th>Prénom</th>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th>Aéroport</th>
-                <th>Destination</th>
-                <th>Passagers</th>
-                <th>Prix (€)</th>
-                <th>Date</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransfers.map((transfer) => (
-                <tr key={transfer._id} className={transfer.accepted ? "accepted" : "not-accepted"}>
-                  <td>{transfer.firstName}</td>
-                  <td>{transfer.lastName}</td>
-                  <td>{transfer.email}</td>
-                  <td>{transfer.phone}</td>
-                  <td>{transfer.airport}</td>
-                  <td>{transfer.destination}</td>
-                  <td>{transfer.passengers}</td>
-                  <td>{parseFloat(transfer.price).toFixed(2)}</td>
-                  <td>{new Date(transfer.createdAt).toLocaleDateString()}</td>
-                  <td>{transfer.accepted ? "✅ Accepté" : "❌ Non accepté"}</td>
-                  <td>
-                    {!transfer.accepted && (
-                      <button className="accept-btn" onClick={() => acceptTransfer(transfer._id)}>
-                        ✅ Accepter
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      )}
     </div>
   );
 };
 
-export default LisTransfer;
+export default TariftransfertManager;
