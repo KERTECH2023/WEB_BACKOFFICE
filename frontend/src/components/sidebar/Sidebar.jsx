@@ -82,6 +82,12 @@ const Sidebar = () => {
             <span>Tarifs</span>
           </li>
           </Link>
+           <Link to="/Tariftransfert" style={{ textDecoration: "none" }}>
+          <li>
+            <LocalShippingIcon className="icon" />
+            <span>Tarifs Transfert</span>
+          </li>
+          </Link>
 
           <Link to="/Liscourse" style={{ textDecoration: "none" }}>
           <li>
