@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./TarifManager.scss"; // Ajoutez des styles si nécessaire
+import Sidebar from "../../components/sidebar/Sidebar";
+import Navbar from "../../components/navbar/Navbar";
+
 
 const TariftransfertManager = () => {
   const [tarif, setTarif] = useState(null);
@@ -68,6 +71,10 @@ const TariftransfertManager = () => {
   };
 
   return (
+    <div className="list">
+      <Sidebar />
+      <div className="listContainer">
+        <Navbar />
     <div className="tarif-manager">
       <h2>Gestion des Tarifs</h2>
       {isLoading ? (
@@ -103,6 +110,8 @@ const TariftransfertManager = () => {
           <p>Prix de base: {tarif.prixdebase || "N/A"} €</p>
         </div>
       )}
+    </div>
+    </div>
     </div>
   );
 };
