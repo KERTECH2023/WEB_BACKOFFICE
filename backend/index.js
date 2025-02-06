@@ -25,6 +25,7 @@ const tarn = require("./routes/TarifRouteNuit.js");
 const transfert = require("./routes/TransfertRoutes.js");
 const Solde = require("./routes/SoldeRoute.js");
 const rideRequests = require("./routes/rideRequests.js");
+const tariftransfet = require("./routes/TariftransfertRoute.js");
 const con = require("./routes/ContactRoute");
 const rides = require("./routes/RideRoute");
 const factureRoute = require("./routes/factureRoutes.js")
@@ -82,6 +83,7 @@ app.use("/Rec", Rec);
 app.use("/Voi", Voi);
 app.use("/Tar", tar);
 app.use("/transfer", transfert);
+app.use("/tariftransfet", tariftransfet);
 
 app.use("/Tarj", tarj);
 app.use("/Tart", tart);
