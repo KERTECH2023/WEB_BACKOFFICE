@@ -41,7 +41,8 @@ const LisTransfer = () => {
 
   // Filtrage des transferts
   const filteredTransfers = transfers.filter((transfer) => {
-    const transferDate = new Date(transfer.datevol).toISOString().split("T")[0]; // Utilisation de datevol
+    const transferDate = transfer.datevol ? new Date(transfer.datevol).toISOString().split("T")[0] : "";
+ // Utilisation de datevol
     const isDateMatch = !dateFilter || transferDate === dateFilter;
     const isStatusMatch = !statusFilter || 
       (statusFilter === "accepted" && transfer.accepter === "accepter") ||
