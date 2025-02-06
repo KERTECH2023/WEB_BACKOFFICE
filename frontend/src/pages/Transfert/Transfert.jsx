@@ -87,6 +87,9 @@ const LisTransfer = () => {
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Téléphone</th>
+                <th>Bagage Cabine</th>
+                <th>Bagage Soute</th>
+                <th>bagageHorsFormat</th>
                 <th>Date vol</th>
                 <th>Heure vol</th>
                 <th>Numéro vol</th>
@@ -106,6 +109,9 @@ const LisTransfer = () => {
                   <td>{transfer.lastName}</td>
                   <td>{transfer.email}</td>
                   <td>{transfer.phone}</td>
+                  <td>{transfer.bagageCabine}</td>
+                  <td>{transfer.bagageSoute}</td>
+                  <td>{transfer.bagageHorsFormat}</td>
                   <td>{transfer.datevol}</td>
                   <td>{transfer.heurvol}</td>
                   <td>{transfer.numvol}</td>
