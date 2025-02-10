@@ -10,6 +10,8 @@ exports.createRideRequest = async (req, res) => {
       fareAmount,
       sourceAddress,
       time,
+      driverid,
+      driverToken,
       userName,
       userPhone,
       userId,
@@ -19,6 +21,7 @@ exports.createRideRequest = async (req, res) => {
 
     // Créer une nouvelle référence avec une clé unique
     const rideRequestRef = realtimeDB.ref("AllRideRequests").push();
+   
 
     const rideData = {
       source: {
@@ -36,6 +39,8 @@ exports.createRideRequest = async (req, res) => {
       sourceAddress,
       time,
       driverId: "waiting",
+      driverid,
+      driverToken,
       userName,
       userPhone,
       userId,
@@ -45,6 +50,12 @@ exports.createRideRequest = async (req, res) => {
 
     // Sauvegarder les données
     await rideRequestRef.set(rideData);
+   
+
+     const updatechauffRef = realtimeDB.ref("Drivers/" + driverid);
+          await updatechauffRef.update({
+            'lastcourse': rideRequestRef.key
+          });
 
     if (rideRequestRef.key) {
      
