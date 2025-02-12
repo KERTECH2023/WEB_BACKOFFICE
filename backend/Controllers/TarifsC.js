@@ -68,21 +68,6 @@ const sendmessagingnotification = async () => {
 
 
 
-// Supprime les données de la table ActiveDrivers toutes les 30 minutes
-const clearActiveDrivers = () => {
-  const activeDriversRef = realtimeDB.ref("ActiveDrivers");
-
-  setInterval(async () => {
-    try {
-      await activeDriversRef.remove();
-      console.log("Les données de la table ActiveDrivers ont été supprimées.");
-    } catch (error) {
-      console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
-    }
-  }, 3 * 60 * 60 * 1000);
-};
-
-clearActiveDrivers();
 
 const updateAllChauffeursWithTarif = async (tariffId) => {
   try {
