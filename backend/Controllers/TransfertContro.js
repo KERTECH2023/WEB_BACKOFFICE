@@ -94,7 +94,7 @@ exports.updatetransfertandsendmail = async (req, res) => {
                     <p><strong>Aéroport :</strong> ${transfer.airport}</p>
                     <p><strong>Destination :</strong> ${transfer.destination}</p>
                     <p><strong>Passagers :</strong> ${transfer.passengers}</p>
-                    <p><strong>Prix :</strong> ${parseFloat(transfer.price).toFixed(2)} TND</p>
+                    <p><strong>Prix :</strong> ${parseFloat(transfer.price).toFixed(2)} €</p>
                     <div class="footer">
                         <p>Cordialement,<br>L'équipe Flash Driver</p>
                         <p style="font-size: 10px; color: #888;">
