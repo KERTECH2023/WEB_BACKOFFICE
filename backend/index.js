@@ -26,7 +26,7 @@ const transfert = require("./routes/TransfertRoutes.js");
 const Solde = require("./routes/SoldeRoute.js");
 const rideRequests = require("./routes/rideRequests.js");
 const tariftransfet = require("./routes/TariftransfertRoute.js");
-//const reservationTaxi = require("./routes/ReservationTaxiRoutes.js");
+const reservationTaxi = require("./routes/ReservationTaxiRoutes.js");
 const con = require("./routes/ContactRoute");
 const rides = require("./routes/RideRoute");
 const factureRoute = require("./routes/factureRoutes.js")
@@ -85,7 +85,7 @@ app.use("/Voi", Voi);
 app.use("/Tar", tar);
 app.use("/transfer", transfert);
 app.use("/tariftransfet", tariftransfet);
-//app.use("/reservationTaxi", reservationTaxi);
+app.use("/reservationTaxi", reservationTaxi);
 
 app.use("/Tarj", tarj);
 app.use("/Tart", tart);
