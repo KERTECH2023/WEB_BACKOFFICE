@@ -1,6 +1,26 @@
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
 
+const stripe = require("stripe")("sk_test_51QuAbpQFlhR6CoMtocz2YCH80ULE8hY5412hALJsZxXDDfJ6QovCfivUPH1W9EagiflIa7EHzgDzCn0QVJaJ7K8Z00I37p2IO8"); // Remplace "sk_test_xxx" par ta vraie clé
+exports.testCard = async (req, res) => {
+  try {
+    const { cardNumber, expMonth, expYear, cvc } = req.body;
+
+    // Création d'un token pour tester la validité de la carte
+    const token = await stripe.tokens.create({
+      card: {
+        number: cardNumber,
+        exp_month: expMonth,
+        exp_year: expYear,
+        cvc: cvc,
+      },
+    });
+
+    res.json({ success: true, message: "Carte valide", token: token.id });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 exports.createRideRequest = async (req, res) => {
   try {
     const {
