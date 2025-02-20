@@ -2,7 +2,7 @@ const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
 
 const stripe = require("stripe")("sk_test_51QuAbpQFlhR6CoMtocz2YCH80ULE8hY5412hALJsZxXDDfJ6QovCfivUPH1W9EagiflIa7EHzgDzCn0QVJaJ7K8Z00I37p2IO8"); // Remplace "sk_test_xxx" par ta vraie clé
-const createPaymentIntent = async (req, res) => {
+exports.createPaymentIntent = async (req, res) => {
   try {
     const { amount, currency } = req.body;
 
