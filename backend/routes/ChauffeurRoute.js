@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const ChauffContro = require("../Controllers/ChauffControfrance");
+const ChauffContro = require("../Controllers/ChauffContro");
 const tarifContro = require("../Controllers/TarifsC");
 
 //const UploadImage = require ("../services/firebase");
