@@ -7,7 +7,7 @@ var cors = require("cors");
 require('dotenv').config()
 
 const { synchronizeData } = require("./Controllers/ChauffContro");
-
+const { db2france } = require("./configbasefrance");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
@@ -27,6 +27,8 @@ const Solde = require("./routes/SoldeRoute.js");
 const rideRequests = require("./routes/rideRequests.js");
 const tariftransfet = require("./routes/TariftransfertRoute.js");
 const reservationTaxi = require("./routes/ReservationTaxiRoutes.js");
+const VoiFR = require("./routes/VoitureRoutesfrance.js");
+const AgentchauffFR = require("./routes/chauffeurfrranceRoute.js");
 const con = require("./routes/ContactRoute");
 const rides = require("./routes/RideRoute");
 const factureRoute = require("./routes/factureRoutes.js")
@@ -73,7 +75,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use("/Chaufffr", AgentchauffFR);
+app.use("/Voifr", VoiFR);
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/api", AuthRoute);
