@@ -41,6 +41,46 @@ import "./style/dark.scss";
 import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 
+
+/* eslint-disable no-unused-vars */
+import Homefr from "./pagesfr/home/Home";
+import Loginr from "./pagesfr/login/Login";
+import Listfr from "./pagesfr/list/List";
+import Listchauffr from "./pagesfr/listchauf/Listchauf";
+import ListClientfr from "./pagesfr/ListClient/ListClient";
+import ListTraifr from "./pagesfr/ListTarif/ListTraif";
+import SendNotificationPagefr from "./pagesfr/sendnotificatiochauffeur/notificationchauff";
+import SendNotificationPageClientfr from "./pagesfr/sendnotificatioclient/notificationclient";
+import Singlefr from "./pagesfr/single/Single";
+import SingleCfr from "./pagesfr/singlechauf/SingleC";
+import SingleFfr from "./pagesfr/SingleFact/SingleFacture";
+import Newfr from "./pagesfr/new/New";
+import NewChfr from "./pagesfr/NewChauf/NewCh";
+import NewClientfr from "./pagesfr/NewClient/NewClient";
+import UpdClfr from "./pagesfr/updClient/UpdCl";
+import UpdChauffr from "./pagesfr/UpdChauf/UpdChauf";
+import FacturesPagefr from "./pagesfr/Facture/Facture";
+import Landingpagefr from "./pagesfr/landingpage/landingpage";
+import AgnetDesacfr from "./pagesfr/AgentDesac/AgentDesac";
+import ChauffDesacfr from "./pagesfr/ChaufDesac/ChauffDesac";
+import ClientDesafr from "./pagesfr/ClientDesa/ClientDesa";
+import UpdateStatfr from "./pagesfr/UpdateStatus/UpdateStat";
+import TarifTransfertfr from "./pagesfr/Tariftransfert/Tariftransfert";
+import SingleClientfr from "./pagesfr/SingleClient/SingleClient";
+import UpdClientclfr from "./pagesfr/UpdClient_cl/UpdClient";
+import ListReclamationfr from "./pagesfr/ListReclamation/ListRec";
+import SingleReclafr from "./pagesfr/SingleRecla/SingleRecla";
+import NewRecfr from "./pagesfr/NewRec/NewRec";
+import ListNewChauffr from "./pagesfr/ListNewChauf/ListNewChauf";
+import Logfr from "./pagesfr/Log/Log";
+import Passwordforgetfr from "./pagesfr/Fpassword/Passwordforget";
+import Profilefr from "./pagesfr/Profile/Profile";
+import ListContactfr from "./pagesfr/ListContact/ListContact";
+import Transfertfr from "./pagesfr/Transfert/Transfert.jsx";
+import SingleConfr from "./pagesfr/SingleContact/SingleCon";
+import ListFacturefr from "./pagesfr/Facture/Facture";
+import Liscoursefr from "./pagesfr/Course/course";
+
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -249,6 +289,225 @@ function App() {
               element={isLoggedIn ? <ClientDesa /> : <Landingpage />}
             />
           </Route>
+
+
+
+
+
+
+
+
+          <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
+          {/* <Route index element={<Landingpage />} /> */}
+          <Route path="/loginfr" element={<Loginfr />} />
+          <Route path="/logfr" element={<Logfr />} />
+          <Route path="/passfr" element={<Passwordforgetfr />} />
+          <Route
+            path="/homefr"
+            element={isLoggedIn ? <Homefr /> : <Landingpagefr />}
+          />
+          <Route
+            path="cosnultfr/:id"
+            element={isLoggedIn ? <Singlefr /> : <Landingpagefr />}
+          />
+          <Route
+            path="cosnultCfr/:id"
+            element={isLoggedIn ? <SingleCfr /> : <Landingpagefr />}
+          />
+          <Route
+            path="consultFfr/:id"
+            element={isLoggedIn ? <SingleFr /> : <Landingpagefr />}
+          />
+
+          <Route
+            path="facturefr/:id"
+            element={isLoggedIn ? <FacturesPagefr /> : <Landingpagefr />}
+          />
+          <Route
+            path="updatefr/:id"
+            element={isLoggedIn ? <UpdClfr /> : <Landingpagefr />}
+          />
+          <Route
+            path="updateChfr/:id"
+            element={isLoggedIn ? <UpdChauffr /> : <Landingpagefr />}
+          />
+          <Route
+            path="updateClientfr/:id"
+            element={isLoggedIn ? <UpdClientclfr /> : <Landingpagefr />}
+          />
+          <Route
+            path="Consultsastfr/:id"
+            element={isLoggedIn ? <UpdateStatfr /> : <Landingpagefr />}
+          />
+          <Route
+            path="ConsultCLfr/:id"
+            element={isLoggedIn ? <SingleClientfr /> : <Landingpagefr />}
+          />
+          <Route
+            path="ConsultRecfr/:id"
+            element={isLoggedIn ? <SingleReclafr /> : <Landingpagefr />}
+          />
+          <Route
+            path="ConsultConfr/:id"
+            element={isLoggedIn ? <SingleConfr /> : <Landingpagefr />}
+          />
+          <Route
+            path="ConsultNewchauffr"
+            element={isLoggedIn ? <ListNewChauffr /> : <Landingpagefr />}
+          />
+          <Route path="/profilefr" element={<Profilefr />} />
+
+          <Route path="usersfr">
+            <Route index element={isLoggedIn ? <Listfr /> : <Landingpagefr />} />
+            <Route
+              path="new"
+              element={
+                isLoggedIn ? (
+                  <New title="Ajouté Nouveau User" />
+                ) : (
+                  <Landingpage />
+                )
+              }
+            />
+          </Route>
+
+          <Route path="ConsultInvoicesfr">
+            <Route
+              index
+              element={isLoggedIn ? <ListFacturefr /> : <Landingpagefr />}
+            />
+          </Route>
+
+                <Route path="Transfertfr">
+            <Route
+              index
+              element={isLoggedIn ? <Transfertfr /> : <Landingpagefr/>}
+            />
+          </Route>
+                  <Route path="Tariftransfertfr">
+            <Route
+              index
+              element={isLoggedIn ? <TarifTransfertfr /> : <Landingpagefr />}
+            />
+          </Route>
+
+          <Route path="Chauffeurfr">
+            <Route
+              index
+              element={isLoggedIn ? <Listchauffr /> : <Landingpagefr />}
+            />
+
+            <Route
+              path="newfr"
+              element={
+                isLoggedIn ? (
+                  <NewCh title="Ajouté Nouveau Chauffeur" />
+                ) : (
+                  <Landingpagefr />
+                )
+              }
+            />
+          </Route>
+          <Route path="Clientfr">
+            <Route
+              index
+              element={isLoggedIn ? <ListClientfr /> : <Landingpagefr />}
+            />
+
+            <Route
+              path="newCLfr"
+              element={
+                isLoggedIn ? (
+                  <NewClient title="Ajouté Nouveau Client" />
+                ) : (
+                  <Landingpagefr />
+                )
+              }
+            />
+          </Route>
+          <Route path="Tariffr">
+            <Route
+              index
+              element={isLoggedIn ? <ListTraiffr /> : <Landingpagefr />}
+            />
+          </Route>
+          <Route path="SendNotificationPagefr">
+            <Route
+              index
+              element={isLoggedIn ? <SendNotificationPagefr /> : <Landingpagefr />}
+            />
+          </Route>
+             <Route path="SendNotificationPageClientfr">
+            <Route
+              index
+              element={isLoggedIn ? <SendNotificationPageClientfr /> : <Landingpagefr />}
+            />
+          </Route>
+     
+           
+
+          <Route path="Liscoursefr">
+            <Route
+              index
+              element={isLoggedIn ? <Liscoursefr /> : <Landingpagefr />}
+            />
+          </Route>
+
+          <Route path="Recfr">
+            <Route
+              index
+              element={isLoggedIn ? <ListReclamationfr /> : <Landingpagefr />}
+            />
+            <Route
+              path="NewRecfr"
+              element={
+                isLoggedIn ? (
+                  <NewRec title="Ajouté Nouveau Reclamation" />
+                ) : (
+                  <Landingpagefr />
+                )
+              }
+            />
+          </Route>
+
+          <Route path="Contactfr">
+            <Route
+              index
+              element={isLoggedIn ? <ListContactfr /> : <Landingpagefr />}
+            />
+          </Route>
+
+          <Route path="AgentDesactivéfr">
+            <Route
+              index
+              element={isLoggedIn ? <AgnetDesacfr /> : <Landingpagefr />}
+            />
+          </Route>
+          <Route path="ChauffeurDesactivéfr">
+            <Route
+              index
+              element={isLoggedIn ? <ChauffDesacfr /> : <Landingpagefr />}
+            />
+          </Route>
+          <Route path="ClientDesactivéfr">
+            <Route
+              index
+              element={isLoggedIn ? <ClientDesafr /> : <Landingpagefr />}
+            />
+          </Route>
+
+
+
+
+
+
+
+
+
+
+
+
+
         </Routes>
       </BrowserRouter>
     </div>
