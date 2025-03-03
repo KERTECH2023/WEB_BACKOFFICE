@@ -1058,18 +1058,7 @@ const recupereruse = async (req, res) => {
   }
 };
 
-const mongoose = require("mongoose");
-const FactureView = mongoose.model(
-  "FactureView",
-  new mongoose.Schema({}, { collection: "factures", strict: false })
-);
 
-// Get Facture
-const recuperFact = async (req, res) => {
-  FactureView.find() // Utilisation du modèle FactureView
-    .then((invoices) => res.json(invoices))
-    .catch((err) => res.status(400).json({ error: err.message }));
-};
 
 // const recupereruse = async(req,res,data) =>{
 
@@ -1524,7 +1513,6 @@ module.exports = {
   Comptevald,
   recuperernewchauf,
   getFacturesByChauffeurId,
-  recuperFact,
   searchFacture,
   updateFact,
   sendFactureEmail,
