@@ -8,7 +8,7 @@ const Liscourse = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const API_URL = "https://api.backofficegc.com/rideRequests/ride-requests";
+  const API_URL = "https://api.backofficegc.com/rideRequestsfr/ride-requests";
 
   // Styles intégrés
   const styles = {
@@ -95,7 +95,7 @@ const Liscourse = () => {
 
   const fetchDriverInfo = async (immatriculation) => {
     try {
-      const response = await axios.get(`https://api.backofficegc.com/rideRequests/driver/${immatriculation}`);
+      const response = await axios.get(`https://api.backofficegc.com/rideRequestsfr/driver/${immatriculation}`);
       return response.data;
     } catch (error) {
       console.error("Erreur lors de la récupération du chauffeur :", error);
