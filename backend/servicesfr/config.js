@@ -23,7 +23,7 @@ const firestoreApp = admin.initializeApp(
     credential:  admin.credential.cert(config),
     databaseURL: "https://inchalha-vtc-default-rtdb.europe-west1.firebasedatabase.app",
   },
-  "firestoreApp"
+  "firestoreAppfr"
 );
 
 
