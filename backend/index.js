@@ -70,14 +70,10 @@ const tariftransfetfr = require("./routesfr/TariftransfertRoute.js");
 const reservationTaxifr = require("./routesfr/ReservationTaxiRoutes.js");
 const confr = require("./routesfr/ContactRoute");
 const ridesfr = require("./routesfr/RideRoute");
-const factureRoutefr = require("./routesfr/factureRoutes.js")
+
 var indexRouterfr = require("./routesfr/index");
 var usersRouterfr = require("./routesfr/users");
 const { runAggregationfr } = require("./Controllersfr/RideController"); // Export runAggregation function
-const {
-  generateFacturesfr,
-  generateDriverStatisticsfr,
-} = require("./Controllersfr/FactureController");
 
 mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
@@ -182,26 +178,10 @@ app.use("/Tarnfr", tarnfr);
 app.use("/Soldefr", Soldefr);
 app.use("/rideRequestsfr", rideRequestsfr);
 app.use("/Confr", confr);
-app.use("/facturefr",factureRoutefr);
+
 
 app.use("/Ridefr", ridesfr);
 
-app.get("/testAggregationfr", async (req, res) => {
-  try {
-    // await runAggregation();
-    await generateFacturesfr();
-    const stats = await generateDriverStatisticsfr();
-    res
-      .status(200)
-      .json({
-        message: "Aggregation executed successfully.",
-        statistics: stats,
-      });
-  } catch (error) {
-    console.error("Error during manual aggregation:", error);
-    res.status(500).json({ message: "Error during manual aggregation." });
-  }
-});
 
 
 
