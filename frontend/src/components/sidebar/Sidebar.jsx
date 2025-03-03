@@ -47,7 +47,13 @@ const Sidebar = () => {
           <li>
           <Link to="/home">
             <DashboardIcon className="icon" />
-            <span>Tableau de bord</span>
+            <span>Dashboard Tunisie</span>
+            </Link>
+          </li>
+          <li>
+          <Link to="/homefr">
+            <DashboardIcon className="icon" />
+            <span>Dashboard France</span>
             </Link>
           </li>
           
