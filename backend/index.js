@@ -6,7 +6,7 @@ var logger = require("morgan");
 var cors = require("cors");
 require('dotenv').config();
 
-const { db2france } = require("./configbasefrance");
+
 
 const { synchronizeData } = require("./Controllers/ChauffContro");
 
