@@ -51,7 +51,7 @@ const {
 
 
 
-const { synchronizeData } = require("./Controllersfr/ChauffContro");
+const { synchronizeDatafr } = require("./Controllersfr/ChauffContro");
 
 const mongoose = require("mongoose");
 const morgan = require("morgan");
