@@ -53,9 +53,7 @@ const {
 
 const { synchronizeDatafr } = require("./Controllersfr/ChauffContro");
 
-const mongoose = require("mongoose");
-const morgan = require("morgan");
-const bodyParser = require("body-parser");
+
 const AuthRoutefr = require("./routesfr/adminRoutes");
 const Agentroutfr = require("./routesfr/AgentRoute");
 const Agentchaufffr = require("./routesfr/ChauffeurRoute");
