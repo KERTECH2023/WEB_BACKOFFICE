@@ -4,7 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
-require('dotenv').config()
+require('dotenv').config();
 
 const { db2france } = require("./configbasefrance");
 
@@ -116,7 +116,6 @@ app.use("/users", usersRouter);
 app.use("/api", AuthRoute);
 app.use("/agent", Agentrout);
 app.use("/Chauff", Agentchauff);
-app.use("/Chaufffr", AgentchauffFR);
 app.use("/Voifr", VoiFR);
 app.use("/Client", ClRoute);
 app.use("/Rec", Rec);
