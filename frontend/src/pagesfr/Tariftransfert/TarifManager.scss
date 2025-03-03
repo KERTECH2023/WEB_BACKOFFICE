@@ -1,0 +1,31 @@
+/* TarifManager.css */
+.tarif-manager {
+    margin: 20px;
+  }
+  
+  .tarif-manager form {
+    margin-bottom: 20px;
+  }
+  
+  .tarif-manager label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+  
+  .tarif-manager input {
+    padding: 8px;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .tarif-manager button {
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .tarif-manager button:hover {
+    background-color: #45a049;
+  }

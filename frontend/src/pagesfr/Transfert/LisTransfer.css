@@ -1,0 +1,98 @@
+/* 📌 Table des transferts */
+.transfer-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  
+  .transfer-table th, 
+  .transfer-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .transfer-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  /* ✅ Ligne "Accepté" (Vert clair) */
+  .accepted {
+    background-color: #d4edda; /* Vert clair */
+    color: #155724;
+  }
+  
+  /* ❌ Ligne "Non accepté" (Rouge clair) */
+  .not-accepted {
+    background-color: #f8d7da; /* Rouge clair */
+    color: #721c24;
+  }
+  
+  /* 📌 Filtres */
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .filter-input, 
+  .filter-select {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .filter-input:focus, 
+  .filter-select:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  /* ✅ Bouton Accepter */
+  .accept-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .accept-btn:hover {
+    background-color: #218838;
+  }
+  
+  /* 📱 Responsive Design */
+  @media screen and (max-width: 768px) {
+    .transfer-table {
+      font-size: 14px;
+    }
+    
+    .filters {
+      flex-direction: column;
+    }
+  
+    .filter-input, 
+    .filter-select {
+      width: 100%;
+    }
+  }
+
+  .delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .delete-btn:hover {
+    background-color: #c82333;
+  }
+  
