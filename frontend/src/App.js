@@ -44,11 +44,11 @@ import { DarkModeContext } from "./context/darkModeContext";
 
 /* eslint-disable no-unused-vars */
 import Homefr from "./pagesfr/home/Home";
-import Loginr from "./pagesfr/login/Login";
+import Loginfr from "./pagesfr/login/Login";
 import Listfr from "./pagesfr/list/List";
 import Listchauffr from "./pagesfr/listchauf/Listchauf";
 import ListClientfr from "./pagesfr/ListClient/ListClient";
-import ListTraifr from "./pagesfr/ListTarif/ListTraif";
+import ListTraiffr from "./pagesfr/ListTarif/ListTraif";
 import SendNotificationPagefr from "./pagesfr/sendnotificatiochauffeur/notificationchauff";
 import SendNotificationPageClientfr from "./pagesfr/sendnotificatioclient/notificationclient";
 import Singlefr from "./pagesfr/single/Single";
@@ -316,7 +316,7 @@ function App() {
           />
           <Route
             path="consultFfr/:id"
-            element={isLoggedIn ? <SingleFr /> : <Landingpagefr />}
+            element={isLoggedIn ? <SingleFfr /> : <Landingpagefr />}
           />
 
           <Route
@@ -363,7 +363,7 @@ function App() {
               path="new"
               element={
                 isLoggedIn ? (
-                  <New title="Ajouté Nouveau User" />
+                  <Newfr title="Ajouté Nouveau User" />
                 ) : (
                   <Landingpage />
                 )
@@ -401,7 +401,7 @@ function App() {
               path="newfr"
               element={
                 isLoggedIn ? (
-                  <NewCh title="Ajouté Nouveau Chauffeur" />
+                  <NewChfr title="Ajouté Nouveau Chauffeur" />
                 ) : (
                   <Landingpagefr />
                 )
@@ -418,7 +418,7 @@ function App() {
               path="newCLfr"
               element={
                 isLoggedIn ? (
-                  <NewClient title="Ajouté Nouveau Client" />
+                  <NewClientfr title="Ajouté Nouveau Client" />
                 ) : (
                   <Landingpagefr />
                 )
@@ -462,7 +462,7 @@ function App() {
               path="NewRecfr"
               element={
                 isLoggedIn ? (
-                  <NewRec title="Ajouté Nouveau Reclamation" />
+                  <NewRecfr title="Ajouté Nouveau Reclamation" />
                 ) : (
                   <Landingpagefr />
                 )
