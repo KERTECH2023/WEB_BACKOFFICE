@@ -109,9 +109,10 @@ const List = () => {
         <TableHead>
           <TableRow>
             <TableCell className="tableCell">Carte Identité</TableCell>
-            <TableCell className="tableCell">Permis Recto</TableCell>
-            <TableCell className="tableCell">Permis Verso</TableCell>
             <TableCell className="tableCell">Carte VTC</TableCell>
+            <TableCell className="tableCell">Assurance Pro</TableCell>
+            <TableCell className="tableCell">Kbis</TableCell>
+            <TableCell className="tableCell">RIB</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -120,13 +121,16 @@ const List = () => {
               {renderFile(user && user.photoCin, "Carte Identité")}
             </TableCell>
             <TableCell className="tableCell">
-              {renderFile(user && user.photoPermisRec, "Permis Recto")}
-            </TableCell>
-            <TableCell className="tableCell">
-              {renderFile(user && user.photoPermisVer, "Permis Verso")}
-            </TableCell>
-            <TableCell className="tableCell">
               {renderFile(user && user.photoVtc, "Carte VTC")}
+            </TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.AssurancePro, "Assurance Pro")}
+            </TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.Kbis, "Kbis")}
+            </TableCell>
+            <TableCell className="tableCell">
+              {renderFile(user && user.RIB, "RIB")}
             </TableCell>
           </TableRow>
         </TableBody>
