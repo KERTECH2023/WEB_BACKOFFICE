@@ -19,7 +19,7 @@ const Multer = multer({
 
 
 router.get("/affiche", ChauffContro.recupereruse);
-router.get('/Chauff/factures/:id', ChauffContro.getFacturesByChauffeurId);
+
 router.get("/getchdes", ChauffContro.chauffdes);
 
 router.delete("/destroychauff/:id", ChauffContro.destroy);
@@ -81,8 +81,8 @@ router.put("/updatestatuss/:id", ChauffContro.updatestatuss);
 router.post('/:id/reject', ChauffContro.rejectChauffeur);
 //router.options('/facture-amounts',factureUpdate);
 //router.get('/factures/:chauffeurId', ChauffContro.getFacturesByChauffeurId);
-router.get("/factures", ChauffContro.recuperFact);
-router.get("/factures/:id", ChauffContro.searchFacture);
+
+
 router.post(
   "/sendFacture",
   upload.single("file"),
