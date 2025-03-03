@@ -36,7 +36,7 @@ const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="top">
-        <Link to="/homefr" style={{ textDecoration: "none" }}>
+        <Link to="/home" style={{ textDecoration: "none" }}>
           <span className="logo">TunisieUber Admin</span>
         </Link>
       </div>
@@ -45,9 +45,15 @@ const Sidebar = () => {
         <ul>
           <p className="title">MAIN</p>
           <li>
+          <Link to="/home">
+            <DashboardIcon className="icon" />
+            <span>Dashboard Tunisie</span>
+            </Link>
+          </li>
+          <li>
           <Link to="/homefr">
             <DashboardIcon className="icon" />
-            <span>Tableau de bord</span>
+            <span>Dashboard France</span>
             </Link>
           </li>
           
@@ -55,7 +61,7 @@ const Sidebar = () => {
           <p className="title">LISTS</p>
           {/* {role === "Agentad" && ( */}
      {(role === "Admin" || role === "Agentad") && (
-          <Link to="/usersfr" style={{ textDecoration: "none",color: "inherit" }}>
+          <Link to="/users" style={{ textDecoration: "none",color: "inherit" }}>
             <li>
               <PersonOutlineIcon className="icon" />
               <span>Agents</span>
@@ -63,40 +69,40 @@ const Sidebar = () => {
           </Link>
           )}
 
-          <Link to="/Chauffeurfr" style={{ textDecoration: "none" }}>
+          <Link to="/Chauffeur" style={{ textDecoration: "none" }}>
             <li>
               <AirlineSeatReclineNormalIcon className="icon" />
               <span>Chauffeur</span>
             </li>
           </Link>
-          <Link to="/Clientfr" style={{ textDecoration: "none" }}>
+          <Link to="/Client" style={{ textDecoration: "none" }}>
             <li>
               <AccessibilityIcon className="icon" />
               <span>Client</span>
             </li>
           </Link>
          
-          <Link to="/Tariffr" style={{ textDecoration: "none" }}>
+          <Link to="/Tarif" style={{ textDecoration: "none" }}>
           <li>
             <LocalShippingIcon className="icon" />
             <span>Tarifs</span>
           </li>
           </Link>
-           <Link to="/Tariftransfertfr" style={{ textDecoration: "none" }}>
+           <Link to="/Tariftransfert" style={{ textDecoration: "none" }}>
           <li>
             <LocalShippingIcon className="icon" />
             <span>Tarifs Transfert</span>
           </li>
           </Link>
 
-          <Link to="/Liscoursefr" style={{ textDecoration: "none" }}>
+          <Link to="/Liscourse" style={{ textDecoration: "none" }}>
           <li>
             <LocalShippingIcon className="icon" />
             <span>Course</span>
           </li>
           </Link>
 
-           <Link to="/Transfertfr" style={{ textDecoration: "none" }}>
+           <Link to="/Transfert" style={{ textDecoration: "none" }}>
           <li>
             <LocalShippingIcon className="icon" />
             <span>Transfert</span>
@@ -105,7 +111,7 @@ const Sidebar = () => {
 
           <p className="title">LISTS DES COMPTES Désactivé</p>
           {(role === "Admin" || role === "Agentad") && (
-          <Link to="/AgentDesactivéfr"  style={{ textDecoration: "none",color: "inherit" }}>
+          <Link to="/AgentDesactivé"  style={{ textDecoration: "none",color: "inherit" }}>
             <li>
               <ManageAccountsIcon className="icon" />
               <span>Agents</span>
@@ -113,13 +119,13 @@ const Sidebar = () => {
           </Link>
            )}
 
-          <Link to="/ChauffeurDesactivéfr" style={{ textDecoration: "none" }}>
+          <Link to="/ChauffeurDesactivé" style={{ textDecoration: "none" }}>
             <li>
               <CarCrashIcon className="icon" />
               <span>Chauffeur</span>
             </li>
           </Link>
-          <Link to="/ClientDesactivéfr" style={{ textDecoration: "none" }}>
+          <Link to="/ClientDesactivé" style={{ textDecoration: "none" }}>
             <li>
               <NotAccessibleIcon className="icon" />
               <span>Client</span>
@@ -129,20 +135,20 @@ const Sidebar = () => {
           
           <p className="title">Reclamation</p>
          
-          <Link to="/Recfr" style={{ textDecoration: "none" }}>
+          <Link to="/Rec" style={{ textDecoration: "none" }}>
             <li>
               <NotificationImportantIcon className="icon" />
               <span >Réclamation a traité</span>
             </li>
           </Link>
-          <Link to="/Contactfr" style={{ textDecoration: "none" }}>
+          <Link to="/Contact" style={{ textDecoration: "none" }}>
             <li>
               <PermContactCalendarIcon className="icon" />
               <span >Contact-Nous</span>
             </li>
           </Link>
           {!(role === "Admin" || role === "Agentad") && (
-  <Link to="/Recfr/NewRec" style={{ textDecoration: "none", color: "inherit" }}>
+  <Link to="/Rec/NewRec" style={{ textDecoration: "none", color: "inherit" }}>
     <li>
       <NotificationAddIcon className="icon" />
       <span >Envoyé Une Réclamation</span>
@@ -161,25 +167,25 @@ const Sidebar = () => {
             <InsertChartIcon className="icon" />
             <span>Stats</span>
           </li>
-          <Link to="/ConsultNewchauffr" style={{ textDecoration: "none" }}>
+          <Link to="/ConsultNewchauf" style={{ textDecoration: "none" }}>
           <li>
             <NotificationsNoneIcon className="icon" />
             <span>Notifications</span>
           </li>
           </Link>
-          <Link to="/SendNotificationPagefr" style={{ textDecoration: "none" }}>
+          <Link to="/SendNotificationPage" style={{ textDecoration: "none" }}>
           <li>
             <NotificationsNoneIcon className="icon" />
             <span>Notifier chauffeurs</span>
           </li>
           </Link>
-          <Link to="/SendNotificationPageclientfr" style={{ textDecoration: "none" }}>
+          <Link to="/SendNotificationPageclient" style={{ textDecoration: "none" }}>
           <li>
             <NotificationsNoneIcon className="icon" />
             <span>Notifier clients</span>
           </li>
           </Link>
-          <Link to="/ConsultInvoicesfr" style={{ textDecoration: "none" }}>
+          <Link to="/ConsultInvoices" style={{ textDecoration: "none" }}>
           <li>
             <CreditScoreIcon className="icon" />
             <span>Solde</span>
