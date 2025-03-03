@@ -6,6 +6,8 @@ var logger = require("morgan");
 var cors = require("cors");
 require('dotenv').config()
 
+const { db2france } = require("./configbasefrance");
+
 const { synchronizeData } = require("./Controllers/ChauffContro");
 
 const mongoose = require("mongoose");
@@ -18,6 +20,8 @@ const Agentchauff = require("./routes/ChauffeurRoute");
 const ClRoute = require("./routes/ClientRoute");
 const Rec = require("./routes/ReclamationRout");
 const Voi = require("./routes/VoitureRoutes");
+const VoiFR = require("./routes/VoitureRoutesfrance.js");
+const AgentchauffFR = require("./routes/chauffeurfrranceRoute.js");
 const tar = require("./routes/TarifRoute");
 const tarj = require("./routes/TarifRouteJour.js");
 const tart = require("./routes/tarifsRoutes.js");
@@ -27,7 +31,6 @@ const Solde = require("./routes/SoldeRoute.js");
 const rideRequests = require("./routes/rideRequests.js");
 const tariftransfet = require("./routes/TariftransfertRoute.js");
 const reservationTaxi = require("./routes/ReservationTaxiRoutes.js");
-
 const con = require("./routes/ContactRoute");
 const rides = require("./routes/RideRoute");
 const factureRoute = require("./routes/factureRoutes.js")
@@ -38,6 +41,46 @@ const {
   generateFactures,
   generateDriverStatistics,
 } = require("./Controllers/FactureController");
+
+
+
+
+
+
+
+
+
+
+const { synchronizeData } = require("./Controllersfr/ChauffContro");
+
+const mongoose = require("mongoose");
+const morgan = require("morgan");
+const bodyParser = require("body-parser");
+const AuthRoutefr = require("./routesfr/adminRoutes");
+const Agentroutfr = require("./routesfr/AgentRoute");
+const Agentchaufffr = require("./routesfr/ChauffeurRoute");
+const ClRoutefr = require("./routesfr/ClientRoute");
+const Recfr = require("./routesfr/ReclamationRout");
+const Voifr = require("./routesfr/VoitureRoutes");
+const tarfr = require("./routesfr/TarifRoute");
+const tarjfr = require("./routesfr/TarifRouteJour.js");
+const tartfr = require("./routesfr/tarifsRoutes.js");
+const tarnfr = require("./routesfr/TarifRouteNuit.js");
+const transfertfr = require("./routesfr/TransfertRoutes.js");
+const Soldefr = require("./routesfr/SoldeRoute.js");
+const rideRequestsfr = require("./routesfr/rideRequests.js");
+const tariftransfetfr = require("./routesfr/TariftransfertRoute.js");
+const reservationTaxifr = require("./routesfr/ReservationTaxiRoutes.js");
+const confr = require("./routesfr/ContactRoute");
+const ridesfr = require("./routesfr/RideRoute");
+const factureRoutefr = require("./routesfr/factureRoutes.js")
+var indexRouterfr = require("./routesfr/index");
+var usersRouterfr = require("./routesfr/users");
+const { runAggregationfr } = require("./Controllersfr/RideController"); // Export runAggregation function
+const {
+  generateFacturesfr,
+  generateDriverStatisticsfr,
+} = require("./Controllersfr/FactureController");
 
 mongoose.connect(process.env.DATABASE, {
   useNewUrlParser: true,
@@ -80,6 +123,8 @@ app.use("/users", usersRouter);
 app.use("/api", AuthRoute);
 app.use("/agent", Agentrout);
 app.use("/Chauff", Agentchauff);
+app.use("/Chaufffr", AgentchauffFR);
+app.use("/Voifr", VoiFR);
 app.use("/Client", ClRoute);
 app.use("/Rec", Rec);
 app.use("/Voi", Voi);
@@ -114,6 +159,54 @@ app.get("/testAggregation", async (req, res) => {
     res.status(500).json({ message: "Error during manual aggregation." });
   }
 });
+
+
+
+// france
+
+
+
+app.use("/fr", indexRouterfr);
+app.use("/usersfr", usersRouterfr);
+app.use("/apifr", AuthRoutefr);
+app.use("/agentfr", Agentroutfr);
+app.use("/Chaufffr", Agentchaufffr);
+app.use("/Clientfr", ClRoutefr);
+app.use("/Recfr", Recfr);
+app.use("/Voifr", Voifr);
+app.use("/Tarfr", tarfr);
+app.use("/transferfr", transfertfr);
+app.use("/tariftransfetfr", tariftransfetfr);
+app.use("/reservationTaxifr", reservationTaxifr);
+
+app.use("/Tarjfr", tarjfr);
+app.use("/Tartfr", tartfr);
+app.use("/Tarnfr", tarnfr);
+app.use("/Soldefr", Soldefr);
+app.use("/rideRequestsfr", rideRequestsfr);
+app.use("/Confr", confr);
+app.use("/facturefr",factureRoutefr);
+
+app.use("/Ridefr", ridesfr);
+
+app.get("/testAggregationfr", async (req, res) => {
+  try {
+    // await runAggregation();
+    await generateFacturesfr();
+    const stats = await generateDriverStatisticsfr();
+    res
+      .status(200)
+      .json({
+        message: "Aggregation executed successfully.",
+        statistics: stats,
+      });
+  } catch (error) {
+    console.error("Error during manual aggregation:", error);
+    res.status(500).json({ message: "Error during manual aggregation." });
+  }
+});
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
