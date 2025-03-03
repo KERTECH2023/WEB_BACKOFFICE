@@ -20,8 +20,7 @@ const Agentchauff = require("./routes/ChauffeurRoute");
 const ClRoute = require("./routes/ClientRoute");
 const Rec = require("./routes/ReclamationRout");
 const Voi = require("./routes/VoitureRoutes");
-const VoiFR = require("./routes/VoitureRoutesfrance.js");
-const AgentchauffFR = require("./routes/chauffeurfrranceRoute.js");
+
 const tar = require("./routes/TarifRoute");
 const tarj = require("./routes/TarifRouteJour.js");
 const tart = require("./routes/tarifsRoutes.js");
