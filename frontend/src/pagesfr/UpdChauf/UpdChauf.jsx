@@ -13,8 +13,9 @@ const UpdChauf = () => {
     files: {
       photoAvatar: null,
       photoCin: null,
-      photoPermisRec: null,
-      photoPermisVer: null,
+      AssurancePro: null,
+      Kbis: null,
+      RIB: null,
       photoVtc: null,
       cartegrise: null,
       assurance: null,
@@ -201,8 +202,9 @@ const UpdChauf = () => {
               {/* File Uploads */}
               {renderFileUpload("Photo de Profil", "photoAvatar")}
               {renderFileUpload("Photo de CIN", "photoCin")}
-              {renderFileUpload("Photo de Permis Recto", "photoPermisRec")}
-              {renderFileUpload("Photo de Permis Verso", "photoPermisVer")}
+              {renderFileUpload("Assurance Pro", "AssurancePro")}
+              {renderFileUpload("Kbis", "Kbis")}
+              {renderFileUpload("RIB", "RIB")}
               {renderFileUpload("Photo de VTC", "photoVtc")}
               {renderFileUpload("Carte Grise", "cartegrise", "vehicle")}
               {renderFileUpload("Assurance", "assurance", "vehicle")}
