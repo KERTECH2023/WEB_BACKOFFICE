@@ -6,7 +6,7 @@ const Tariftempfort = require("../Modelsfr/TarifsDeTempsFort");
 const cron = require('node-cron');
 const moment = require('moment-timezone');
 const firestoreModule = require("../servicesfr/config");
-const admin = require("firebase-admin");
+const admin = firestoreModule.adminAppfr;
 const realtimeDB = firestoreModule.firestoreApp.database();
 
 
