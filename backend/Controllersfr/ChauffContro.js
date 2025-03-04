@@ -715,11 +715,13 @@ const update = async (req, res, next) => {
 
     // Extract uploaded files, only if they are not null or undefined
     const photoAvatarUrl = uploadedFiles?.photoAvatar ? uploadedFiles.photoAvatar : undefined;
-    const photoPermisRecUrl = uploadedFiles?.photoPermisRec ? uploadedFiles.photoPermisRec : undefined;
-    const photoPermisVerUrl = uploadedFiles?.photoPermisVer ? uploadedFiles.photoPermisVer : undefined;
+    const AssuranceProUrl = uploadedFiles?.AssurancePro ? uploadedFiles.AssurancePro : undefined;
+    const KbisUrl = uploadedFiles?.Kbis ? uploadedFiles.Kbis : undefined;
+    const RIBUrl = uploadedFiles?.RIB ? uploadedFiles.RIB : undefined;
     const photoVtcUrl = uploadedFiles?.photoVtc ? uploadedFiles.photoVtc : undefined;
     const photoCinUrl = uploadedFiles?.photoCin ? uploadedFiles.photoCin : undefined;
 
+  
     // Prepare update data dynamically
     const updateData = {
       Nom: body.Nom,
@@ -728,8 +730,9 @@ const update = async (req, res, next) => {
       phone: body.phone,
       ...(photoAvatarUrl && { photoAvatar: photoAvatarUrl }),
       ...(photoCinUrl && { photoCin: photoCinUrl }),
-      ...(photoPermisRecUrl && { photoPermisRec: photoPermisRecUrl }),
-      ...(photoPermisVerUrl && { photoPermisVer: photoPermisVerUrl }),
+      ...(AssuranceProUrl && { AssurancePro: AssuranceProUrl }),
+      ...(KbisUrl && { Kbis: KbisUrl }),
+      ...(RIBUrl && { RIB: RIBUrl }),
       ...(photoVtcUrl && { photoVtc: photoVtcUrl }),
       gender: body.gender,
       role: body.role,
