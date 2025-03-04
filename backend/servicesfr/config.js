@@ -25,13 +25,18 @@ const firestoreApp = admin.initializeApp(
   },
   "firestoreAppfr"
 );
-
+const adminAppfr = admin.initializeApp(
+  {
+    credential: admin.credential.cert(config),
+  },
+  "adminAppfr"
+);
 
 
 
 const db = admin.firestore;
 module.exports = {
-  admin,
+  adminAppfr,
   firestoreApp,
   db,
 
