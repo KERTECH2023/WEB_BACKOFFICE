@@ -496,11 +496,11 @@ async function syncClientsFirebaseToMongoDB(req, res) {
       }
 
       // 3.2 Vérifier si le client existe déjà dans MongoDB
-      const existingClient = await Client.findOne({ email: clientData.email });
+      const existingClient = await Client.findOne({ cnicNo: firebaseUID });
 
       if (existingClient) {
         // Si le client existe déjà, ignorer
-        console.log(`Client déjà existant - Email: ${clientData.email}`);
+        
         continue;
       }
 
