@@ -70,7 +70,7 @@ const Sidebar = () => {
           )}
      <Link to="/gpsfr" style={{ textDecoration: "none" }}>
             <li>
-              <AccessibilityIcon className="icon" />
+              <LocalShippingIcon className="icon" />
               <span>gps taxi</span>
             </li>
           </Link>
