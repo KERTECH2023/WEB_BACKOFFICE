@@ -38,6 +38,7 @@ import SingleCon from "./pages/SingleContact/SingleCon";
 import ListFacture from "./pages/Facture/Facture";
 import Liscourse from "./pages/Course/course";
 import "./style/dark.scss";
+import Gps from "./pages/gps/gps.jsx";
 import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 
@@ -94,6 +95,7 @@ function App() {
           <Route path="/" element={isLoggedIn ? <Home /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
           <Route path="/login" element={<Login />} />
+          <Route path="/gps" element={<Gps />} />
           <Route path="/log" element={<Log />} />
           <Route path="/pass" element={<Passwordforget />} />
           <Route
