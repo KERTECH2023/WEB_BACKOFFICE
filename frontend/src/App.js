@@ -80,7 +80,7 @@ import Transfertfr from "./pagesfr/Transfert/Transfert.jsx";
 import SingleConfr from "./pagesfr/SingleContact/SingleCon";
 import ListFacturefr from "./pagesfr/Facture/Facture";
 import Liscoursefr from "./pagesfr/Course/course";
-
+import Gpsfr from "./pagesfr/gps/gps.jsx";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -301,6 +301,7 @@ function App() {
           {/* <Route index element={<Landingpage />} /> */}
           <Route path="/loginfr" element={<Loginfr />} />
           <Route path="/logfr" element={<Logfr />} />
+          <Route path="/gpsfr" element={<Gpsfr />} />
           <Route path="/passfr" element={<Passwordforgetfr />} />
           <Route
             path="/homefr"
