@@ -68,7 +68,12 @@ const Sidebar = () => {
             </li>
           </Link>
           )}
-
+     <Link to="/gpsfr" style={{ textDecoration: "none" }}>
+            <li>
+              <LocationOnIcon className="icon" />
+              <span>gps taxi</span>
+            </li>
+          </Link>
           <Link to="/Chauffeurfr" style={{ textDecoration: "none" }}>
             <li>
               <AirlineSeatReclineNormalIcon className="icon" />
