@@ -52,7 +52,7 @@ const {
 
 const { synchronizeDatafr } = require("./Controllersfr/ChauffContro");
 
-const gpsroutefr = require("./routesfr/gpsRoutes.js");
+const gpsroutefr = require("./routesfr/gpsRoutes");
 const AuthRoutefr = require("./routesfr/adminRoutes");
 const Agentroutfr = require("./routesfr/AgentRoute");
 const Agentchaufffr = require("./routesfr/ChauffeurRoute");
