@@ -156,7 +156,7 @@ app.get("/testAggregation", async (req, res) => {
 // france
 
 
-app.use("/gpspostion", gpsroutefr);
+app.use("/gpspostionfr", gpsroutefr);
 app.use("/fr", indexRouterfr);
 app.use("/usersfr", usersRouterfr);
 app.use("/apifr", AuthRoutefr);
