@@ -30,7 +30,7 @@ const getAllPosition = async (req, res) => {
             name: driverInfo.name || "N/A",
             phone: driverInfo.phone || "N/A",
             latitude: driverData.l[0],
-            longitude: driverData.l[1],
+            longitude: driverData.l[1]
            
           });
         }
