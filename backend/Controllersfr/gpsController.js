@@ -1,10 +1,9 @@
 const firestoreModule = require("../servicesfr/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
-const firestore = firestoreModule.firestoreApp.firestore();
 
 const getAllPosition = async (req, res) => {
   try {
-    // Récupération des chauffeurs actifs depuis Firebase Realtime Database
+    // Récupération des chauffeurs actifs depuis la Realtime Database
     const ActiveDriversRef = realtimeDB.ref("ActiveDrivers");
     const snapshot = await ActiveDriversRef.once("value");
 
@@ -19,11 +18,12 @@ const getAllPosition = async (req, res) => {
       const driverData = ActiveDriversData[driverId];
 
       if (driverData.l && driverData.l.length === 2) {
-        // Récupération des informations du chauffeur depuis Firestore
-        const driverDoc = await firestore.collection("Drivers").doc(driverId).get();
+        // Récupération des informations du chauffeur depuis la collection "Drivers" dans la Realtime Database
+        const driverRef = realtimeDB.ref("Drivers/" + driverId);
+        const driverSnapshot = await driverRef.once("value");
 
-        if (driverDoc.exists) {
-          const driverInfo = driverDoc.data();
+        if (driverSnapshot.exists()) {
+          const driverInfo = driverSnapshot.val();
 
           positions.push({
             id: driverId,
