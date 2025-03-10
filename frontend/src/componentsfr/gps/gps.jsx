@@ -1,6 +1,6 @@
 // MapComponent.js
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -17,7 +17,7 @@ const MapComponent = () => {
   // Fonction pour récupérer les positions depuis l'API Node.js
   const fetchPositions = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BASE_URL +'/gpspostionfr/getallgpsposition');
+      const response = await fetch(process.env.REACT_APP_BASE_URL + '/gpspostionfr/getallgpsposition');
       const data = await response.json();
       setPositions(data);
     } catch (error) {
@@ -45,7 +45,14 @@ const MapComponent = () => {
           key={driver.id}
           position={[driver.latitude, driver.longitude]}
           icon={carIcon}
-        />
+        >
+          <Tooltip permanent direction="top" offset={[0, -40]}>
+            <div style={{ textAlign: 'center', fontSize: '12px', background: 'white', padding: '2px 4px', borderRadius: '4px' }}>
+              <strong>{driver.name}</strong><br />
+              {driver.phone}
+            </div>
+          </Tooltip>
+        </Marker>
       ))}
     </MapContainer>
   );
