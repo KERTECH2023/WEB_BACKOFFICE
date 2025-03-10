@@ -20,7 +20,7 @@ const Agentchauff = require("./routes/ChauffeurRoute");
 const ClRoute = require("./routes/ClientRoute");
 const Rec = require("./routes/ReclamationRout");
 const Voi = require("./routes/VoitureRoutes");
-
+const gpsroute = require("./routes/gpsRoutes");
 const tar = require("./routes/TarifRoute");
 const tarj = require("./routes/TarifRouteJour.js");
 const tart = require("./routes/tarifsRoutes.js");
@@ -110,7 +110,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use("/gpspostion", gpsroute);
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/api", AuthRoute);
