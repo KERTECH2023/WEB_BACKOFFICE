@@ -1,5 +1,5 @@
 import React from "react";
-import "./ListFact.scss";
+
 import Sidebar from "../../componentsfr/sidebar/Sidebar";
 import Navbar from "../../componentsfr/navbar/Navbar";
 
