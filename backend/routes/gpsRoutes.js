@@ -3,7 +3,7 @@ const  router = express.Router()
 
 
 const gpsContro  = require('../Controllers/gpsController')
-router.post('/getallgpsposition', gpsContro.getAllPosition);
+router.get('/getallgpsposition', gpsContro.getAllPosition);
 
 
 module.exports = router
