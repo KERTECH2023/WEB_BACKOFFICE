@@ -31,10 +31,7 @@ const getAllPosition = async (req, res) => {
             phone: driverInfo.phone || "N/A",
             latitude: driverData.l[0],
             longitude: driverData.l[1],
-            carDetails: {
-              immatriculation: driverInfo.carDetails?.immatriculation || "N/A",
-              modelle: driverInfo.carDetails?.modelle || "N/A",
-            },
+           
           });
         }
       }
