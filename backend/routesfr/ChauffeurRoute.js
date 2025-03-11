@@ -5,7 +5,7 @@ const ChauffContro = require("../Controllersfr/ChauffContro");
 const tarifContro = require("../Controllersfr/TarifsC");
 
 //const UploadImage = require ("../services/firebase");
-const UploadImage = require("../services/firebase");
+const UploadImage = require("../servicesfr/firebase");
 
 const multer = require("multer");
 const storage = multer.memoryStorage();
