@@ -51,17 +51,7 @@ const Datachauf = () => {
                 </>
               )}
             </div>
-            <div>
-              {(role === "Admin" || role === "Agentad") && (
-                <>
-                  {(params.row.Cstatus === "Validé") && (
-                    <Link to={`/renitialisemotpassCh/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                      <div className="upButton">Change password</div>
-                    </Link>
-                  )}
-                </>
-              )}
-            </div>
+            
           </div>
         );
       },
@@ -103,7 +93,7 @@ const Datachauf = () => {
             chauffprenom.includes(searchTerm) ||
             chauffphone.includes(searchTerm) ||
             chauffaddress.includes(searchTerm) ||
-            Cstatus.includes(searchTerm)
+            Cstatus.includes(searchTerm) 
           );
         })}
         columns={ChaufColumns.concat(actionColumn)}
