@@ -68,6 +68,11 @@ router.put(
   ChauffContro.update
 );
 
+router.put(
+  "/Chauffchangemotdepasse/:id",
+  ChauffContro.updatemotdepasse
+);
+
 router.post("/loginch", ChauffContro.login);
 router.get("/searchchauf/:id", ChauffContro.searchuse);
 router.get("/newchauf", ChauffContro.recuperernewchauf);
