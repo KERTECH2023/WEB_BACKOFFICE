@@ -743,6 +743,8 @@ const updatemotdepasse = async (req, res, next) => {
     res.json({
       message: "Chauffeur updated successfully!",
     });
+  }else{
+    console.log("Update Data:",body.Motdepasse);
   }
   } catch (error) {
     console.error("Error updating Chauffeur:", error);
