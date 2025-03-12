@@ -24,7 +24,7 @@ const getAllPosition = async (req, res) => {
 
         if (driverSnapshot.exists()) {
           const driverInfo = driverSnapshot.val();
-
+          if(driverInfo.Status =="Free"){
           positions.push({
             id: driverId,
             name: driverInfo.name || "N/A",
@@ -33,6 +33,7 @@ const getAllPosition = async (req, res) => {
             longitude: driverData.l[1]
            
           });
+        }
         }
       }
     }
