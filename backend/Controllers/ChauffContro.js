@@ -1268,6 +1268,9 @@ const updatestatuss = async (req, res, next) => {
       const messagesms = "Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
       // Si l'utilisateur existe, envoyer un email avec le mot de passe existant
       try {
+         await admin.auth().updateUser(firebaseUser.uid, {
+        password: Motdepasse,
+      });
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
 
         await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
