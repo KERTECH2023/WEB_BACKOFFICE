@@ -1,71 +1,120 @@
-const { bucket } = require('./config');
+const ftp = require('basic-ftp');
+const path = require('path');
+const fs = require('fs');
+require("dotenv").config();
 
-const uploadFileWithRetry = (bucketFile, file, retries = 3) => {
-  return new Promise((resolve, reject) => {
-    const uploadAttempt = (attempt) => {
-      const stream = bucketFile.createWriteStream({
-        metadata: {
-          contentType: file.mimetype,
-        },
+// Configuration FTP
+const FTP_HOST = process.env.FTP_HOST;
+const FTP_USER = process.env.FTP_USER;
+const FTP_PASSWORD = process.env.FTP_PASSWORD;
+const FTP_DIR = 'upload';  // Conservé comme dans le code original
+const BASE_URL = 'https://backend.tunisieuber.com/afficheimage/image';  // Conservé comme dans le code original
+
+/**
+ * Fonction pour télécharger un fichier avec réessais automatiques
+ */
+const uploadFileWithRetry = async (file, fileName, retries = 3) => {
+  const client = new ftp.Client();
+  client.ftp.verbose = process.env.NODE_ENV !== 'production';
+
+  // Créer un fichier temporaire pour l'upload
+  const tempDir = path.join(__dirname, 'tmp');
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+
+  const tempFilePath = path.join(tempDir, fileName);
+  fs.writeFileSync(tempFilePath, file.buffer);
+
+  let attempt = 0;
+  let lastError = null;
+
+  while (attempt < retries) {
+    try {
+      // Connexion au serveur FTP
+      await client.access({
+        host: FTP_HOST,
+        user: FTP_USER,
+        password: FTP_PASSWORD,
+        secure: false,
       });
 
-      stream.on('error', (error) => {
-        if (error.code === 503 && attempt < retries) {
-          console.log(`Upload failed, retrying attempt ${attempt + 1}...`);
-          setTimeout(() => uploadAttempt(attempt + 1), 1000); // Wait 1 second before retrying
-        } else {
-          reject(error);
-        }
-      });
+      
 
-      stream.on('finish', async () => {
-        try {
-          await bucketFile.makePublic();
-          resolve();
-        } catch (error) {
-          reject(error);
-        }
-      });
+      // Upload du fichier
+    
+      await client.uploadFrom(tempFilePath, fileName);
+      
+      // Définir les permissions pour un accès public (644 = rw-r--r--)
+      try {
+        await client.send(`SITE CHMOD 644 ${fileName}`);
+       
+      } catch (chmodErr) {
+        console.warn(`⚠️ Impossible de définir les permissions: ${chmodErr.message}`);
+        // Continuer même si CHMOD échoue
+      }
+      
+    
 
-      stream.end(file.buffer);
-    };
+      // Construire l'URL selon le format original
+      const fileUrl = `${BASE_URL}/${fileName}`;
 
-    uploadAttempt(0); // Start the first attempt
-  });
+      // Nettoyage
+      fs.unlinkSync(tempFilePath);
+      client.close();
+      return fileUrl;
+    } catch (error) {
+      lastError = error;
+      attempt++;
+      console.error(`❌ Tentative ${attempt}/${retries} échouée: ${error.message}`);
+
+      // Attendre avant de réessayer
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      }
+    } finally {
+      client.close();
+    }
+  }
+
+  // Échec après tous les essais
+  if (fs.existsSync(tempFilePath)) {
+    fs.unlinkSync(tempFilePath);
+  }
+
+  throw lastError || new Error("Échec de l'upload après plusieurs tentatives");
 };
 
+/**
+ * Middleware pour gérer l'upload d'images vers un serveur FTP
+ * Garde le même nom que dans le code original
+ */
 const UploadImage = (req, res, next) => {
-  if (!req.files) return next();
+  if (!req.files || !req.body.Nom || !req.body.phone) {console.log("kjdkjsdkj"+req.body.Nom+req.body.fullPhoneNumber); return next();}
 
+  const userDir = `${req.body.Nom}_${req.body.phone}`;
   const files = req.files;
   const uploadedFiles = {};
-  
+
   const uploadPromises = Object.keys(files).map((fieldName) => {
-    if (!files[fieldName] || !files[fieldName][0]) {
-      // Si le champ est undefined ou vide, sauter cet élément
-      console.error(`No file found for field: ${fieldName}`);
-      return Promise.resolve(); // Retourner une promesse résolue pour éviter d'interrompre Promise.all
-    }
-
     const file = files[fieldName][0];
-    const nomeArquivo = Date.now() + '.' + file.originalname.split('.').pop();
-    const bucketFile = bucket.file(nomeArquivo);
+    
+    const remotePath = `${req.body.Nom}_${req.body.phone}${fieldName}`+Date.now()+`.${file.originalname.split(".").pop()}`;
 
-    return uploadFileWithRetry(bucketFile, file)
-      .then(() => {
-        const firebaseUrl = `https://storage.googleapis.com/${bucket.name}/${nomeArquivo}`;
-        uploadedFiles[fieldName] = firebaseUrl;
-      });
+    return uploadFileWithRetry(file, remotePath).then((fileUrl) => {
+      uploadedFiles[fieldName] = fileUrl;
+    });
   });
 
   Promise.all(uploadPromises)
     .then(() => {
       req.uploadedFiles = uploadedFiles;
+      res.locals.uploadedFiles = uploadedFiles;
       next();
     })
     .catch((error) => {
-      console.error('Failed to upload files:', error);
-      next();
+      console.error("⛔ Échec de l'upload des fichiers:", error);
+      res.status(500).send({ error: "L'upload des fichiers a échoué" });
     });
 };
 
