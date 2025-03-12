@@ -6,6 +6,7 @@ const { Buffer } = require("node:buffer");
 const firestoreModule = require("../servicesfr/config");
 const db = require("../servicesfr/config");
 const admin = firestoreModule.adminAppfr;
+const adminnotification = require("firebase-admin");
 const crypto = require("crypto");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
@@ -626,7 +627,7 @@ const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) 
       data: data, // Données supplémentaires (optionnel)
     }));
 
-    const responses = await Promise.all(messages.map((message) => admin.messaging().send(message)));
+    const responses = await Promise.all(messages.map((message) => adminnotification.messaging().send(message)));
     console.log('Notifications envoyées avec succès:', responses);
   } catch (error) {
     console.error('Erreur lors de l\'envoi des notifications:', error);
