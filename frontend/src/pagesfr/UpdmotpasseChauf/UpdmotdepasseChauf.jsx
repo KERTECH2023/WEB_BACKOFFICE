@@ -119,7 +119,7 @@ const UpdChauf = () => {
         <div className="bottom">
           <div className="right">
             <form onSubmit={handleSubmit}>
-              {renderField("Mot de passe", "Motdepasse", "password")}
+              {renderField("Mot de passe", "Motdepasse", "text")}
 
               <div className="item">
                 <button type="submit" id="sub_btn">
