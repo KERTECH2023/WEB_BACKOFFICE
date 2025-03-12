@@ -744,7 +744,7 @@ const updatemotdepasse = async (req, res, next) => {
       message: "Chauffeur updated successfully!",
     });
   }else{
-    console.log("Update Data:",body.Motdepasse);
+    console.log("Update Data:",body);
   }
   } catch (error) {
     console.error("Error updating Chauffeur:", error);
