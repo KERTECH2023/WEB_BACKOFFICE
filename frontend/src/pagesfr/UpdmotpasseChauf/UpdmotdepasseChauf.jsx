@@ -61,7 +61,7 @@ const UpdChauf = () => {
       });
 
       await axios.put(
-        `${process.env.REACT_APP_BASE_URL}/Chauffchangemotdepassefr/updatechauf/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/Chaufffr/Chauffchangemotdepassefr/${id}`,
         chauffeurFormData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
