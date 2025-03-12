@@ -3,18 +3,17 @@ const config = require("../config.json");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const { Buffer } = require("node:buffer");
-const firestoreModule = require("../servicesfr/config");
-const db = require("../servicesfr/config");
-const admin = firestoreModule.adminAppfr;
-const adminnotification = require("firebase-admin");
+const firestoreModule = require("../services/config");
+const db = require("../services/config");
+const admin = require("firebase-admin");
 const crypto = require("crypto");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const realtimeDB = firestoreModule.firestoreApp.database();
-const Car = require("../Modelsfr/Voiture"); // Assuming the Car schema is defined in 'Car.js'
-const Facture = require("../Modelsfr/Facture"); // Assuming the Car schema is defined in 'Car.js'
-const RideRequest = require("../Modelsfr/AllRideRequest"); // Import the RideRequest Mongoose model
-const Chauffeur = require("../Modelsfr/Chauffeur");
+const Car = require("../Models/Voiture"); // Assuming the Car schema is defined in 'Car.js'
+const Facture = require("../Models/Facture"); // Assuming the Car schema is defined in 'Car.js'
+const RideRequest = require("../Models/AllRideRequest"); // Import the RideRequest Mongoose model
+const Chauffeur = require("../Models/Chauffeur");
 const PDFDocument = require("pdfkit");
 const querystring = require("querystring");
 const https = require("https");
@@ -627,7 +626,7 @@ const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) 
       data: data, // Données supplémentaires (optionnel)
     }));
 
-    const responses = await Promise.all(messages.map((message) => adminnotification.messaging().send(message)));
+    const responses = await Promise.all(messages.map((message) => admin.messaging().send(message)));
     console.log('Notifications envoyées avec succès:', responses);
   } catch (error) {
     console.error('Erreur lors de l\'envoi des notifications:', error);
@@ -702,8 +701,6 @@ const sendmessagingnotificationclient = async (req, res) => {
 
 /**----------Update Agent----------------- */
 
-
-
 const updatemotdepasse = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -747,9 +744,6 @@ const updatemotdepasse = async (req, res, next) => {
 };
 
 
-
-
-
 const update = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -762,13 +756,11 @@ const update = async (req, res, next) => {
 
     // Extract uploaded files, only if they are not null or undefined
     const photoAvatarUrl = uploadedFiles?.photoAvatar ? uploadedFiles.photoAvatar : undefined;
-    const AssuranceProUrl = uploadedFiles?.AssurancePro ? uploadedFiles.AssurancePro : undefined;
-    const KbisUrl = uploadedFiles?.Kbis ? uploadedFiles.Kbis : undefined;
-    const RIBUrl = uploadedFiles?.RIB ? uploadedFiles.RIB : undefined;
+    const photoPermisRecUrl = uploadedFiles?.photoPermisRec ? uploadedFiles.photoPermisRec : undefined;
+    const photoPermisVerUrl = uploadedFiles?.photoPermisVer ? uploadedFiles.photoPermisVer : undefined;
     const photoVtcUrl = uploadedFiles?.photoVtc ? uploadedFiles.photoVtc : undefined;
     const photoCinUrl = uploadedFiles?.photoCin ? uploadedFiles.photoCin : undefined;
 
-  
     // Prepare update data dynamically
     const updateData = {
       Nom: body.Nom,
@@ -777,9 +769,8 @@ const update = async (req, res, next) => {
       phone: body.phone,
       ...(photoAvatarUrl && { photoAvatar: photoAvatarUrl }),
       ...(photoCinUrl && { photoCin: photoCinUrl }),
-      ...(AssuranceProUrl && { AssurancePro: AssuranceProUrl }),
-      ...(KbisUrl && { Kbis: KbisUrl }),
-      ...(RIBUrl && { RIB: RIBUrl }),
+      ...(photoPermisRecUrl && { photoPermisRec: photoPermisRecUrl }),
+      ...(photoPermisVerUrl && { photoPermisVer: photoPermisVerUrl }),
       ...(photoVtcUrl && { photoVtc: photoVtcUrl }),
       gender: body.gender,
       role: body.role,
@@ -1108,7 +1099,18 @@ const recupereruse = async (req, res) => {
   }
 };
 
+const mongoose = require("mongoose");
+const FactureView = mongoose.model(
+  "FactureView",
+  new mongoose.Schema({}, { collection: "factures", strict: false })
+);
 
+// Get Facture
+const recuperFact = async (req, res) => {
+  FactureView.find() // Utilisation du modèle FactureView
+    .then((invoices) => res.json(invoices))
+    .catch((err) => res.status(400).json({ error: err.message }));
+};
 
 // const recupereruse = async(req,res,data) =>{
 
@@ -1266,9 +1268,11 @@ const updatestatuss = async (req, res, next) => {
       const messagesms = "Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
       // Si l'utilisateur existe, envoyer un email avec le mot de passe existant
       try {
-        await admin.auth().updateUser(firebaseUser.uid, {
-       password: chauffeurPassword,
-     });
+
+        if(chauffeurPassword){
+         await admin.auth().updateUser(firebaseUser.uid, {
+        password: chauffeurPassword,
+      });}
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
 
         await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
@@ -1566,6 +1570,7 @@ module.exports = {
   Comptevald,
   recuperernewchauf,
   getFacturesByChauffeurId,
+  recuperFact,
   searchFacture,
   updateFact,
   sendFactureEmail,
