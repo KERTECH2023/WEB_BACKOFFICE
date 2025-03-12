@@ -53,26 +53,23 @@ const UpdChauf = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      const chauffeurFormData = new FormData();
-      Object.entries(formData.chauffeur).forEach(([key, value]) => {
-        chauffeurFormData.append(key, value);
-      });
-
+      // Envoyer les données sous format JSON (pas `multipart/form-data`)
       await axios.put(
         `${process.env.REACT_APP_BASE_URL}/Chaufffr/Chauffchangemotdepassefr/${id}`,
-        chauffeurFormData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { Motdepasse: formData.chauffeur.Motdepasse }, // Envoi seulement du mot de passe
+        { headers: { "Content-Type": "application/json" } }
       );
-
+  
       toast.success("Mise à jour réussie !");
       setTimeout(() => navigate("/Chauffeurfr"), 3000);
     } catch (error) {
       toast.error("Erreur lors de la mise à jour");
-      console.error("Erreur lors de la mise à jour:", error);
+      console.error("Erreur lors de la mise à jour :", error);
     }
   };
+  
 
   const renderField = (label, name, type = "text", options = null, disabled = false) => (
     <div className="item">
