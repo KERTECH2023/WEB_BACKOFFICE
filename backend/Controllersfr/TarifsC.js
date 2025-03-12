@@ -8,7 +8,7 @@ const moment = require('moment-timezone');
 const firestoreModule = require("../servicesfr/config");
 const admin = firestoreModule.adminAppfr;
 const realtimeDB = firestoreModule.firestoreApp.database();
-
+const adminnotification = require("firebase-admin");
 
 //reveille chauffeur 
 const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
@@ -22,7 +22,7 @@ const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) 
       data: data, // Données supplémentaires (optionnel)
     }));
 
-    const responses = await Promise.all(messages.map((message) => admin.messaging().send(message)));
+    const responses = await Promise.all(messages.map((message) => adminnotification.messaging().send(message)));
     console.log('Notifications envoyées avec succès:', responses);
   } catch (error) {
     console.error('Erreur lors de l\'envoi des notifications:', error);
