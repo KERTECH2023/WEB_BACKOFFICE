@@ -302,7 +302,7 @@ function App() {
 
           <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
-          <Route path="/renitialisemotpassChfr" element={<Changemotdepasse />} />
+          <Route path="/renitialisemotpassChfr/:id" element={<Changemotdepasse />} />
           <Route path="/loginfr" element={<Loginfr />} />
           <Route path="/logfr" element={<Logfr />} />
           <Route path="/gpsfr" element={<Gpsfr />} />
