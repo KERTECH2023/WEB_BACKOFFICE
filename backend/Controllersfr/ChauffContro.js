@@ -724,7 +724,7 @@ const updatemotdepasse = async (req, res, next) => {
 
     // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(Motdepasse, 10);
-
+console.log("Uid"+chauffeur.firebaseUID)
     // Mise à jour du mot de passe Firebase si UID disponible
     if (chauffeur.firebaseUID) {
       await admin.auth().updateUser(chauffeur.firebaseUID, {
