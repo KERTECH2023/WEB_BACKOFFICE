@@ -39,7 +39,10 @@ const ChauffSchema = new mongoose.Schema(
         type: {
             type: String,
         },
-
+        firebaseUID: {
+            type: String,
+            
+        },
         gender: {
             type: String,
             enum: {
