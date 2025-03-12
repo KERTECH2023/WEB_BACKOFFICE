@@ -701,6 +701,60 @@ const sendmessagingnotificationclient = async (req, res) => {
 
 /**----------Update Agent----------------- */
 
+const updatemotdepasse = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+
+    // Validate if Chauffeur ID is provided
+    if (!id) {
+      return res.status(400).json({ message: "Chauffeur ID is required." });
+    }
+
+
+
+  if(body.Motdepasse){
+    // Prepare update data dynamically
+    const updateData = {
+      password: body.Motdepasse,
+      
+    };
+
+    console.log("Update Data:", updateData);
+
+    // Find the chauffeur
+    const chauffeur = await Chauffeur.findById(id);
+    if (!chauffeur) {
+      return res.status(404).json({ message: "Chauffeur not found." });
+    }
+
+    if (chauffeur.firebaseUID !== undefined) { // Update Firebase Realtime Database
+      admin.auth().updateUser(firebaseUID, {
+        password: body.Motdepasse
+      })
+    }
+
+
+
+    // Update Chauffeur in MongoDB
+    await Chauffeur.findByIdAndUpdate(id, { $set: updateData });
+
+    // Respond success
+    res.json({
+      message: "Chauffeur updated successfully!",
+    });
+  }
+  } catch (error) {
+    console.error("Error updating Chauffeur:", error);
+    res.status(500).json({
+      message: "Error updating Chauffeur.",
+      error: error.message,
+    });
+  }
+};
+
+
+
 
 
 const update = async (req, res, next) => {
@@ -1525,5 +1579,6 @@ module.exports = {
   sendmessagingnotification,
   sendmessagingnotificationclient,
   sendNotificationMiseajour,
+  updatemotdepasse
 
 };
