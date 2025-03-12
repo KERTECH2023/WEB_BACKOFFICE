@@ -200,7 +200,7 @@ const UpdChauf = () => {
             
               {renderField("N° Permis", "cnicNo", "text", null, role === "Agent")}
               {renderField("Adresse", "address")}
-              {renderField("Code Postal", "postalCode")}
+              
               
               {/* File Uploads */}
               {renderFileUpload("Photo de Profil", "photoAvatar")}
