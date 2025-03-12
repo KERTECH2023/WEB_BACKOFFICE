@@ -82,6 +82,7 @@ import SingleConfr from "./pagesfr/SingleContact/SingleCon";
 import ListFacturefr from "./pagesfr/Facture/Facture";
 import Liscoursefr from "./pagesfr/Course/course";
 import Gpsfr from "./pagesfr/gps/gps.jsx";
+import changemotdepasse from "./pagesfr/UpdmotpasseChauf";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -301,6 +302,7 @@ function App() {
 
           <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
+          <Route path="/renitialisemotpassChfr" element={<changemotdepasse />} />
           <Route path="/loginfr" element={<Loginfr />} />
           <Route path="/logfr" element={<Logfr />} />
           <Route path="/gpsfr" element={<Gpsfr />} />
