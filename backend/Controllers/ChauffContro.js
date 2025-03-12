@@ -1575,5 +1575,6 @@ module.exports = {
   sendmessagingnotification,
   sendmessagingnotificationclient,
   sendNotificationMiseajour,
+  updatemotdepasse
 
 };
