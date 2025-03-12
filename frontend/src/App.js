@@ -82,7 +82,8 @@ import SingleConfr from "./pagesfr/SingleContact/SingleCon";
 import ListFacturefr from "./pagesfr/Facture/Facture";
 import Liscoursefr from "./pagesfr/Course/course";
 import Gpsfr from "./pagesfr/gps/gps.jsx";
-import Changemotdepasse from "./pagesfr/UpdmotpasseChauf/UpdmotdepasseChauf";
+import Changemotdepassefr from "./pagesfr/UpdmotpasseChauf/UpdmotdepasseChauf";
+import Changemotdepasse from "./pages/UpdmotpasseChauf/UpdmotdepasseChauf";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -94,6 +95,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={isLoggedIn ? <Home /> : <Landingpage />} />
+          <Route path="/renitialisemotpassCh/:id" element={<Changemotdepasse />} />
           {/* <Route index element={<Landingpage />} /> */}
           <Route path="/login" element={<Login />} />
           <Route path="/gps" element={<Gps />} />
@@ -302,7 +304,7 @@ function App() {
 
           <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
-          <Route path="/renitialisemotpassChfr/:id" element={<Changemotdepasse />} />
+          <Route path="/renitialisemotpassChfr/:id" element={<Changemotdepassefr />} />
           <Route path="/loginfr" element={<Loginfr />} />
           <Route path="/logfr" element={<Logfr />} />
           <Route path="/gpsfr" element={<Gpsfr />} />
