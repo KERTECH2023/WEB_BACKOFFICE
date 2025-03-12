@@ -84,7 +84,7 @@ const Liscourse = () => {
       if (filterStatus !== "all") {
         ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
       }
-      setRides(ridesArray.reverse());
+      setRides(ridesArray);
     } catch (error) {
       setError("Erreur lors de la récupération des courses");
       console.error("Erreur lors de la récupération des courses :", error);
