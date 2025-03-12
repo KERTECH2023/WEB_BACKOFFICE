@@ -69,6 +69,11 @@ router.put(
   UploadImage,
   ChauffContro.update
 );
+router.put(
+  "/Chauffchangemotdepassefr/:id",
+  ChauffContro.updatemotdepasse
+);
+
 
 router.post("/loginch", ChauffContro.login);
 router.get("/searchchauf/:id", ChauffContro.searchuse);
