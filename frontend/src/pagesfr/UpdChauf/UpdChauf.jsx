@@ -94,6 +94,10 @@ const UpdChauf = () => {
       Object.entries(formData.vehicle).forEach(([key, value]) => {
         vehicleFormData.append(key, value);
       });
+      if (formData.chauffeur.Nom && formData.chauffeur.phone) {
+        vehicleFormData.append('phone', formData.chauffeur.phone);
+        vehicleFormData.append('Nom', formData.chauffeur.Nom);
+      }
       if (formData.files.cartegrise) {
         vehicleFormData.append('cartegrise', formData.files.cartegrise);
       }
