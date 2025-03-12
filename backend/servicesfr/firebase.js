@@ -90,16 +90,16 @@ const uploadFileWithRetry = async (file, fileName, retries = 3) => {
  * Garde le même nom que dans le code original
  */
 const UploadImage = (req, res, next) => {
-  if (!req.files || !req.body.Nom || !req.body.fullPhoneNumber) {console.log("kjdkjsdkj"+req.body.Nom+req.body.fullPhoneNumber); return next();}
+  if (!req.files || !req.body.Nom || !req.body.phone) {console.log("kjdkjsdkj"+req.body.Nom+req.body.fullPhoneNumber); return next();}
 
-  const userDir = `${req.body.Nom}_${req.body.fullPhoneNumber}`;
+  const userDir = `${req.body.Nom}_${req.body.phone}`;
   const files = req.files;
   const uploadedFiles = {};
 
   const uploadPromises = Object.keys(files).map((fieldName) => {
     const file = files[fieldName][0];
     
-    const remotePath = `${req.body.Nom}_${req.body.fullPhoneNumber}${fieldName}`+Date.now()+`.${file.originalname.split(".").pop()}`;
+    const remotePath = `${req.body.Nom}_${req.body.phone}${fieldName}`+Date.now()+`.${file.originalname.split(".").pop()}`;
 
     return uploadFileWithRetry(file, remotePath).then((fileUrl) => {
       uploadedFiles[fieldName] = fileUrl;
