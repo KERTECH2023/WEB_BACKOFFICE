@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Sidebar from "../../componentsfr/sidebar/Sidebar";
-import Navbar from "../../componentsfr/navbar/Navbar";
+import Sidebar from "../../components/sidebar/Sidebar";
+import Navbar from "../../components/navbar/Navbar";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -57,7 +57,7 @@ const UpdChauf = () => {
     try {
       // Envoyer les données sous format JSON (pas `multipart/form-data`)
       await axios.put(
-        `${process.env.REACT_APP_BASE_URL}/Chaufffr/Chauffchangemotdepassefr/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/Chauff/Chauffchangemotdepasse/${id}`,
         { Motdepasse: formData.chauffeur.Motdepasse }, // Envoi seulement du mot de passe
         { headers: { "Content-Type": "application/json" } }
       );
