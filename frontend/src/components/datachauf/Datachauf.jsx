@@ -55,7 +55,7 @@ const Datachauf = () => {
               {(role === "Admin" || role === "Agentad") && (
                 <>
                   {(params.row.Cstatus === "Validé") && (
-                    <Link to={`/renitialisemotpassChfr/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <Link to={`/renitialisemotpassCh/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                       <div className="upButton">Change password</div>
                     </Link>
                   )}
