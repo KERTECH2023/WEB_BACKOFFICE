@@ -701,55 +701,45 @@ const sendmessagingnotificationclient = async (req, res) => {
 
 /**----------Update Agent----------------- */
 
+
+
 const updatemotdepasse = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { body } = req;
+    const { Motdepasse } = req.body;
 
-    // Validate if Chauffeur ID is provided
     if (!id) {
       return res.status(400).json({ message: "Chauffeur ID is required." });
     }
 
+    if (!Motdepasse) {
+      return res.status(400).json({ message: "Le mot de passe est requis." });
+    }
 
-
-  if(body.Motdepasse){
-    // Prepare update data dynamically
-    const updateData = {
-      password: body.Motdepasse,
-      
-    };
-
-    console.log("Update Data:", updateData);
-
-    // Find the chauffeur
+    // Trouver le chauffeur
     const chauffeur = await Chauffeur.findById(id);
     if (!chauffeur) {
       return res.status(404).json({ message: "Chauffeur not found." });
     }
 
-    if (chauffeur.firebaseUID !== undefined) { // Update Firebase Realtime Database
-      admin.auth().updateUser(firebaseUID, {
-        password: body.Motdepasse
-      })
+    // Hash du mot de passe
+    const hashedPassword = await bcrypt.hash(Motdepasse, 10);
+
+    // Mise à jour du mot de passe Firebase si UID disponible
+    if (chauffeur.firebaseUID) {
+      await admin.auth().updateUser(chauffeur.firebaseUID, {
+        password: Motdepasse,
+      });
     }
 
+    // Mise à jour du mot de passe dans MongoDB
+    await Chauffeur.findByIdAndUpdate(id, { $set: { password: hashedPassword } });
 
-
-    // Update Chauffeur in MongoDB
-    await Chauffeur.findByIdAndUpdate(id, { $set: updateData });
-
-    // Respond success
-    res.json({
-      message: "Chauffeur updated successfully!",
-    });
-  }else{
-    console.log("Update Data:",body);
-  }
+    res.json({ message: "Mot de passe mis à jour avec succès !" });
   } catch (error) {
-    console.error("Error updating Chauffeur:", error);
+    console.error("Erreur lors de la mise à jour du mot de passe :", error);
     res.status(500).json({
-      message: "Error updating Chauffeur.",
+      message: "Erreur lors de la mise à jour du mot de passe.",
       error: error.message,
     });
   }
