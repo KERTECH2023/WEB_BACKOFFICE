@@ -1,19 +1,31 @@
 const firestoreModule = require("../services/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
 
-/**
- * Récupérer toutes les demandes de trajet
- */
+
 const getAllRideRequests = async (req, res) => {
   try {
     const rideRequestsRef = realtimeDB.ref("AllRideRequests");
-    const snapshot = await rideRequestsRef.once("value");
+    
+    // Récupérer seulement les 10 derniers éléments, triés par timestamp (supposant qu'il existe)
+    // Si vous n'avez pas de champ timestamp, utilisez un autre champ pour le tri
+    const snapshot = await rideRequestsRef
+      .orderByChild("timestamp")  // Remplacez "timestamp" par votre champ de date/temps
+      .limitToLast(10)
+      .once("value");
 
     if (!snapshot.exists()) {
       return res.status(404).json({ error: "Aucune demande de trajet trouvée" });
     }
 
-    const rideRequests = snapshot.val();
+    // Convertir en tableau pour faciliter le traitement côté client
+    const rideRequests = [];
+    snapshot.forEach((childSnapshot) => {
+      rideRequests.unshift({
+        id: childSnapshot.key,
+        ...childSnapshot.val()
+      });
+    });
+    
     return res.status(200).json(rideRequests);
   } catch (error) {
     console.error("Erreur lors de la récupération des demandes de trajet :", error);
