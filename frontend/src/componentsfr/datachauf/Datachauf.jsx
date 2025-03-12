@@ -48,6 +48,11 @@ const Datachauf = () => {
                   <Link to={`/updateChfr/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                     <div className="upButton">Mettre a jour </div>
                   </Link>
+                  {(params.row.Cstatus === "Validé") && (
+                  <Link to={`/renitialisemotpassChfr/${params.row.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <div className="upButton">Change mot de passe</div>
+                  </Link> 
+                )}
                 </>
               )}
             </div>
