@@ -1267,7 +1267,7 @@ const updatestatuss = async (req, res, next) => {
       // Si l'utilisateur existe, envoyer un email avec le mot de passe existant
       try {
         await admin.auth().updateUser(firebaseUser.uid, {
-       password: Motdepasse,
+       password: chauffeurPassword,
      });
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
 
