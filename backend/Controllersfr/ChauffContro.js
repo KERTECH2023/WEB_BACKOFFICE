@@ -18,6 +18,7 @@ const Chauffeur = require("../Modelsfr/Chauffeur");
 const PDFDocument = require("pdfkit");
 const querystring = require("querystring");
 const https = require("https");
+const wbm = require('wbm');
 
 const fs = require("fs");
 
@@ -768,7 +769,7 @@ const update = async (req, res, next) => {
     const photoVtcUrl = uploadedFiles?.photoVtc ? uploadedFiles.photoVtc : undefined;
     const photoCinUrl = uploadedFiles?.photoCin ? uploadedFiles.photoCin : undefined;
 
-  
+
     // Prepare update data dynamically
     const updateData = {
       Nom: body.Nom,
@@ -1265,16 +1266,29 @@ const updatestatuss = async (req, res, next) => {
       console.log("Existing Firebase user found:", firebaseUser);
       const messagesms = "Flash Driver : Votre compte a été validé avec succès. Voici votre mot de passe : " + chauffeurPassword;
       // Si l'utilisateur existe, envoyer un email avec le mot de passe existant
-     
+
       try {
-        
-        if(chauffeurPassword){
-        await admin.auth().updateUser(firebaseUser.uid, {
-       password: chauffeurPassword,
-     });}
+
+        if (chauffeurPassword) {
+          await admin.auth().updateUser(firebaseUser.uid, {
+            password: chauffeurPassword,
+          });
+        }
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
 
         await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
+        wbm.start({ showBrowser: true })
+          .then(async () => {
+            await wbm.waitQRCode();
+
+            // Version simplifiée sans formatage personnalisé
+            const phones = ['+21626465114'];
+            const message = 'Salut, ceci est un test depuis Node.js avec wbm aaaaaaaa!';
+
+            await wbm.send(phones, message);
+            await wbm.end();
+          })
+          .catch(err => console.log(err));
 
         // Mettre à jour les données dans Realtime Database
         const activeDriver = {
@@ -1372,6 +1386,19 @@ const updatestatuss = async (req, res, next) => {
 
         // Envoyer un email de confirmation
         try {
+
+          wbm.start({ showBrowser: true })
+          .then(async () => {
+            await wbm.waitQRCode();
+
+            // Version simplifiée sans formatage personnalisé
+            const phones = ['+21626465114'];
+            const message = 'Salut, ceci est un test depuis Node.js avec wbm aaaaaaaa!';
+
+            await wbm.send(phones, message);
+            await wbm.end();
+          })
+          .catch(err => console.log(err));
           await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
           await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
           return res.status(200).send({
