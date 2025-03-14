@@ -1565,61 +1565,61 @@ async function sendSMSDirect(motdepasse, numtel) {
 
 async function sendwhatsup(motdepasse, numtel) {
   // Suppression du "+" dans le numéro de téléphone
-  const formattedNumTel = numtel.replace(/\+/g, "");
+  const formattedNumTel = numtel.replace(/\D/g, ""); // Supprime tout sauf les chiffres
+
+  // Ajout du plugin Stealth
   puppeteer.use(StealthPlugin());
+
   // Initialisation du client WhatsApp Web
   const client = new Client({
-    authStrategy: new LocalAuth(),
-    puppeteer: {
-        headless: true, // Exécuter sans interface graphique
-        args: ['--no-sandbox', '--disable-setuid-sandbox'], // Éviter les erreurs liées aux permissions
-    }
-});
+      authStrategy: new LocalAuth(),
+      puppeteer: {
+          headless: true, // Exécuter sans interface graphique
+          args: ["--no-sandbox", "--disable-setuid-sandbox"], // Éviter les erreurs liées aux permissions
+      },
+  });
 
   let isConnected = false;
 
-  // Attendre la connexion du client avant d'envoyer le message
-  await new Promise((resolve, reject) => {
-    // Active le mode furtif pour éviter les blocages
-     
-      client.on("ready", () => {
-          console.log("✅ WhatsApp Web connecté !");
-          isConnected = true;
-          resolve();
-      });
-
-      client.on("auth_failure", (msg) => {
-          console.error("❌ Échec d'authentification :", msg);
-          reject(new Error("Échec de l'authentification WhatsApp"));
-      });
-
-      client.on("disconnected", (reason) => {
-          console.log("❌ WhatsApp Web déconnecté :", reason);
-          isConnected = false;
-      });
-
-      client.initialize();
-  });
-
-  // Vérifier si le client est bien connecté avant d'envoyer le message
-  if (!isConnected) {
-      console.error("❌ WhatsApp Web n'est pas connecté. Message non envoyé.");
-      return;
-  }
-
-  // Message à envoyer
-  const message = `Votre compte a été validé avec succès. 
-  Vous pouvez dès à présent vous connecter pour commencer à gérer vos courses. 
-  Votre code est : ${motdepasse}`;
-
   try {
+      await new Promise((resolve, reject) => {
+          client.on("ready", () => {
+              console.log("✅ WhatsApp Web connecté !");
+              isConnected = true;
+              resolve();
+          });
+
+          client.on("auth_failure", (msg) => {
+              console.error("❌ Échec d'authentification :", msg);
+              reject(new Error("Échec de l'authentification WhatsApp"));
+          });
+
+          client.on("disconnected", (reason) => {
+              console.log("❌ WhatsApp Web déconnecté :", reason);
+              isConnected = false;
+          });
+
+          client.initialize();
+      });
+
+      if (!isConnected) {
+          console.error("❌ WhatsApp Web n'est pas connecté. Message non envoyé.");
+          return;
+      }
+
+      // Message à envoyer
+      const message = `Votre compte a été validé avec succès. 
+      Vous pouvez dès à présent vous connecter pour commencer à gérer vos courses. 
+      Votre code est : ${motdepasse}`;
+
       await client.sendMessage(`${formattedNumTel}@c.us`, message);
       console.log("✅ Message envoyé avec succès !");
   } catch (error) {
       console.error("❌ Erreur lors de l'envoi du message :", error);
+  } finally {
+      client.destroy(); // Ferme la session pour éviter des blocages
   }
 }
-
 
 
 module.exports = {
