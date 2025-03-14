@@ -70,6 +70,7 @@ const tariftransfetfr = require("./routesfr/TariftransfertRoute.js");
 const reservationTaxifr = require("./routesfr/ReservationTaxiRoutes.js");
 const confr = require("./routesfr/ContactRoute");
 const ridesfr = require("./routesfr/RideRoute");
+const whatsup = require("./routesfr/whatsappRoutes");
 
 var indexRouterfr = require("./routesfr/index");
 var usersRouterfr = require("./routesfr/users");
@@ -155,7 +156,7 @@ app.get("/testAggregation", async (req, res) => {
 
 // france
 
-
+app.use("/whatsapp", whatsup);
 app.use("/gpspostionfr", gpsroutefr);
 app.use("/fr", indexRouterfr);
 app.use("/usersfr", usersRouterfr);
