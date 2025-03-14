@@ -20,6 +20,10 @@ const querystring = require("querystring");
 const https = require("https");
 const qrcode = require('qrcode');
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+
+// Active le mode furtif pour éviter les blocages
+puppeteer.use(StealthPlugin());
 
 const createDriversNodeIfNotExists = async () => {
   const driversRef = realtimeDB.ref("Drivers");
@@ -1565,8 +1569,12 @@ async function sendwhatsup(motdepasse, numtel) {
 
   // Initialisation du client WhatsApp Web
   const client = new Client({
-      authStrategy: new LocalAuth(),
-  });
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        headless: true, // Exécuter sans interface graphique
+        args: ['--no-sandbox', '--disable-setuid-sandbox'], // Éviter les erreurs liées aux permissions
+    }
+});
 
   let isConnected = false;
 
