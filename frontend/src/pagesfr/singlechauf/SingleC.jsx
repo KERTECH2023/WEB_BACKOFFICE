@@ -58,7 +58,7 @@ const SingleC = () => {
       });
   };
 
-  const handleSubmit = async (id) => {
+  const handleSubmite = async (id) => {
   const navigate = useNavigate();
 
   try {
