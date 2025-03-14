@@ -22,8 +22,7 @@ const qrcode = require('qrcode');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
-// Active le mode furtif pour éviter les blocages
-puppeteer.use(StealthPlugin());
+
 
 const createDriversNodeIfNotExists = async () => {
   const driversRef = realtimeDB.ref("Drivers");
@@ -1580,6 +1579,8 @@ async function sendwhatsup(motdepasse, numtel) {
 
   // Attendre la connexion du client avant d'envoyer le message
   await new Promise((resolve, reject) => {
+    // Active le mode furtif pour éviter les blocages
+     puppeteer.use(StealthPlugin());
       client.on("ready", () => {
           console.log("✅ WhatsApp Web connecté !");
           isConnected = true;
