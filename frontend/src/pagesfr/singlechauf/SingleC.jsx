@@ -64,7 +64,7 @@ const SingleC = () => {
       process.env.REACT_APP_BASE_URL + "/whatsapp/status"
     );
 
-    if (response.data.status === false) {
+    if (response.data.isConnected === false) {
       if (
         window.confirm(
           "Attention ! Le message WhatsApp n'a pas été envoyé car vous n'êtes pas connecté. "
