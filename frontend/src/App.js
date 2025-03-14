@@ -37,6 +37,7 @@ import Transfert from "./pages/Transfert/Transfert.jsx";
 import SingleCon from "./pages/SingleContact/SingleCon";
 import ListFacture from "./pages/Facture/Facture";
 import Liscourse from "./pages/Course/course";
+import Whatsup from "./pages/whatsup/whatsup";
 import "./style/dark.scss";
 import Gps from "./pages/gps/gps.jsx";
 import { useContext } from "react";
@@ -99,6 +100,7 @@ function App() {
           {/* <Route index element={<Landingpage />} /> */}
           <Route path="/login" element={<Login />} />
           <Route path="/gps" element={<Gps />} />
+          <Route path="/whatsuplogin" element={<Whatsup />} />
           <Route path="/log" element={<Log />} />
           <Route path="/pass" element={<Passwordforget />} />
           <Route
