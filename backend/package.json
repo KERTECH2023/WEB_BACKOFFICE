@@ -38,5 +38,8 @@
     "basic-ftp": "^5.0.5",
     "qrcode": "^1.5.4",
     "whatsapp-web.js": "^1.26.0"
+    "puppeteer": "^24.4.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
   }
 }
