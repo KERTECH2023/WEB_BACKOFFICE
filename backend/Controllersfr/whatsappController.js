@@ -1,5 +1,10 @@
 const qrcode = require('qrcode');
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+
+// Active le mode furtif pour éviter les blocages
+puppeteer.use(StealthPlugin());
 
 let whatsappScanQR = null;
 let isWhatsAppConnected = false;
@@ -7,9 +12,8 @@ let isWhatsAppConnected = false;
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        executablePath: '/usr/bin/chromium',
-        headless: true, // Exécuter en mode sans interface
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        headless: true, // Exécuter sans interface graphique
+        args: ['--no-sandbox', '--disable-setuid-sandbox'], // Éviter les erreurs liées aux permissions
     }
 });
 client.on('qr', async (qr) => {
