@@ -88,7 +88,7 @@ const SingleC = () => {
       }
     );
 
-    toast.success("Compte Chauffeur a été Désactivé avec Succès !", {
+    toast.success("Compte Chauffeur  a été Validé avec Success ! !", {
       position: toast.POSITION.TOP_RIGHT,
     });
 
