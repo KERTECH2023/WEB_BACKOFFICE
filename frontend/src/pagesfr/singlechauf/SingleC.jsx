@@ -58,46 +58,40 @@ const SingleC = () => {
       });
   };
 
-  const handleSubmite = () => {
-
-    const response = axios.get(
-      process.env.REACT_APP_BASE_URL + "/whatsapp/status"
-    );
-
-    if (response.data.isConnected === false) {
-      if (
-        window.confirm(
-          "Attention ! Le message WhatsApp n'a pas été envoyé car vous n'êtes pas connecté. "
-        )
-      ) {
-        window.location.href = "https://www.backofficegc.com/whatsuplogin";
-        return;
+  const handleSubmite = async () => {
+    try {
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/whatsapp/status");
+  
+      if (response.data?.isConnected === false) {
+        if (
+          window.confirm(
+            "Attention ! Le message WhatsApp n'a pas été envoyé car vous n'êtes pas connecté. "
+          )
+        ) {
+          window.location.href = "https://www.backofficegc.com/whatsuplogin";
+          return;
+        }
       }
-    }
-
-    axios
-      .put(process.env.REACT_APP_BASE_URL + `/Chaufffr/updatestatuss/${id}`, {
+  
+      await axios.put(process.env.REACT_APP_BASE_URL + `/Chaufffr/updatestatuss/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      })
-      .then((response) => {
-        toast.success("Compte Chauffeur  a été Validé avec Success !", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
-        setTimeout(() => navigate("/Chauffeurfr"), 3000);
-      })
-      .catch((err) => {
-        console.warn(err);
-        toast.error("Email exist Already!", {
-          position: toast.POSITION.TOP_RIGHT,
-        });
       });
-
-
-
-      
+  
+      toast.success("Compte Chauffeur a été Validé avec Success !", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+  
+      setTimeout(() => navigate("/Chauffeurfr"), 3000);
+    } catch (err) {
+      console.warn(err);
+      toast.error("Email exist Already!", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+    }
   };
+  
 
   // Handle "Refuser" button click
   const handleRefuserClick = () => {
