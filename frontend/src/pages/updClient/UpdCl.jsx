@@ -1,199 +1,207 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-
+import "./updcl.scss"
+import React from 'react'
+import { useParams } from "react-router-dom"
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
+import { useState , useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 
-const Whatsup = () => {
-  const [qrCode, setQrCode] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    checkStatus();
+const UpdCl = () => {
 
-    const interval = setInterval(() => {
-      fetchQRCode();
-      checkStatus();
-    }, 2000); // Vérifie toutes les secondes
+  const role = window.localStorage.getItem("userRole");
+  console.log("role",role)
 
-    return () => clearInterval(interval); // Nettoie l'intervalle quand le composant est démonté
-  }, []);
+  
+    
+    const [photoAvatar, setphotoAvatar] = useState({file :[]})
+    const [form, setform] = useState({})
 
-  const checkStatus = async () => {
-    try {
-      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/whatsapp/status");
-      setIsConnected(response.data.isConnected);
-    } catch (error) {
-      console.error("Erreur lors de la vérification du statut", error);
+    const navigate =useNavigate()
+
+    const [user] = useState()
+
+
+    const {id} = useParams();
+    
+    useEffect(() =>{
+    if (id) {
+      getSingleUser(id)
     }
-  };
-
-  const fetchQRCode = async () => {
-    if (isConnected) return; // Stoppe la mise à jour si déjà connecté
-
-    try {
-      const response = await axios.get(process.env.REACT_APP_BASE_URL + "/whatsapp/qrcode");
-      setQrCode(response.data.qrCode);
-    } catch (error) {
-      console.error("Erreur lors de la récupération du QR Code", error);
+    
+    },[id] )
+    console.log("user", id);
+    
+    const getSingleUser = async (id)  => {
+      const response = await axios.get(process.env.REACT_APP_BASE_URL + `/agent/searchAg/${id}`);
+      if(response.status===200){
+     setform({ ...response.data })
+     console.log("data" , response.data)
+      }
     }
-  };
+    console.log("USER**" , user)
+    
+const onChangeHandler = (e)=>{
+    setform({
+        ...form,
+        [e.target.name] : e.target.value,
+        //photoAvatar : e.Target.files[0],
+    })
 
-  const startWhatsApp = async () => {
-    try {
-      const response = await axios.post(process.env.REACT_APP_BASE_URL + "/whatsapp/start");
-      alert(response.data.message);
-      window.location.reload();
-    } catch (error) {
-      console.error("Erreur lors du démarrage de WhatsApp", error);
-    }
-  };
-
-  const disconnectWhatsApp = async () => {
-    try {
-      const response = await axios.post(process.env.REACT_APP_BASE_URL + "/whatsapp/logout");
-      alert(response.data.message);
-      window.location.reload();
-    } catch (error) {
-      console.error("Erreur lors de la déconnexion", error);
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!isConnected) {
-      alert("WhatsApp n'est pas connecté. Veuillez scanner le QR Code.");
-      return;
-    }
-    try {
-      const response = await axios.post(process.env.REACT_APP_BASE_URL + "/whatsapp/send", { phone, message });
-      alert(response.data.message);
-      window.location.reload();
-    } catch (error) {
-      console.error("Erreur lors de l'envoi du message", error);
-    }
-  };
-
-  return (
-
-    <div className="new">
-      <Sidebar />
-      <div className="newContainer">
-        <Navbar />
-        <div className="top"></div>
-        <div style={{ fontFamily: "Arial, sans-serif", textAlign: "center", padding: "20px" }}>
-          <div style={{
-            maxWidth: "500px",
-            margin: "auto",
-            padding: "20px",
-            borderRadius: "10px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-            backgroundColor: "#fff"
-          }}>
-            <h1 style={{ color: "#333" }}>WhatsApp QR Code</h1>
-
-            <div style={{ marginBottom: "20px" }}>
-              {isConnected ? (
-                <h2 style={{ color: "green" }}>✅ Connecté</h2>
-              ) : (
-                <h2 style={{ color: "red" }}>❌ Non connecté</h2>
-              )}
-            </div>
-            {!isConnected && !qrCode && (
-              <div>
-
-                <button onClick={startWhatsApp} style={{
-                  backgroundColor: "#007bff",
-                  color: "white",
-                  padding: "10px 20px",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  fontSize: "16px"
-                }}>
-                  Démarrer WhatsApp
-                </button>
-              </div>
-            )}
-            {!isConnected && qrCode && (
-              <div>
-                <img src={qrCode} alt="QR Code" style={{
-                  width: "250px",
-                  borderRadius: "8px",
-                  marginBottom: "10px",
-                  border: "2px solid #ddd"
-                }} />
-
-              </div>
-            )}
-
-            {isConnected && (
-              <button onClick={disconnectWhatsApp} style={{
-                backgroundColor: "red",
-                color: "white",
-                padding: "10px 20px",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "16px",
-                marginTop: "10px"
-              }}>
-                Déconnecter
-              </button>
-
-
-
-            )}
-            {isConnected && (
-              <div style={{ marginTop: "20px" }}>
-                <h3 style={{ color: "#333" }}>Envoyer un message</h3>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <input
-                    type="text"
-                    placeholder="Numéro de téléphone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    style={{
-                      width: "90%",
-                      padding: "10px",
-                      marginBottom: "10px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc"
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    style={{
-                      width: "90%",
-                      padding: "10px",
-                      marginBottom: "10px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc"
-                    }}
-                  />
-                  <button onClick={sendMessage} style={{
-                    backgroundColor: "green",
-                    color: "white",
-                    padding: "10px 20px",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    fontSize: "16px"
-                  }}>
-                    Envoyer
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
-export default Whatsup;
+
+    const handleSubmit = e => {
+        // Prevent the default submit and page reload
+        e.preventDefault()
+      
+      const data = new FormData();
+      data.append('photoAvatar',e.target.photoAvatar.files[0]);
+      console.log("fileeeeee",photoAvatar)
+        // Handle validations
+
+        for (const key in form) {
+          data.append(key, form[key]);
+        }
+
+        const phoneRegex = /^[0-9]{8}$/;
+        if (!phoneRegex.test(form.phone)) {
+          toast.error('Phone number must be 8 digits.', {
+            position: toast.POSITION.TOP_RIGHT
+          });
+          return;
+        }
+      
+        axios
+          .put(process.env.REACT_APP_BASE_URL + `/agent/updateAg/${id}`,data
+          ,{ headers: {
+            'Content-Type': 'multipart/form-data',
+          },})
+         
+          .then(response => {
+         console.log('res',response)
+            toast.success('Agent Updated with Success !', {
+              position: toast.POSITION.TOP_RIGHT
+              
+          });
+          console.log("file",response.data)
+            //navigate("/users")
+            setTimeout(()=>navigate("/users"),3000);
+            console.log(response.Nom)
+      
+            
+          
+                        // Handle response
+          })
+         
+      .catch(err =>{
+        console.warn(err)
+        toast.error('Email exist Already !', {
+          position: toast.POSITION.TOP_RIGHT
+      });
+      })
+      
+        }
+    return (
+        <div className="new">
+          <Sidebar />
+          <div className="newContainer">
+            <Navbar />
+            <div className="top">
+              <h1>Mettre  a jour Agent : {form.Nom} </h1>
+            </div>
+            <div className="bottom">
+              <div className="right">
+                <form action="" id="login" method="put" onSubmit={handleSubmit} >
+                <p className="item">
+                <label>Nom :</label><br />
+                <input type="text" onChange={onChangeHandler} name="Nom" className='InputBox' id="Nom" value={form.Nom || ""
+                } required /> 
+            </p>
+    
+            <p className="item">
+                <label>Prenom :</label><br />
+                <input type="text" onChange={onChangeHandler} name="Prenom" className='InputBox' id="Prenom" value={form.Prenom || ""
+                } required  />
+            </p>
+            
+            <p className="item">
+                <label>Email :</label><br />
+                <input type="email" onChange={onChangeHandler} name="email" className='InputBox' id="email" value={ form.email || ""
+                } required  disabled={role === "Agent"} />
+            </p>
+    
+            <p className="item">
+                <label>Phone :</label><br />
+                <input type="text" onChange={onChangeHandler} name="phone" className='InputBox' id="phone" value={form.phone || ""
+                } required />
+            </p>
+            
+
+            <p className="item">
+<label>Gender :</label><br />
+
+        <select onChange={onChangeHandler} value={form.gender || ""} name="gender" id="gender" >
+        <option value="-">-</option>
+    		<option value="male">male</option>
+    		<option value="female">female</option>
+    		
+    		
+   		</select>
+       </p>
+
+       <p className="item">
+<label>Role :</label><br />
+        <select onChange={onChangeHandler} value={form.role || ""} name="role" id="role"  disabled={role === "Agent"} >
+        <option value="-">-</option>
+    		<option value="comptabilité">comptabilité</option>
+    		<option value="ressources_humaines">ressources humaines</option>
+        <option value="communication">communication</option>
+        <option value="service_juridique">service juridique</option>
+    		
+    		
+   		</select>
+       </p>
+
+       <p className="item">
+<label>Nationalite :</label><br />
+        <select onChange={onChangeHandler} value={form.Nationalite || ""} name="Nationalite" id="Nationalite" >
+        <option value="-">-</option>
+    		<option value="Tunisian">Tunisian</option>
+    		<option value="Francais">Francais</option>
+        <option value="marocain">marocain</option>
+    		
+    		
+   		</select>
+       </p>
+            
+         
+            <p className="item">
+                <label>photo de profil  :</label><br />
+                <img
+                src={form.photoAvatar || ""}
+                alt=""
+                className="itemImg"
+              />
+             
+                <input type="file"   onChange={e => setphotoAvatar(e.target.files[0])} name="photoAvatar" className='InputBox' id="photoAvatar" />
+                
+            </p>
+    
+            <p className="item">
+                <button id="sub_btn" type="submit" value="login">Mis A Jour</button>
+            </p>
+            <ToastContainer />
+                </form>
+             
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+}
+
+export default UpdCl
