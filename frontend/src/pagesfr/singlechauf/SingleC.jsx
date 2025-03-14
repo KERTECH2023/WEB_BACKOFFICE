@@ -68,7 +68,7 @@ const SingleC = () => {
             "Attention ! Le message WhatsApp n'a pas été envoyé car vous n'êtes pas connecté. "
           )
         ) {
-          window.location.href = "https://www.backofficegc.com/whatsuplogin";
+          window.location.href = "https://www.backofficegc.com/whatsuploginfr";
           return;
         }
       }
