@@ -76,7 +76,7 @@ const Sidebar = () => {
               <span>gps taxi</span>
             </li>
           </Link>
-          <Link to="/whatsuplogin" style={{ textDecoration: "none" }}>
+          <Link to="/whatsuploginfr" style={{ textDecoration: "none" }}>
   <li>
     <WhatsAppIcon className="icon" />
     <span>WhatsApp</span>
