@@ -20,6 +20,7 @@ const querystring = require("querystring");
 const https = require("https");
 const qrcode = require('qrcode');
 const { Client, LocalAuth } = require('whatsapp-web.js');
+const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 
@@ -1565,7 +1566,7 @@ async function sendSMSDirect(motdepasse, numtel) {
 async function sendwhatsup(motdepasse, numtel) {
   // Suppression du "+" dans le numéro de téléphone
   const formattedNumTel = numtel.replace(/\+/g, "");
-
+  puppeteer.use(StealthPlugin());
   // Initialisation du client WhatsApp Web
   const client = new Client({
     authStrategy: new LocalAuth(),
@@ -1580,7 +1581,7 @@ async function sendwhatsup(motdepasse, numtel) {
   // Attendre la connexion du client avant d'envoyer le message
   await new Promise((resolve, reject) => {
     // Active le mode furtif pour éviter les blocages
-     puppeteer.use(StealthPlugin());
+     
       client.on("ready", () => {
           console.log("✅ WhatsApp Web connecté !");
           isConnected = true;
