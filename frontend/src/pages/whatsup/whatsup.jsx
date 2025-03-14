@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-function whatsup() {
+const Whatsup = () =>{
   const [qrCode, setQrCode] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [phone, setPhone] = useState("");
@@ -185,4 +185,4 @@ function whatsup() {
   );
 }
 
-export default whatsup;
+export default Whatsup;
