@@ -6,8 +6,12 @@ let isWhatsAppConnected = false;
 
 const client = new Client({
     authStrategy: new LocalAuth(),
+    puppeteer: {
+        executablePath: '/usr/bin/chromium',
+        headless: true, // Exécuter en mode sans interface
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    }
 });
-
 client.on('qr', async (qr) => {
     console.log('QR Code reçu:', qr);
     whatsappScanQR = await qrcode.toDataURL(qr);
