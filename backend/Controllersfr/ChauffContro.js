@@ -18,12 +18,8 @@ const Chauffeur = require("../Modelsfr/Chauffeur");
 const PDFDocument = require("pdfkit");
 const querystring = require("querystring");
 const https = require("https");
-const qrcode = require('qrcode');
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
-
+const whatsappController = require('./whatsappController');
 
 const createDriversNodeIfNotExists = async () => {
   const driversRef = realtimeDB.ref("Drivers");
@@ -1563,62 +1559,26 @@ async function sendSMSDirect(motdepasse, numtel) {
 
 
 
-async function sendwhatsup(motdepasse, numtel) {
-  // Suppression du "+" dans le numéro de téléphone
+async function sendwhatsup(motdepasse, numtel) { 
   const formattedNumTel = numtel.replace(/\D/g, ""); // Supprime tout sauf les chiffres
 
-  // Ajout du plugin Stealth
-  puppeteer.use(StealthPlugin());
-
-  // Initialisation du client WhatsApp Web
-  const client = new Client({
-      authStrategy: new LocalAuth(),
-      puppeteer: {
-          headless: true, // Exécuter sans interface graphique
-          args: ["--no-sandbox", "--disable-setuid-sandbox"], // Éviter les erreurs liées aux permissions
-      },
-  });
-
-  let isConnected = false;
-
-  try {
-      await new Promise((resolve, reject) => {
-          client.on("ready", () => {
-              console.log("✅ WhatsApp Web connecté !");
-              isConnected = true;
-              resolve();
-          });
-
-          client.on("auth_failure", (msg) => {
-              console.error("❌ Échec d'authentification :", msg);
-              reject(new Error("Échec de l'authentification WhatsApp"));
-          });
-
-          client.on("disconnected", (reason) => {
-              console.log("❌ WhatsApp Web déconnecté :", reason);
-              isConnected = false;
-          });
-
-          client.initialize();
-      });
-
-      if (!isConnected) {
-          console.error("❌ WhatsApp Web n'est pas connecté. Message non envoyé.");
-          return;
-      }
-
-      // Message à envoyer
-      const message = `Votre compte a été validé avec succès. 
+  const req = {
+    body: {
+      phone: formattedNumTel,
+      message: `Votre compte a été validé avec succès. 
       Vous pouvez dès à présent vous connecter pour commencer à gérer vos courses. 
-      Votre code est : ${motdepasse}`;
+      Votre code est : ${motdepasse}`
+    }
+  };
 
-      await client.sendMessage(`${formattedNumTel}@c.us`, message);
-      console.log("✅ Message envoyé avec succès !");
-  } catch (error) {
-      console.error("❌ Erreur lors de l'envoi du message :", error);
-  } finally {
-      client.destroy(); // Ferme la session pour éviter des blocages
-  }
+  const res = {
+    json: (response) => console.log("✅ Réponse :", response),
+    status: (code) => ({
+      json: (response) => console.log(`❌ Erreur ${code} :`, response)
+    })
+  };
+
+  await whatsappController.sendMessage(req, res);
 }
 
 
