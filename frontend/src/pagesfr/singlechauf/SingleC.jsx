@@ -58,18 +58,16 @@ const SingleC = () => {
       });
   };
 
-  const handleSubmite = async (id) => {
-  const navigate = useNavigate();
+  const handleSubmite = () => {
 
-  try {
-    const response = await axios.get(
+    const response = axios.get(
       process.env.REACT_APP_BASE_URL + "/whatsapp/status"
     );
 
     if (response.data.status === false) {
       if (
         window.confirm(
-          "Attention ! Le message WhatsApp n'a pas été envoyé car vous n'êtes pas connecté. Cliquez sur OK pour vous connecter."
+          "Attention ! Le message WhatsApp n'a pas été envoyé car vous n'êtes pas connecté. "
         )
       ) {
         window.location.href = "https://www.backofficegc.com/whatsuplogin";
@@ -77,29 +75,29 @@ const SingleC = () => {
       }
     }
 
-    // Si l'utilisateur continue sans WhatsApp, exécuter la requête update status
-    await axios.put(
-      process.env.REACT_APP_BASE_URL + `/Chaufffr/updatestatuss/${id}`,
-      {},
-      {
+    axios
+      .put(process.env.REACT_APP_BASE_URL + `/Chaufffr/updatestatuss/${id}`, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
-    );
+      })
+      .then((response) => {
+        toast.success("Compte Chauffeur  a été Validé avec Success !", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        setTimeout(() => navigate("/Chauffeurfr"), 3000);
+      })
+      .catch((err) => {
+        console.warn(err);
+        toast.error("Email exist Already!", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      });
 
-    toast.success("Compte Chauffeur  a été Validé avec Success ! !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
 
-    setTimeout(() => navigate("/Chauffeurfr"), 3000);
-  } catch (error) {
-    console.error("Erreur lors de la vérification du statut", error);
-    toast.error("Une erreur est survenue !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-  }
-};
+
+      
+  };
 
   // Handle "Refuser" button click
   const handleRefuserClick = () => {
