@@ -85,6 +85,7 @@ import Liscoursefr from "./pagesfr/Course/course";
 import Gpsfr from "./pagesfr/gps/gps.jsx";
 import Changemotdepassefr from "./pagesfr/UpdmotpasseChauf/UpdmotdepasseChauf";
 import Changemotdepasse from "./pages/UpdmotpasseChauf/UpdmotdepasseChauf";
+import Whatsupfr from "./pagesfr/whatsup/whatsup";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -303,7 +304,7 @@ function App() {
 
 
 
-
+          <Route path="/whatsuploginfr" element={<Whatsupfr />} />
           <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
           <Route path="/renitialisemotpassChfr/:id" element={<Changemotdepassefr />} />
