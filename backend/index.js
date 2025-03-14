@@ -70,7 +70,7 @@ const tariftransfetfr = require("./routesfr/TariftransfertRoute.js");
 const reservationTaxifr = require("./routesfr/ReservationTaxiRoutes.js");
 const confr = require("./routesfr/ContactRoute");
 const ridesfr = require("./routesfr/RideRoute");
-const whatsappRoutes = require('./routesfr/whatsappRoutes');
+//const whatsappRoutes = require('./routesfr/whatsappRoutes');
 
 var indexRouterfr = require("./routesfr/index");
 var usersRouterfr = require("./routesfr/users");
@@ -177,7 +177,7 @@ app.use("/Tarnfr", tarnfr);
 app.use("/Soldefr", Soldefr);
 app.use("/rideRequestsfr", rideRequestsfr);
 app.use("/Confr", confr);
-app.use('/whatsapp', whatsappRoutes);
+//app.use('/whatsapp', whatsappRoutes);
 
 app.use("/Ridefr", ridesfr);
 
