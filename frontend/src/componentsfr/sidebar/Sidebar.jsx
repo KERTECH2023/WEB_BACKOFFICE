@@ -14,6 +14,8 @@ import NotificationImportantIcon from '@mui/icons-material/NotificationImportant
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import NotificationAddIcon from '@mui/icons-material/NotificationAdd';
 import PermContactCalendarIcon from '@mui/icons-material/PermContactCalendar';
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+
 
 import { Link } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
@@ -74,6 +76,13 @@ const Sidebar = () => {
               <span>gps taxi</span>
             </li>
           </Link>
+          <Link to="/whatsuplogin" style={{ textDecoration: "none" }}>
+  <li>
+    <WhatsAppIcon className="icon" />
+    <span>WhatsApp</span>
+  </li>
+</Link>
+
           <Link to="/Chauffeurfr" style={{ textDecoration: "none" }}>
             <li>
               <AirlineSeatReclineNormalIcon className="icon" />
