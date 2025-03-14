@@ -18,9 +18,8 @@ const Chauffeur = require("../Modelsfr/Chauffeur");
 const PDFDocument = require("pdfkit");
 const querystring = require("querystring");
 const https = require("https");
-const wbm = require('wbm');
-
-const fs = require("fs");
+const qrcode = require('qrcode');
+const { Client, LocalAuth } = require('whatsapp-web.js');
 
 const createDriversNodeIfNotExists = async () => {
   const driversRef = realtimeDB.ref("Drivers");
@@ -1277,18 +1276,8 @@ const updatestatuss = async (req, res, next) => {
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
 
         await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
-        wbm.start({ showBrowser: true })
-          .then(async () => {
-            await wbm.waitQRCode();
-
-            // Version simplifiée sans formatage personnalisé
-            const phones = ['+21626465114'];
-            const message = 'Salut, ceci est un test depuis Node.js avec wbm aaaaaaaa!';
-
-            await wbm.send(phones, message);
-            await wbm.end();
-          })
-          .catch(err => console.log(err));
+        await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
+       
 
         // Mettre à jour les données dans Realtime Database
         const activeDriver = {
@@ -1386,21 +1375,9 @@ const updatestatuss = async (req, res, next) => {
 
         // Envoyer un email de confirmation
         try {
-
-          wbm.start({ showBrowser: true })
-          .then(async () => {
-            await wbm.waitQRCode();
-
-            // Version simplifiée sans formatage personnalisé
-            const phones = ['+21626465114'];
-            const message = 'Salut, ceci est un test depuis Node.js avec wbm aaaaaaaa!';
-
-            await wbm.send(phones, message);
-            await wbm.end();
-          })
-          .catch(err => console.log(err));
           await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
           await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
+          await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
           return res.status(200).send({
             message: "Chauffeur enabled and email sent successfully!",
             chauffeurEmail,
@@ -1579,6 +1556,60 @@ async function sendSMSDirect(motdepasse, numtel) {
     console.error(`Erreur lors de l'envoi du SMS : ${e.message}`);
   });
 }
+
+
+
+async function sendwhatsup(motdepasse, numtel) {
+  // Suppression du "+" dans le numéro de téléphone
+  const formattedNumTel = numtel.replace(/\+/g, "");
+
+  // Initialisation du client WhatsApp Web
+  const client = new Client({
+      authStrategy: new LocalAuth(),
+  });
+
+  let isConnected = false;
+
+  // Attendre la connexion du client avant d'envoyer le message
+  await new Promise((resolve, reject) => {
+      client.on("ready", () => {
+          console.log("✅ WhatsApp Web connecté !");
+          isConnected = true;
+          resolve();
+      });
+
+      client.on("auth_failure", (msg) => {
+          console.error("❌ Échec d'authentification :", msg);
+          reject(new Error("Échec de l'authentification WhatsApp"));
+      });
+
+      client.on("disconnected", (reason) => {
+          console.log("❌ WhatsApp Web déconnecté :", reason);
+          isConnected = false;
+      });
+
+      client.initialize();
+  });
+
+  // Vérifier si le client est bien connecté avant d'envoyer le message
+  if (!isConnected) {
+      console.error("❌ WhatsApp Web n'est pas connecté. Message non envoyé.");
+      return;
+  }
+
+  // Message à envoyer
+  const message = `Votre compte a été validé avec succès. 
+  Vous pouvez dès à présent vous connecter pour commencer à gérer vos courses. 
+  Votre code est : ${motdepasse}`;
+
+  try {
+      await client.sendMessage(`${formattedNumTel}@c.us`, message);
+      console.log("✅ Message envoyé avec succès !");
+  } catch (error) {
+      console.error("❌ Erreur lors de l'envoi du message :", error);
+  }
+}
+
 
 
 module.exports = {
