@@ -18,8 +18,8 @@ const Chauffeur = require("../Modelsfr/Chauffeur");
 const PDFDocument = require("pdfkit");
 const querystring = require("querystring");
 const https = require("https");
-const qrcode = require('qrcode');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+//const qrcode = require('qrcode');
+//const { Client, LocalAuth } = require('whatsapp-web.js');
 
 const createDriversNodeIfNotExists = async () => {
   const driversRef = realtimeDB.ref("Drivers");
@@ -1276,7 +1276,7 @@ const updatestatuss = async (req, res, next) => {
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
 
         await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
-        await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
+       // await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
        
 
         // Mettre à jour les données dans Realtime Database
@@ -1377,7 +1377,7 @@ const updatestatuss = async (req, res, next) => {
         try {
           await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
           await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
-          await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
+       //   await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
           return res.status(200).send({
             message: "Chauffeur enabled and email sent successfully!",
             chauffeurEmail,
