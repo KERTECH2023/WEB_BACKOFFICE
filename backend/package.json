@@ -35,8 +35,7 @@
     "pdfkit": "^0.15.0",
     "pug": "^3.0.2",
     "validator": "^13.9.0",
-    "basic-ftp": "^5.0.5",
-    "whatsapp-web.js": "^1.26.0",
-    "qrcode": "^1.5.4"
+    "basic-ftp": "^5.0.5"
+   
   }
 }
