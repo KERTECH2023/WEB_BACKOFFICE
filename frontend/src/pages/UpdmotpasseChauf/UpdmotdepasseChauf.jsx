@@ -63,7 +63,7 @@ const UpdChauf = () => {
       );
   
       toast.success("Mise à jour réussie !");
-      setTimeout(() => navigate("/Chauffeurfr"), 3000);
+      setTimeout(() => navigate("/Chauffeur"), 3000);
     } catch (error) {
       toast.error("Erreur lors de la mise à jour");
       console.error("Erreur lors de la mise à jour :", error);
