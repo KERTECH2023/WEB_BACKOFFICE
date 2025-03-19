@@ -6,6 +6,7 @@ import axios from "axios";
 const Liscourse = () => {
   const [rides, setRides] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [sortOrder, setSortOrder] = useState("desc"); // "desc" pour descendant (plus récent d'abord), "asc" pour ascendant
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const API_URL = "https://api.backofficegc.com/rideRequestsfr/ride-requests";
@@ -69,7 +70,7 @@ const Liscourse = () => {
 
   useEffect(() => {
     fetchRides();
-  }, [filterStatus]);
+  }, [filterStatus, sortOrder]);
 
   const fetchRides = async () => {
     setIsLoading(true);
@@ -84,7 +85,16 @@ const Liscourse = () => {
       if (filterStatus !== "all") {
         ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
       }
-      setRides(ridesArray.reverse());
+      
+      // Tri par date
+      ridesArray.sort((a, b) => {
+        const timeA = a.time?._seconds || (a.time ? new Date(a.time).getTime() / 1000 : 0);
+        const timeB = b.time?._seconds || (b.time ? new Date(b.time).getTime() / 1000 : 0);
+        
+        return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
+      });
+      
+      setRides(ridesArray);
     } catch (error) {
       setError("Erreur lors de la récupération des courses");
       console.error("Erreur lors de la récupération des courses :", error);
@@ -124,17 +134,26 @@ const Liscourse = () => {
       <Sidebar />
       <div style={{ padding: '20px' }}>
         <Navbar />
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
           <select 
             value={filterStatus} 
             onChange={(e) => setFilterStatus(e.target.value)}
             style={styles.filterSelect}
           >
-            <option value="all">Tous</option>
+            <option value="all">Tous les statuts</option>
             <option value="Ended">Terminé</option>
             <option value="Accepted">Accepté</option>
             <option value="Rejected">Rejeté</option>
             <option value="Arrived">Arrivé</option>
+          </select>
+          
+          <select 
+            value={sortOrder} 
+            onChange={(e) => setSortOrder(e.target.value)}
+            style={styles.filterSelect}
+          >
+            <option value="desc">Plus récent d'abord</option>
+            <option value="asc">Plus ancien d'abord</option>
           </select>
         </div>
 
