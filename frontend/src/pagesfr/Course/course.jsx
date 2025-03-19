@@ -175,7 +175,11 @@ const Liscourse = () => {
                       {ride.status || ""}
                     </td>
                     <td style={styles.tableCell}>
-                      {ride.time ? new Date(ride.time).toLocaleString() : "N/A"}
+                      {ride.time ? 
+  (ride.time._seconds ? 
+    new Date(ride.time._seconds * 1000).toLocaleString() : 
+    new Date(ride.time).toLocaleString()) : 
+  "N/A"}
                     </td>
                     <td style={styles.tableCell}>
                       <button onClick={() => handleDelete(ride.id)} style={styles.deleteButton}>
