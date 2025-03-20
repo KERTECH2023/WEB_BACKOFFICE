@@ -76,6 +76,49 @@ const getSoldeById = async (req, res) => {
   }
 };
 
+
+const getDriverFinancialInfo = async (req, res) => {
+  try {
+    const driverId = req.params.driverId; // ID du chauffeur depuis les paramètres de la requête
+
+    if (!driverId) {
+      return res.status(400).json({ error: "ID du chauffeur requis" });
+    }
+
+    // Récupération des données du chauffeur depuis Firebase Realtime Database
+    const driverRef = realtimeDB.ref(`Drivers/${driverId}`);
+    const snapshot = await driverRef.once("value");
+
+    if (!snapshot.exists()) {
+      return res.status(404).json({ error: "Chauffeur non trouvé" });
+    }
+
+    const driverData = snapshot.val();
+
+    // Vérification des données
+    if (driverData.solde === undefined || driverData.soldecarte === undefined) {
+      return res.status(404).json({ error: "Données financières incomplètes pour ce chauffeur" });
+    }
+
+    // Extraction de l'historique des trajets
+    const tripHistory = Object.keys(driverData.tripHistory || {}).map(tripId => ({
+      tripId,
+      status: driverData.tripHistory[tripId],
+    }));
+
+    return res.status(200).json({
+      driverId: driverId,
+      solde: driverData.solde,
+      soldeCarte: driverData.soldecarte,
+      tripHistory: tripHistory,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des informations :", error);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+
 const getTotalSolde = async (req, res) => {
   try {
     // Référence à la collection des chauffeurs
@@ -112,5 +155,5 @@ const getTotalSolde = async (req, res) => {
 
 module.exports = {
   getSoldeById,
-  getTotalSolde,updateSolde,
+  getTotalSolde,updateSolde,getDriverFinancialInfo,
 };
