@@ -4,8 +4,21 @@ import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, CircularProgress } from "@mui/material";
+import { 
+  Button, 
+  CircularProgress, 
+  Card, 
+  CardContent, 
+  Typography, 
+  Container, 
+  Box, 
+  Chip,
+  Divider,
+  Paper,
+  Grid
+} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DateRangeIcon from "@mui/icons-material/DateRange";
 import moment from "moment";
 import "./Consultesolde.css";
 
@@ -13,75 +26,241 @@ const ConsultCfr = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [financialData, setFinancialData] = useState(null);
+  const [solde, setSolde] = useState(0);
+  const [soldeCarte, setSoldeCarte] = useState(0);
   const [trips, setTrips] = useState([]);
+  const [filteredTrips, setFilteredTrips] = useState([]);
   const [searchDate, setSearchDate] = useState("");
-  const role = localStorage.getItem("userRole");
+  const role = window.localStorage.getItem("userRole");
+  const isAdmin = role === "Admin" || role === "Agentad";
 
   useEffect(() => {
-    const fetchDriverData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Soldefr/getDriverFinancialInfo/${id}`
-        );
-        if (response.status === 200) {
-          const data = response.data;
-          setFinancialData(data);
-          const sortedTrips = (data.tripHistory || []).map((trip, index) => ({
-            id: trip.tripId || `trip-${index}`,
-            formattedDate: trip.details?.time
-              ? moment(trip.details.time._seconds * 1000).format("DD/MM/YYYY HH:mm")
-              : "N/A",
-            ...trip.details,
-          })).sort((a, b) => b.formattedDate - a.formattedDate);
-          setTrips(sortedTrips);
-        }
-      } catch (error) {
-        toast.error("Erreur lors du chargement des données");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchDriverData();
   }, [id]);
 
-  const filterTrips = (e) => {
+  const fetchDriverData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/Soldefr/getDriverFinancialInfo/${id}`
+      );
+      
+      if (response.status === 200) {
+        const data = response.data;
+        setFinancialData(data);
+        setSolde(data.solde || 0);
+        setSoldeCarte(data.soldeCarte || 0);
+        
+        // Process trip history
+        const processedTrips = (data.tripHistory || []).map((trip, index) => ({
+          ...trip,
+          id: trip.tripId || `trip-${index}`,
+          date: trip.details?.time 
+            ? new Date(trip.details.time._seconds * 1000) 
+            : null,
+          formattedDate: trip.details?.time 
+            ? moment(new Date(trip.details.time._seconds * 1000)).format("DD/MM/YYYY HH:mm") 
+            : "N/A",
+          fareAmount: trip.details?.fareAmount || 0,
+          sourceAddress: trip.details?.sourceAddress || "N/A",
+          destinationAddress: trip.details?.destinationAddress || "N/A",
+          paymentMethod: trip.details?.healthStatus || "N/A",
+          userName: trip.details?.client?.name || "N/A",
+          userPhone: trip.details?.client?.phone || "N/A"
+        })).sort((a, b) => !a.date ? 1 : !b.date ? -1 : b.date - a.date);
+        
+        setTrips(processedTrips);
+        setFilteredTrips(processedTrips);
+      }
+    } catch (error) {
+      console.error("Error fetching driver data:", error);
+      toast.error("Erreur lors du chargement des données du chauffeur");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterTripsByDate = (e) => {
     const value = e.target.value;
     setSearchDate(value);
-    setTrips(trips.filter(trip => value === "week" 
-      ? moment(trip.formattedDate).isBetween(moment().startOf('week'), moment().endOf('week'), null, '[]')
-      : moment(trip.formattedDate).format("YYYY-MM-DD") === value
-    ));
+    
+    if (!value) {
+      setFilteredTrips(trips);
+      return;
+    }
+    
+    if (value === "week") {
+      const startOfWeek = moment().startOf('week');
+      const endOfWeek = moment().endOf('week');
+      
+      setFilteredTrips(trips.filter(trip => 
+        trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
+      ));
+    } else {
+      setFilteredTrips(trips.filter(trip => 
+        trip.date && moment(trip.date).format("YYYY-MM-DD") === value
+      ));
+    }
   };
 
   const columns = [
     { field: "formattedDate", headerName: "Date et Heure", width: 180 },
     { field: "userName", headerName: "Nom client", width: 200 },
-    { field: "sourceAddress", headerName: "Départ", width: 250 },
-    { field: "destinationAddress", headerName: "Destination", width: 250 },
-    { field: "fareAmount", headerName: "Montant", width: 120, valueFormatter: (params) => `${params.value} €` },
+    { field: "userPhone", headerName: "Client Tel", width: 150 },
+    { field: "sourceAddress", headerName: "Départ", width: 220 },
+    { field: "destinationAddress", headerName: "Destination", width: 220 },
+    { 
+      field: "fareAmount", 
+      headerName: "Montant", 
+      width: 120,
+      valueFormatter: (params) => `${params.value} €`
+    },
+    { field: "paymentMethod", headerName: "Méthode de Paiement", width: 180 }
   ];
 
-  return loading ? (
-    <div className="loadingContainer"><CircularProgress /><p>Chargement...</p></div>
-  ) : (
-    <div className="consultContainer">
-      <h1>Informations du Chauffeur</h1>
-      {financialData && (role === "Admin" || role === "Agentad") && (
-        <div className="financialInfo">
-          <p>Commission Flash Totale (€): {financialData.solde || 0}</p>
-          <p>Totale par carte (€): {financialData.soldeCarte || 0}</p>
-        </div>
-      )}
-      <h2>Historique des Courses</h2>
-      <div className="searchContainer">
-        <Button variant={searchDate === "week" ? "contained" : "outlined"} onClick={() => filterTrips({ target: { value: "week" } })}>Cette Semaine</Button>
-        <input type="date" value={searchDate} onChange={filterTrips} className="datePicker" />
-      </div>
-      <DataGrid rows={trips} columns={columns} pageSize={10} autoHeight disableSelectionOnClick />
-      <Link to="/datachauf"><Button startIcon={<ArrowBackIcon />}>Retour</Button></Link>
-      <ToastContainer />
-    </div>
+  if (loading) {
+    return (
+      <Container className="loadingContainer" sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        minHeight: '70vh' 
+      }}>
+        <CircularProgress color="primary" />
+        <Typography variant="body1" sx={{ mt: 2 }}>Chargement des données...</Typography>
+      </Container>
+    );
+  }
+
+  if (!financialData) {
+    return (
+      <Container className="errorContainer" sx={{ textAlign: 'center', py: 4 }}>
+        <Paper elevation={3} sx={{ p: 4, maxWidth: 500, mx: 'auto' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Aucune donnée financière trouvée pour ce chauffeur.
+          </Typography>
+          <Link to="/datachauf" style={{ textDecoration: 'none' }}>
+            <Button variant="contained" startIcon={<ArrowBackIcon />} sx={{ mt: 2 }}>
+              Retour
+            </Button>
+          </Link>
+        </Paper>
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper elevation={3} sx={{ mb: 4, p: 3, borderRadius: 2 }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 500, color: 'primary.main' }}>
+          Informations du Chauffeur
+        </Typography>
+        
+        {isAdmin && (
+          <Box mt={3}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle1" color="text.secondary">
+                      Commission Flash Totale
+                    </Typography>
+                    <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
+                      {solde} €
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle1" color="text.secondary">
+                      Totale par carte
+                    </Typography>
+                    <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
+                      {soldeCarte} €
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+      </Paper>
+
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+          Historique des Courses
+        </Typography>
+        <Divider sx={{ mb: 3 }} />
+        
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Box display="flex" gap={2} alignItems="center">
+            <Button 
+              variant={searchDate === "week" ? "contained" : "outlined"}
+              startIcon={<DateRangeIcon />}
+              onClick={() => {
+                setSearchDate("week");
+                filterTripsByDate({ target: { value: "week" } });
+              }}
+            >
+              Cette Semaine
+            </Button>
+            
+            <Box display="flex" alignItems="center" gap={1}>
+              <input
+                type="date"
+                value={searchDate !== "week" ? searchDate : ""}
+                onChange={filterTripsByDate}
+                style={{ 
+                  padding: '8px', 
+                  borderRadius: '4px', 
+                  border: '1px solid #ccc' 
+                }}
+              />
+              {searchDate && searchDate !== "week" && (
+                <Button 
+                  size="small"
+                  onClick={() => {
+                    setSearchDate("");
+                    setFilteredTrips(trips);
+                  }}
+                >
+                  Réinitialiser
+                </Button>
+              )}
+            </Box>
+          </Box>
+          
+          <Chip 
+            label={`${filteredTrips.length} course(s) trouvée(s)`} 
+            color="primary" 
+            variant="outlined" 
+          />
+        </Box>
+
+        <Box sx={{ height: 600, width: '100%' }}>
+          <DataGrid
+            rows={filteredTrips}
+            columns={columns}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
+            disableSelectionOnClick
+            disableColumnMenu
+            sx={{
+              boxShadow: 2,
+              border: 1,
+              borderColor: 'divider',
+              '& .MuiDataGrid-cell:hover': {
+                color: 'primary.main',
+              },
+            }}
+          />
+        </Box>
+      </Paper>
+      <ToastContainer position="bottom-right" />
+    </Container>
   );
 };
 
