@@ -14,7 +14,7 @@ const ConsultActions = ({ row }) => {
   return (
     <div className="cellAction">
       <Link
-        to={`/consultCfr/${row.id}`}
+        to={`/consultsodeCfr/${row.firebaseUID}`}
         style={{ textDecoration: "none", color: "inherit" }}
       >
         <div className="viewButton">Consulté</div>
