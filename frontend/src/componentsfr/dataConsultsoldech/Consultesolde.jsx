@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DateRangeIcon from "@mui/icons-material/DateRange";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
 import moment from "moment";
 import "./Consultesolde.css";
 
@@ -28,9 +29,11 @@ const ConsultCfr = () => {
   const [financialData, setFinancialData] = useState(null);
   const [solde, setSolde] = useState(0);
   const [soldeCarte, setSoldeCarte] = useState(0);
+  const [soldeSemaineCarte, setSoldeSemaineCarte] = useState(0);
   const [trips, setTrips] = useState([]);
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [searchDate, setSearchDate] = useState("");
+  const [showWeeklyCardTotal, setShowWeeklyCardTotal] = useState(false);
   const role = window.localStorage.getItem("userRole");
   const isAdmin = role === "Admin" || role === "Agentad";
 
@@ -65,8 +68,8 @@ const ConsultCfr = () => {
           sourceAddress: trip.details?.sourceAddress || "N/A",
           destinationAddress: trip.details?.destinationAddress || "N/A",
           paymentMethod: trip.details?.healthStatus || "N/A",
-          userName: trip.details?.client?.name || "N/A",
-          userPhone: trip.details?.client?.phone || "N/A"
+          userName: trip.details?.userName || "N/A",
+          userPhone: trip.details?.userPhone|| "N/A"
         })).sort((a, b) => !a.date ? 1 : !b.date ? -1 : b.date - a.date);
         
         setTrips(processedTrips);
@@ -86,6 +89,7 @@ const ConsultCfr = () => {
     
     if (!value) {
       setFilteredTrips(trips);
+      setShowWeeklyCardTotal(false);
       return;
     }
     
@@ -93,14 +97,51 @@ const ConsultCfr = () => {
       const startOfWeek = moment().startOf('week');
       const endOfWeek = moment().endOf('week');
       
-      setFilteredTrips(trips.filter(trip => 
+      const weekTrips = trips.filter(trip => 
         trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
-      ));
+      );
+      
+      setFilteredTrips(weekTrips);
+      setShowWeeklyCardTotal(true);
+      calculateWeeklyCardTotal(weekTrips);
     } else {
       setFilteredTrips(trips.filter(trip => 
         trip.date && moment(trip.date).format("YYYY-MM-DD") === value
       ));
+      setShowWeeklyCardTotal(false);
     }
+  };
+
+  const calculateWeeklyCardTotal = (weekTrips) => {
+    // Filter trips with payment method "Paiement par carte"
+    const cardPaymentTrips = weekTrips.filter(trip => 
+      trip.paymentMethod === "Paiement par carte"
+    );
+    
+    // Calculate commission for each card payment trip: (amount * 1.5%) + 0.25€
+    const totalCommission = cardPaymentTrips.reduce((total, trip) => {
+      const commission = (trip.fareAmount * 0.015) + 0.25;
+      return total + commission;
+    }, 0);
+    
+    // Set the calculated total
+    setSoldeSemaineCarte(parseFloat(totalCommission.toFixed(2)));
+  };
+
+  const calculateWeeklyCardTotalOnDemand = () => {
+    const startOfWeek = moment().startOf('week');
+    const endOfWeek = moment().endOf('week');
+    
+    const weekTrips = trips.filter(trip => 
+      trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
+    );
+    
+    setSearchDate("week");
+    setFilteredTrips(weekTrips);
+    setShowWeeklyCardTotal(true);
+    calculateWeeklyCardTotal(weekTrips);
+    
+    toast.success("Calcul du solde carte semaine effectué");
   };
 
   const columns = [
@@ -152,7 +193,7 @@ const ConsultCfr = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Paper elevation={3} sx={{ mb: 4, p: 3, borderRadius: 2 }}>
+      <Paper elevation={3} sx={{ mb: 4, p: 5, borderRadius: 2 }}>
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 500, color: 'primary.main' }}>
           Informations du Chauffeur
         </Typography>
@@ -160,7 +201,7 @@ const ConsultCfr = () => {
         {isAdmin && (
           <Box mt={3}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <CardContent>
                     <Typography variant="subtitle1" color="text.secondary">
@@ -172,7 +213,7 @@ const ConsultCfr = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <CardContent>
                     <Typography variant="subtitle1" color="text.secondary">
@@ -184,12 +225,39 @@ const ConsultCfr = () => {
                   </CardContent>
                 </Card>
               </Grid>
+              <Grid item xs={12} md={4}>
+                <Card 
+                  variant="outlined" 
+                  sx={{ 
+                    height: '100%', 
+                    bgcolor: showWeeklyCardTotal ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
+                    transition: 'background-color 0.3s',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: 'rgba(25, 118, 210, 0.12)'
+                    }
+                  }}
+                  onClick={calculateWeeklyCardTotalOnDemand}
+                >
+                  <CardContent>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <CreditCardIcon color="primary" />
+                      <Typography variant="subtitle1" color="text.secondary">
+                        Commission Carte Semaine
+                      </Typography>
+                    </Box>
+                    <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
+                      {showWeeklyCardTotal ? `${soldeSemaineCarte} €` : "Cliquer pour calculer"}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
             </Grid>
           </Box>
         )}
       </Paper>
 
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+      <Paper elevation={3} sx={{ p: 5, borderRadius: 3 }}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
           Historique des Courses
         </Typography>
@@ -219,12 +287,13 @@ const ConsultCfr = () => {
                   border: '1px solid #ccc' 
                 }}
               />
-              {searchDate && searchDate !== "week" && (
+              {searchDate && (
                 <Button 
                   size="small"
                   onClick={() => {
                     setSearchDate("");
                     setFilteredTrips(trips);
+                    setShowWeeklyCardTotal(false);
                   }}
                 >
                   Réinitialiser
