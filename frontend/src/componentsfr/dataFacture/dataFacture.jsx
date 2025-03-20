@@ -10,19 +10,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-const BalanceActions = ({ row, role, onUpdate }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [newBalance, setNewBalance] = useState(row.solde);
-
-  const handleUpdateClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleSaveClick = () => {
-    onUpdate(row.firebaseUID, newBalance);
-    setIsEditing(false);
-  };
-
+const ConsultActions = ({ row }) => {
   return (
     <div className="cellAction">
       <Link
@@ -31,24 +19,6 @@ const BalanceActions = ({ row, role, onUpdate }) => {
       >
         <div className="viewButton">Consulté</div>
       </Link>
-      {(role === "Admin" || role === "Agentad") &&
-        (isEditing ? (
-          <>
-            <input
-              type="number"
-              value={newBalance}
-              onChange={(e) => setNewBalance(e.target.value)}
-              style={{ width: "100px", marginRight: "10px" }}
-            />
-            <Button onClick={handleSaveClick} variant="contained" size="small">
-              Enregistrer
-            </Button>
-          </>
-        ) : (
-          <Button onClick={handleUpdateClick} variant="outlined" size="small">
-            Modifier Solde
-          </Button>
-        ))}
     </div>
   );
 };
@@ -59,7 +29,6 @@ const Datachauf = () => {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const [totalSolde, setTotalSolde] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,51 +41,7 @@ const Datachauf = () => {
 
   useEffect(() => {
     getChauffeurs();
-    getTotalSolde();
   }, []);
-
-  const getTotalSolde = async () => {
-    try {
-      const response = await axios.get(
-        "https://api.backofficegc.com/Soldefr/soldetotal"
-      );
-      setTotalSolde(response.data?.totalSolde || "N/A");
-    } catch (error) {
-      console.error("Error fetching total balance:", error);
-      toast.error("Erreur lors du chargement du solde total");
-    }
-  };
-
-  const getDriverBalance = async (firebaseUID) => {
-    try {
-      const response = await axios.get(
-        `https://api.backofficegc.com/Soldefr/solde/${firebaseUID}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching balance for driver ${firebaseUID}:`, error);
-      return null;
-    }
-  };
-
-  const enrichDataWithBalance = async (drivers) => {
-    const enrichedDrivers = await Promise.all(
-      drivers.map(async (driver) => {
-        if (driver.firebaseUID) {
-          const balanceData = await getDriverBalance(driver.firebaseUID);
-          return {
-            ...driver,
-            solde: balanceData ? balanceData.solde : "N/A",
-          };
-        }
-        return {
-          ...driver,
-          solde: "N/A",
-        };
-      })
-    );
-    return enrichedDrivers;
-  };
 
   const handleSearchTerm = (e) => {
     const value = e.target.value.toLowerCase();
@@ -149,9 +74,8 @@ const Datachauf = () => {
         const validatedDrivers = response.data.filter(
           (driver) => driver.Cstatus === "Validé"
         );
-        const driversWithBalance = await enrichDataWithBalance(validatedDrivers);
-        setData(driversWithBalance);
-        setFilteredData(driversWithBalance);
+        setData(validatedDrivers);
+        setFilteredData(validatedDrivers);
       }
     } catch (error) {
       console.error("Error fetching chauffeurs:", error);
@@ -162,36 +86,8 @@ const Datachauf = () => {
     }
   };
 
-const updateDriverBalance = async (firebaseUID, addedBalance) => {
-    try {
-        // Récupérer le solde actuel du chauffeur
-        const response = await axios.get(
-            `https://api.backofficegc.com/Soldefr/solde/${firebaseUID}`
-        );
-        const currentBalance = response.data?.solde || 0;
-        
-        // Calculer le nouveau solde en ajoutant la valeur saisie
-        const newBalance = parseFloat(currentBalance) + parseFloat(addedBalance);
-
-        // Mettre à jour le solde
-        await axios.put(
-            `https://api.backofficegc.com/Soldefr/update/${firebaseUID}`,
-            {
-                solde: newBalance,
-            }
-        );
-        
-        toast.success("Solde mis à jour avec succès !");
-        getChauffeurs();
-    } catch (error) {
-        console.error(`Error updating balance for driver ${firebaseUID}:`, error);
-        toast.error("Erreur lors de la mise à jour du solde");
-    }
-};
-
   const handleRefresh = () => {
     getChauffeurs();
-    getTotalSolde();
   };
 
   const columns = [
@@ -200,24 +96,11 @@ const updateDriverBalance = async (firebaseUID, addedBalance) => {
     { field: "phone", headerName: "Téléphone", width: 130 },
     { field: "address", headerName: "Adresse", width: 200 },
     {
-      field: "solde",
-      headerName: "Solde",
-      width: 130,
-      valueFormatter: (params) => {
-        if (params.value === "N/A") return "N/A";
-        return `${Number(params.value).toFixed(2)} DT`;
-      },
-    },
-    {
       field: "action",
       headerName: "Action",
-      width: 400,
+      width: 200,
       renderCell: (params) => (
-        <BalanceActions
-          row={params.row}
-          role={role}
-          onUpdate={updateDriverBalance}
-        />
+        <ConsultActions row={params.row} />
       ),
     },
   ];
@@ -234,14 +117,7 @@ const updateDriverBalance = async (firebaseUID, addedBalance) => {
       );
     });
 
-
-    const sortedData = searchFiltered.sort((a, b) => {
-  const soldeA = parseFloat(a.solde) || 0;
-  const soldeB = parseFloat(b.solde) || 0;
-  return soldeA - soldeB;
-});
-
-    setFilteredData(sortedData);
+    setFilteredData(searchFiltered);
   }, [search, data]);
 
   if (loading) {
@@ -254,22 +130,6 @@ const updateDriverBalance = async (firebaseUID, addedBalance) => {
 
   return (
     <div className="datatable">
-      <div
-        style={{
-          backgroundColor: "#ffffff",
-          padding: "15px",
-          marginBottom: "20px",
-          textAlign: "center",
-          borderRadius: "4px",
-          border: "1px solid #e0e0e0",
-        }}
-      >
-        <div style={{ fontSize: "18px", marginBottom: "5px" }}>Solde Total</div>
-        <div style={{ fontSize: "24px", fontWeight: "bold" }}>
-          {totalSolde !== null ? `${totalSolde} DT` : "Chargement..."}
-        </div>
-      </div>
-
       <div className="datatableTitle">
         Liste Des Chauffeurs Validés
         <div>
