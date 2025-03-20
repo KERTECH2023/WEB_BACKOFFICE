@@ -1,5 +1,6 @@
 const firestoreModule = require("../servicesfr/config");
 const realtimeDB = firestoreModule.firestoreApp.database();
+const firestoreDB = firestoreModule.db;
 
 
 const updateSolde = async (req, res) => {
@@ -79,7 +80,7 @@ const getSoldeById = async (req, res) => {
 
 const getDriverFinancialInfo = async (req, res) => {
   try {
-    const driverId = req.params.driverId; // ID du chauffeur depuis les paramètres de la requête
+    const driverId = req.params.driverId;
 
     if (!driverId) {
       return res.status(400).json({ error: "ID du chauffeur requis" });
@@ -94,22 +95,53 @@ const getDriverFinancialInfo = async (req, res) => {
     }
 
     const driverData = snapshot.val();
+    const solde = driverData.solde || 0;
+    const soldeCarte = driverData.soldecarte || 0;
 
-    // Vérification des données
-    if (driverData.solde === undefined || driverData.soldecarte === undefined) {
-      return res.status(404).json({ error: "Données financières incomplètes pour ce chauffeur" });
-    }
+    // Extraction de l'historique des trajets (tripHistory)
+    const tripHistoryKeys = Object.keys(driverData.tripHistory || {});
+    
+    // Récupération des détails des trajets depuis Firestore
+    const tripDetailsPromises = tripHistoryKeys.map(async (tripId) => {
+      const tripDoc = await firestoreDB.collection("AllRideRequests").doc(tripId).get();
+      
+      if (!tripDoc.exists) {
+        return { tripId, status: driverData.tripHistory[tripId], details: null };
+      }
 
-    // Extraction de l'historique des trajets
-    const tripHistory = Object.keys(driverData.tripHistory || {}).map(tripId => ({
-      tripId,
-      status: driverData.tripHistory[tripId],
-    }));
+      const tripData = tripDoc.data();
+      return {
+        tripId,
+        status: driverData.tripHistory[tripId],
+        details: {
+          destination: tripData.destination || {},
+          destinationAddress: tripData.destinationAddress || "N/A",
+          driverCarImmatriculation: tripData.driverCarImmatriculation || "N/A",
+          driverCarModelle: tripData.driverCarModelle || "N/A",
+          driverLocationData: tripData.driverLocationData || {},
+          driverName: tripData.driverName || "N/A",
+          driverPhone: tripData.driverPhone || "N/A",
+          driverPhoto: tripData.driverPhoto || "N/A",
+          driverToken: tripData.driverToken || "N/A",
+          fareAmount: tripData.fareAmount || 0,
+          healthStatus: tripData.healthStatus || "N/A",
+          source: tripData.source || {},
+          sourceAddress: tripData.sourceAddress || "N/A",
+          status: tripData.status || "N/A",
+          time: tripData.time || "N/A",
+          userId: tripData.userId || "N/A",
+          userName: tripData.userName || "N/A",
+          userPhone: tripData.userPhone || "N/A",
+        }
+      };
+    });
+
+    const tripHistory = await Promise.all(tripDetailsPromises);
 
     return res.status(200).json({
       driverId: driverId,
-      solde: driverData.solde,
-      soldeCarte: driverData.soldecarte,
+      solde: solde,
+      soldeCarte: soldeCarte,
       tripHistory: tripHistory,
     });
   } catch (error) {
