@@ -34,7 +34,7 @@ const adminAppfr = admin.initializeApp(
 
 
 
-const db = admin.firestore;
+const db = adminAppfr.firestore();
 module.exports = {
   adminAppfr,
   firestoreApp,
