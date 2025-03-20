@@ -1,0 +1,30 @@
+.datatable {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .search {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .find {
+    margin-right: 0.5rem; /* Adjust spacing between input and icon */
+  }
+  
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Adjust spacing between filters */
+    margin-bottom: 1rem;
+  }
+  
+  .filterSelect {
+    width: 10%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
