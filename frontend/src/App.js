@@ -86,6 +86,7 @@ import Gpsfr from "./pagesfr/gps/gps.jsx";
 import Changemotdepassefr from "./pagesfr/UpdmotpasseChauf/UpdmotdepasseChauf";
 import Changemotdepasse from "./pages/UpdmotpasseChauf/UpdmotdepasseChauf";
 import Whatsupfr from "./pagesfr/whatsup/whatsup";
+import DataDetailSoldefr from "./pagesfr/Detailsolde/Detailsolde";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -308,6 +309,7 @@ function App() {
           <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
           <Route path="/renitialisemotpassChfr/:id" element={<Changemotdepassefr />} />
+          <Route path="/consultsodeCfr/:id" element={<DataDetailSoldefr />} />
           <Route path="/loginfr" element={<Loginfr />} />
           <Route path="/logfr" element={<Logfr />} />
           <Route path="/gpsfr" element={<Gpsfr />} />
