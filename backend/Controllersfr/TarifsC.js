@@ -54,7 +54,7 @@ const sendmessagingnotification = async () => {
   const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
 
   // Appeler la fonction pour envoyer les notifications
-  await sendNotificationToMultipleTokens(tokens, "Flash Driver", "Restez connecté pour obtenir plus de courses et gagner plus d'argent.", data);
+  await sendNotificationToMultipleTokens(tokens, "Flash Driver", "ابقَ متصلاً للحصول على المزيد من الرحلات وكسب المزيد من المال.", data);
 
 
 };
