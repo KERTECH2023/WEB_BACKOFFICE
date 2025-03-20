@@ -121,8 +121,6 @@ const getDriverFinancialInfo = async (req, res) => {
           driverLocationData: tripData.driverLocationData || {},
           driverName: tripData.driverName || "N/A",
           driverPhone: tripData.driverPhone || "N/A",
-          driverPhoto: tripData.driverPhoto || "N/A",
-          driverToken: tripData.driverToken || "N/A",
           fareAmount: tripData.fareAmount || 0,
           healthStatus: tripData.healthStatus || "N/A",
           source: tripData.source || {},
