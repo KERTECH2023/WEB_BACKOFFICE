@@ -207,16 +207,96 @@ const ConsultCfr = () => {
     setSoldeSemaineCarte(parseFloat(totalCommission.toFixed(2)));
   };
 
-  const calculateWeeklyCardTotalOnDemand = () => {
+  const calculateWeeklyCardTotalOnDemand = async () => {
+    let weekTrips = [];
+    
     // If a week type is already selected, use that
     if (selectedWeekType) {
-      filterTripsByWeekType(selectedWeekType);
+      const dateRange = selectedWeekType === 'previous' 
+        ? getPreviousWeekDates() 
+        : selectedWeekType === 'current' 
+          ? getCurrentWeekDates() 
+          : getNextWeekDates();
+          
+      weekTrips = trips.filter(trip => 
+        trip.date && trip.date >= dateRange.start && trip.date <= dateRange.end
+      );
     } else {
       // Otherwise, use current week
-      filterTripsByWeekType('current');
+      const dateRange = getCurrentWeekDates();
+      weekTrips = trips.filter(trip => 
+        trip.date && trip.date >= dateRange.start && trip.date <= dateRange.end
+      );
+      setSelectedWeekType('current');
     }
     
-    toast.success("Calcul du solde carte semaine effectué");
+    // Check if all trips for this week are already paid
+    const unpaidTrips = weekTrips.filter(trip => !trip.estPaye);
+    
+    if (unpaidTrips.length === 0 && weekTrips.length > 0) {
+      toast.info("Cette semaine est déjà payée");
+      return;
+    }
+    
+    // Calculate commission
+    const cardPaymentTrips = weekTrips.filter(trip => 
+      trip.paymentMethod === "Paiement par carte" && !trip.estPaye
+    );
+    
+    // Calculate commission: (amount * 1.5%) + 0.25€ for each trip
+    const totalCommission = cardPaymentTrips.reduce((total, trip) => {
+      const commission = (trip.fareAmount * 0.015) + 0.25;
+      return total + commission;
+    }, 0);
+    
+    // Calculated the total due: card commission + flash commission (only for unpaid trips)
+    const totalDue = parseFloat(totalCommission.toFixed(2)) + 
+                      parseFloat(unpaidTrips.reduce((total, trip) => total + trip.fareAmount, 0).toFixed(2));
+    
+    setSoldeSemaineCarte(totalDue);
+    setShowWeeklyCardTotal(true);
+    setFilteredTrips(weekTrips);
+    
+    // Mark trips as paid and update the server
+    if (unpaidTrips.length > 0) {
+      const tripIds = unpaidTrips.map(trip => trip.tripId);
+      
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/Soldefr/facturepayer`,
+          { tripIds }
+        );
+        
+        if (response.status === 200) {
+          toast.success("Paiement enregistré avec succès");
+          
+          // Update local state
+          const updatedTrips = trips.map(trip => {
+            if (tripIds.includes(trip.tripId)) {
+              return { ...trip, estPaye: true };
+            }
+            return trip;
+          });
+          
+          setTrips(updatedTrips);
+          
+          // Update filtered trips too
+          const updatedFilteredTrips = filteredTrips.map(trip => {
+            if (tripIds.includes(trip.tripId)) {
+              return { ...trip, estPaye: true };
+            }
+            return trip;
+          });
+          
+          setFilteredTrips(updatedFilteredTrips);
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'enregistrement du paiement:", error);
+        toast.error("Erreur lors de l'enregistrement du paiement");
+      }
+    } else {
+      toast.info("Aucune course non payée pour cette période");
+    }
   };
 
   const columns = [
@@ -330,11 +410,11 @@ const ConsultCfr = () => {
                     <Box display="flex" alignItems="center" gap={1}>
                       <CreditCardIcon color="primary" />
                       <Typography variant="subtitle1" color="text.secondary">
-                        Commission Carte Semaine
+                        Commission Semaine
                       </Typography>
                     </Box>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
-                      {showWeeklyCardTotal ? `${soldeSemaineCarte} €` : "Cliquer pour calculer"}
+                      {showWeeklyCardTotal ? `${soldeSemaineCarte} €` : "Calculer"}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -353,7 +433,7 @@ const ConsultCfr = () => {
         <Box sx={{ mb: 3 }}>
           <Grid container spacing={2} alignItems="center">
             {/* Week type selector */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={6}>
               <FormControl fullWidth variant="outlined" size="small">
                 <InputLabel id="week-type-select-label">Sélectionner une période</InputLabel>
                 <Select
@@ -372,24 +452,9 @@ const ConsultCfr = () => {
                 </Select>
               </FormControl>
             </Grid>
-
-            {/* Date specific selector */}
-            <Grid item xs={12} md={4}>
-              <input
-                type="date"
-                value={searchDate}
-                onChange={filterTripsByDate}
-                style={{ 
-                  padding: '9px', 
-                  borderRadius: '4px', 
-                  border: '1px solid #ccc',
-                  width: '100%'
-                }}
-              />
-            </Grid>
             
             {/* Reset filters button */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={6}>
               <Button
                 variant="outlined"
                 color="secondary"
