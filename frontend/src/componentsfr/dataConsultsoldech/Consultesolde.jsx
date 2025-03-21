@@ -41,63 +41,13 @@ const ConsultCfr = () => {
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [searchDate, setSearchDate] = useState("");
   const [showWeeklyCardTotal, setShowWeeklyCardTotal] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedWeek, setSelectedWeek] = useState("");
-  const [availableWeeks, setAvailableWeeks] = useState([]);
+  const [selectedWeekType, setSelectedWeekType] = useState("");
   const role = window.localStorage.getItem("userRole");
   const isAdmin = role === "Admin" || role === "Agentad";
 
   useEffect(() => {
     fetchDriverData();
   }, [id]);
-
-  // Generate months for the current year
-  const months = Array.from({ length: 12 }, (_, i) => {
-    const monthDate = moment().month(i);
-    return {
-      value: monthDate.format("YYYY-MM"),
-      label: monthDate.format("MMMM YYYY")
-    };
-  });
-
-  // Effect to generate available weeks when a month is selected
-  useEffect(() => {
-    if (selectedMonth) {
-      const [year, month] = selectedMonth.split("-");
-      const firstDayOfMonth = moment(`${year}-${month}-01`);
-      const lastDayOfMonth = moment(firstDayOfMonth).endOf("month");
-      
-      // Get the first Monday of the month (or the first day if it's a Monday)
-      let startOfFirstWeek = moment(firstDayOfMonth).startOf("week");
-      if (startOfFirstWeek.date() > 7) {
-        startOfFirstWeek.add(1, "week");
-      }
-      
-      const weeks = [];
-      let weekCounter = 1;
-      let currentWeekStart = startOfFirstWeek;
-
-      while (currentWeekStart.month() === firstDayOfMonth.month() || 
-             (currentWeekStart.isBefore(lastDayOfMonth) && weekCounter <= 6)) {
-        const weekEnd = moment(currentWeekStart).endOf("week");
-        weeks.push({
-          value: `${currentWeekStart.format("YYYY-MM-DD")}:${weekEnd.format("YYYY-MM-DD")}`,
-          label: `Semaine ${weekCounter} (${currentWeekStart.format("DD/MM")} - ${weekEnd.format("DD/MM")})`,
-          startDate: currentWeekStart.toDate(),
-          endDate: weekEnd.toDate()
-        });
-        
-        currentWeekStart = moment(currentWeekStart).add(1, "week");
-        weekCounter++;
-      }
-      
-      setAvailableWeeks(weeks);
-      setSelectedWeek("");
-    } else {
-      setAvailableWeeks([]);
-      setSelectedWeek("");
-    }
-  }, [selectedMonth]);
 
   const fetchDriverData = async () => {
     try {
@@ -112,22 +62,19 @@ const ConsultCfr = () => {
         setSolde(data.solde || 0);
         setSoldeCarte(data.soldeCarte || 0);
         
-        // Process trip history
-        const processedTrips = (data.tripHistory || []).map((trip, index) => ({
+        // Process trip data - note we're using 'trips' instead of 'tripHistory'
+        const processedTrips = (data.trips || []).map((trip, index) => ({
           ...trip,
           id: trip.tripId || `trip-${index}`,
-          date: trip.details?.time 
-            ? new Date(trip.details.time._seconds * 1000) 
-            : null,
-          formattedDate: trip.details?.time 
-            ? moment(new Date(trip.details.time._seconds * 1000)).format("DD/MM/YYYY HH:mm") 
-            : "N/A",
-          fareAmount: trip.details?.fareAmount || 0,
-          sourceAddress: trip.details?.sourceAddress || "N/A",
-          destinationAddress: trip.details?.destinationAddress || "N/A",
-          paymentMethod: trip.details?.healthStatus || "N/A",
-          userName: trip.details?.userName || "N/A",
-          userPhone: trip.details?.userPhone|| "N/A"
+          date: trip.time ? new Date(trip.time) : null,
+          formattedDate: trip.time ? moment(new Date(trip.time)).format("DD/MM/YYYY HH:mm") : "N/A",
+          fareAmount: trip.fareAmount || 0,
+          sourceAddress: trip.sourceAddress || "N/A",
+          destinationAddress: trip.destinationAddress || "N/A",
+          paymentMethod: trip.healthStatus || "N/A",
+          userName: trip.userName || "N/A",
+          userPhone: trip.userPhone || "N/A",
+          estPaye: trip.sipayer !== undefined ? trip.sipayer : false
         })).sort((a, b) => !a.date ? 1 : !b.date ? -1 : b.date - a.date);
         
         setTrips(processedTrips);
@@ -141,97 +88,104 @@ const ConsultCfr = () => {
     }
   };
 
-  const filterTripsByDate = (e) => {
-    const value = e.target.value;
-    setSearchDate(value);
+  // Function to get week boundaries (Monday to Sunday)
+  const getWeekBoundaries = (date) => {
+    const day = date.getDay(); // 0 is Sunday, 1 is Monday, etc.
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday as first day
     
-    if (!value) {
+    const monday = new Date(date);
+    monday.setDate(diff);
+    monday.setHours(0, 0, 0, 0);
+    
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    
+    return { start: monday, end: sunday };
+  };
+
+  // Function to get the previous week dates
+  const getPreviousWeekDates = () => {
+    const today = new Date();
+    const oneWeekAgo = new Date(today);
+    oneWeekAgo.setDate(today.getDate() - 7);
+    return getWeekBoundaries(oneWeekAgo);
+  };
+
+  // Function to get the current week dates
+  const getCurrentWeekDates = () => {
+    return getWeekBoundaries(new Date());
+  };
+
+  // Function to get the next week dates
+  const getNextWeekDates = () => {
+    const today = new Date();
+    const oneWeekLater = new Date(today);
+    oneWeekLater.setDate(today.getDate() + 7);
+    return getWeekBoundaries(oneWeekLater);
+  };
+
+  // Filter trips by week type
+  const filterTripsByWeekType = (weekType) => {
+    setSelectedWeekType(weekType);
+    
+    if (!weekType) {
       setFilteredTrips(trips);
       setShowWeeklyCardTotal(false);
       return;
     }
     
-    if (value === "week") {
-      const startOfWeek = moment().startOf('week');
-      const endOfWeek = moment().endOf('week');
-      
-      const weekTrips = trips.filter(trip => 
-        trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
-      );
-      
-      setFilteredTrips(weekTrips);
-      setShowWeeklyCardTotal(true);
-      calculateWeeklyCardTotal(weekTrips);
-    } else {
-      setFilteredTrips(trips.filter(trip => 
-        trip.date && moment(trip.date).format("YYYY-MM-DD") === value
-      ));
-      setShowWeeklyCardTotal(false);
-    }
-  };
-
-  const handleMonthChange = (event) => {
-    const value = event.target.value;
-    setSelectedMonth(value);
-    setSelectedWeek("");
+    let dateRange;
     
-    if (!value) {
-      setFilteredTrips(trips);
-      setShowWeeklyCardTotal(false);
-      return;
-    }
-    
-    const [year, month] = value.split("-");
-    const startOfMonth = moment(`${year}-${month}-01`).startOf('month');
-    const endOfMonth = moment(startOfMonth).endOf('month');
-    
-    const monthTrips = trips.filter(trip => 
-      trip.date && moment(trip.date).isBetween(startOfMonth, endOfMonth, null, '[]')
-    );
-    
-    setFilteredTrips(monthTrips);
-    setShowWeeklyCardTotal(false);
-  };
-
-  const handleWeekChange = (event) => {
-    const value = event.target.value;
-    setSelectedWeek(value);
-    
-    if (!value) {
-      // If no week is selected but a month is still selected, show all trips for the month
-      if (selectedMonth) {
-        const [year, month] = selectedMonth.split("-");
-        const startOfMonth = moment(`${year}-${month}-01`).startOf('month');
-        const endOfMonth = moment(startOfMonth).endOf('month');
-        
-        const monthTrips = trips.filter(trip => 
-          trip.date && moment(trip.date).isBetween(startOfMonth, endOfMonth, null, '[]')
-        );
-        
-        setFilteredTrips(monthTrips);
-      } else {
+    switch(weekType) {
+      case 'previous':
+        dateRange = getPreviousWeekDates();
+        break;
+      case 'current':
+        dateRange = getCurrentWeekDates();
+        break;
+      case 'next':
+        dateRange = getNextWeekDates();
+        break;
+      default:
         setFilteredTrips(trips);
-      }
-      setShowWeeklyCardTotal(false);
-      return;
+        setShowWeeklyCardTotal(false);
+        return;
     }
-    
-    const [startDateStr, endDateStr] = value.split(":");
-    const startDate = moment(startDateStr);
-    const endDate = moment(endDateStr);
     
     const weekTrips = trips.filter(trip => 
-      trip.date && moment(trip.date).isBetween(startDate, endDate, null, '[]')
+      trip.date && trip.date >= dateRange.start && trip.date <= dateRange.end
     );
     
     setFilteredTrips(weekTrips);
     setShowWeeklyCardTotal(true);
     calculateWeeklyCardTotal(weekTrips);
+    
+    // Format dates for display
+    const startFormatted = moment(dateRange.start).format("DD/MM/YYYY");
+    const endFormatted = moment(dateRange.end).format("DD/MM/YYYY");
+    toast.info(`Affichage des courses du ${startFormatted} au ${endFormatted}`);
+  };
+
+  const filterTripsByDate = (e) => {
+    const value = e.target.value;
+    setSearchDate(value);
+    setSelectedWeekType("");
+    
+    if (!value) {
+      setFilteredTrips(trips);
+      setShowWeeklyCardTotal(false);
+      return;
+    }
+    
+    setFilteredTrips(trips.filter(trip => 
+      trip.date && moment(trip.date).format("YYYY-MM-DD") === value
+    ));
+    setShowWeeklyCardTotal(false);
   };
 
   const resetFilters = () => {
-    setSelectedMonth("");
-    setSelectedWeek("");
+    setSelectedWeekType("");
     setSearchDate("");
     setFilteredTrips(trips);
     setShowWeeklyCardTotal(false);
@@ -254,32 +208,12 @@ const ConsultCfr = () => {
   };
 
   const calculateWeeklyCardTotalOnDemand = () => {
-    // If a week is already selected, use that period
-    if (selectedWeek) {
-      const [startDateStr, endDateStr] = selectedWeek.split(":");
-      const startDate = moment(startDateStr);
-      const endDate = moment(endDateStr);
-      
-      const weekTrips = trips.filter(trip => 
-        trip.date && moment(trip.date).isBetween(startDate, endDate, null, '[]')
-      );
-      
-      setFilteredTrips(weekTrips);
-      setShowWeeklyCardTotal(true);
-      calculateWeeklyCardTotal(weekTrips);
+    // If a week type is already selected, use that
+    if (selectedWeekType) {
+      filterTripsByWeekType(selectedWeekType);
     } else {
       // Otherwise, use current week
-      const startOfWeek = moment().startOf('week');
-      const endOfWeek = moment().endOf('week');
-      
-      const weekTrips = trips.filter(trip => 
-        trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
-      );
-      
-      setSearchDate("week");
-      setFilteredTrips(weekTrips);
-      setShowWeeklyCardTotal(true);
-      calculateWeeklyCardTotal(weekTrips);
+      filterTripsByWeekType('current');
     }
     
     toast.success("Calcul du solde carte semaine effectué");
@@ -297,7 +231,19 @@ const ConsultCfr = () => {
       width: 120,
       valueFormatter: (params) => `${params.value} €`
     },
-    { field: "paymentMethod", headerName: "Méthode de Paiement", width: 180 }
+    { field: "paymentMethod", headerName: "Méthode de Paiement", width: 180 },
+    { 
+      field: "estPaye", 
+      headerName: "Payé", 
+      width: 100,
+      renderCell: (params) => (
+        <Chip 
+          label={params.value ? "Payé" : "Non payé"} 
+          color={params.value ? "success" : "error"}
+          size="small"
+        />
+      )
+    }
   ];
 
   if (loading) {
@@ -406,57 +352,32 @@ const ConsultCfr = () => {
         
         <Box sx={{ mb: 3 }}>
           <Grid container spacing={2} alignItems="center">
-            {/* Mois selector */}
-            <Grid item xs={12} md={3}>
-              <FormControl fullWidth variant="outlined" size="small">
-                <InputLabel id="month-select-label">Sélectionner un mois</InputLabel>
-                <Select
-                  labelId="month-select-label"
-                  value={selectedMonth}
-                  onChange={handleMonthChange}
-                  label="Sélectionner un mois"
-                  startAdornment={<CalendarMonthIcon sx={{ mr: 1, color: 'primary.main' }} />}
-                >
-                  <MenuItem value="">
-                    <em>Tous les mois</em>
-                  </MenuItem>
-                  {months.map((month) => (
-                    <MenuItem key={month.value} value={month.value}>
-                      {month.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            {/* Semaine selector - only shown when a month is selected */}
+            {/* Week type selector */}
             <Grid item xs={12} md={4}>
-              <FormControl fullWidth variant="outlined" size="small" disabled={!selectedMonth}>
-                <InputLabel id="week-select-label">Sélectionner une semaine</InputLabel>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel id="week-type-select-label">Sélectionner une période</InputLabel>
                 <Select
-                  labelId="week-select-label"
-                  value={selectedWeek}
-                  onChange={handleWeekChange}
-                  label="Sélectionner une semaine"
+                  labelId="week-type-select-label"
+                  value={selectedWeekType}
+                  onChange={(e) => filterTripsByWeekType(e.target.value)}
+                  label="Sélectionner une période"
                   startAdornment={<DateRangeIcon sx={{ mr: 1, color: 'primary.main' }} />}
                 >
                   <MenuItem value="">
-                    <em>Toutes les semaines</em>
+                    <em>Toutes les périodes</em>
                   </MenuItem>
-                  {availableWeeks.map((week) => (
-                    <MenuItem key={week.value} value={week.value}>
-                      {week.label}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="previous">Semaine précédente</MenuItem>
+                  <MenuItem value="current">Semaine courante</MenuItem>
+                  <MenuItem value="next">Semaine prochaine</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
-            {/* Date specific selector (preserved from original) */}
-            <Grid item xs={12} md={3}>
+            {/* Date specific selector */}
+            <Grid item xs={12} md={4}>
               <input
                 type="date"
-                value={searchDate !== "week" ? searchDate : ""}
+                value={searchDate}
                 onChange={filterTripsByDate}
                 style={{ 
                   padding: '9px', 
@@ -468,7 +389,7 @@ const ConsultCfr = () => {
             </Grid>
             
             {/* Reset filters button */}
-            <Grid item xs={12} md={2}>
+            <Grid item xs={12} md={4}>
               <Button
                 variant="outlined"
                 color="secondary"
