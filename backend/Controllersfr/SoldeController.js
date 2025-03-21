@@ -107,61 +107,63 @@ const getDriverFinancialInfo = async (req, res) => {
     const existingTrips = await Facturation.find({ tripId: { $in: tripHistoryKeys } });
     const existingTripIds = new Set(existingTrips.map(trip => trip.tripId));
 
-    const tripDetailsPromises = tripHistoryKeys.map(async (tripId) => {
-      if (existingTripIds.has(tripId)) {
-        return null; // Ignore si déjà existant
-      }
+    // Récupération et enregistrement des nouvelles courses
+    const newTrips = await Promise.all(
+      tripHistoryKeys.map(async (tripId) => {
+        if (existingTripIds.has(tripId)) {
+          return null; // Ignore si déjà existant
+        }
 
-      const tripDoc = await firestoreDB.collection("AllRideRequests").doc(tripId).get();
-      if (!tripDoc.exists) {
-        return null;
-      }
+        const tripDoc = await firestoreDB.collection("AllRideRequests").doc(tripId).get();
+        if (!tripDoc.exists) {
+          return null;
+        }
 
-      const tripData = tripDoc.data();
+        const tripData = tripDoc.data();
+        const newTrip = new Facturation({
+          tripId,
+          driverId,
+          destination: tripData.destination || {},
+          destinationAddress: tripData.destinationAddress || "N/A",
+          driverCarImmatriculation: tripData.driverCarImmatriculation || "N/A",
+          driverCarModelle: tripData.driverCarModelle || "N/A",
+          driverLocationData: tripData.driverLocationData || {},
+          driverName: tripData.driverName || "N/A",
+          driverPhone: tripData.driverPhone || "N/A",
+          fareAmount: tripData.fareAmount || 0,
+          healthStatus: tripData.healthStatus || "N/A",
+          source: tripData.source || {},
+          sourceAddress: tripData.sourceAddress || "N/A",
+          status: tripData.status || "N/A",
+          time: tripData.time || "N/A",
+          userId: tripData.userId || "N/A",
+          userName: tripData.userName || "N/A",
+          userPhone: tripData.userPhone || "N/A",
+          sipayer: false
+        });
 
-      // ✅ Conversion correcte du Timestamp Firestore
-      const formattedTime = tripData.time ? 
-        new Date(tripData.time._seconds * 1000).toISOString() : "N/A";
+        await newTrip.save();
+        return newTrip;
+      })
+    );
 
-      const tripRecord = new Facturation({
-        tripId,
-        driverId,
-        destination: tripData.destination || {},
-        destinationAddress: tripData.destinationAddress || "N/A",
-        driverCarImmatriculation: tripData.driverCarImmatriculation || "N/A",
-        driverCarModelle: tripData.driverCarModelle || "N/A",
-        driverLocationData: tripData.driverLocationData || {},
-        driverName: tripData.driverName || "N/A",
-        driverPhone: tripData.driverPhone || "N/A",
-        fareAmount: tripData.fareAmount || 0,
-        healthStatus: tripData.healthStatus || "N/A",
-        source: tripData.source || {},
-        sourceAddress: tripData.sourceAddress || "N/A",
-        status: tripData.status || "N/A",
-        time: formattedTime, // ✅ Correction ici
-        userId: tripData.userId || "N/A",
-        userName: tripData.userName || "N/A",
-        userPhone: tripData.userPhone || "N/A",
-        sipayer: false // ✅ Ajout de l'attribut sipayer
-      });
-
-      await tripRecord.save();
-      return tripRecord;
-    });
-
-    // Exécute toutes les requêtes en parallèle
-    const savedTrips = (await Promise.all(tripDetailsPromises)).filter(trip => trip !== null);
+    // Fusionner les anciens et nouveaux trips et retirer les null
+    const allTrips = [...existingTrips, ...newTrips.filter(trip => trip !== null)];
 
     res.json({
       solde,
       soldeCarte,
-      trips: savedTrips
+      trips: allTrips
     });
+
   } catch (error) {
     console.error("Erreur lors de la récupération des informations :", error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
+
+
+
 
 const getTotalSolde = async (req, res) => {
   try {
