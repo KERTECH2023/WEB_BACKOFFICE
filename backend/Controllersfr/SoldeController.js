@@ -78,7 +78,7 @@ const getSoldeById = async (req, res) => {
 };
 
 
-const getDriverFinancialInfo = async (req, res) => { 
+const getDriverFinancialInfo = async (req, res) => {
   try {
     const driverId = req.params.driverId;
 
@@ -99,6 +99,10 @@ const getDriverFinancialInfo = async (req, res) => {
     const soldeCarte = driverData.soldecarte || 0;
     const tripHistoryKeys = Object.keys(driverData.tripHistory || {});
 
+    if (tripHistoryKeys.length === 0) {
+      return res.json({ message: "Aucune course trouvée", solde, soldeCarte, trips: [] });
+    }
+
     // Récupération des courses existantes dans MongoDB
     const existingTrips = await Facturation.find({ tripId: { $in: tripHistoryKeys } });
     const existingTripIds = new Set(existingTrips.map(trip => trip.tripId));
@@ -114,6 +118,11 @@ const getDriverFinancialInfo = async (req, res) => {
       }
 
       const tripData = tripDoc.data();
+
+      // ✅ Conversion correcte du Timestamp Firestore
+      const formattedTime = tripData.time ? 
+        new Date(tripData.time._seconds * 1000).toISOString() : "N/A";
+
       const tripRecord = new Facturation({
         tripId,
         driverId,
@@ -129,31 +138,30 @@ const getDriverFinancialInfo = async (req, res) => {
         source: tripData.source || {},
         sourceAddress: tripData.sourceAddress || "N/A",
         status: tripData.status || "N/A",
-        time: tripData.time || "N/A",
+        time: formattedTime, // ✅ Correction ici
         userId: tripData.userId || "N/A",
         userName: tripData.userName || "N/A",
         userPhone: tripData.userPhone || "N/A",
-        sipayer: false // Ajout de l'attribut sipayer
+        sipayer: false // ✅ Ajout de l'attribut sipayer
       });
 
       await tripRecord.save();
       return tripRecord;
     });
 
-    const newTrips = (await Promise.all(tripDetailsPromises)).filter(trip => trip !== null);
+    // Exécute toutes les requêtes en parallèle
+    const savedTrips = (await Promise.all(tripDetailsPromises)).filter(trip => trip !== null);
 
-    return res.status(200).json({
-      driverId: driverId,
-      solde: solde,
-      soldeCarte: soldeCarte,
-      newTrips: newTrips,
+    res.json({
+      solde,
+      soldeCarte,
+      trips: savedTrips
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des informations :", error);
-    return res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
-
 
 const getTotalSolde = async (req, res) => {
   try {
