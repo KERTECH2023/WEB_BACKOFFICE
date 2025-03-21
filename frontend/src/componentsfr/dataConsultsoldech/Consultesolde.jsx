@@ -15,11 +15,7 @@ import {
   Chip,
   Divider,
   Paper,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
+  Grid
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DateRangeIcon from "@mui/icons-material/DateRange";
@@ -36,15 +32,10 @@ const ConsultCfr = () => {
   const [soldeSemaineCarte, setSoldeSemaineCarte] = useState(0);
   const [trips, setTrips] = useState([]);
   const [filteredTrips, setFilteredTrips] = useState([]);
-  const [filterType, setFilterType] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedWeek, setSelectedWeek] = useState("");
+  const [searchDate, setSearchDate] = useState("");
+  const [showWeeklyCardTotal, setShowWeeklyCardTotal] = useState(false);
   const role = window.localStorage.getItem("userRole");
   const isAdmin = role === "Admin" || role === "Agentad";
-
-  // Available months and weeks for filtering
-  const [availableMonths, setAvailableMonths] = useState([]);
-  const [availableWeeks, setAvailableWeeks] = useState([]);
 
   useEffect(() => {
     fetchDriverData();
@@ -63,26 +54,26 @@ const ConsultCfr = () => {
         setSolde(data.solde || 0);
         setSoldeCarte(data.soldeCarte || 0);
         
-        // Process trip history with new format
-        const processedTrips = (data.trips || []).map((trip) => ({
+        // Process trip history
+        const processedTrips = (data.tripHistory || []).map((trip, index) => ({
           ...trip,
-          id: trip.tripId || trip._id,
-          date: trip.time ? new Date(trip.time) : null,
-          formattedDate: trip.time ? moment(new Date(trip.time)).format("DD/MM/YYYY HH:mm") : "N/A",
-          fareAmount: trip.fareAmount || 0,
-          sourceAddress: trip.sourceAddress || "N/A",
-          destinationAddress: trip.destinationAddress || "N/A",
-          paymentMethod: trip.healthStatus || "N/A",
-          userName: trip.userName || "N/A",
-          userPhone: trip.userPhone || "N/A",
-          isPaid: trip.sipayer === true ? "Oui" : "Non"
+          id: trip.tripId || `trip-${index}`,
+          date: trip.details?.time 
+            ? new Date(trip.details.time._seconds * 1000) 
+            : null,
+          formattedDate: trip.details?.time 
+            ? moment(new Date(trip.details.time._seconds * 1000)).format("DD/MM/YYYY HH:mm") 
+            : "N/A",
+          fareAmount: trip.details?.fareAmount || 0,
+          sourceAddress: trip.details?.sourceAddress || "N/A",
+          destinationAddress: trip.details?.destinationAddress || "N/A",
+          paymentMethod: trip.details?.healthStatus || "N/A",
+          userName: trip.details?.userName || "N/A",
+          userPhone: trip.details?.userPhone|| "N/A"
         })).sort((a, b) => !a.date ? 1 : !b.date ? -1 : b.date - a.date);
         
         setTrips(processedTrips);
         setFilteredTrips(processedTrips);
-        
-        // Generate available months and weeks for filtering
-        generateDateFilters(processedTrips);
       }
     } catch (error) {
       console.error("Error fetching driver data:", error);
@@ -92,108 +83,80 @@ const ConsultCfr = () => {
     }
   };
 
-  const generateDateFilters = (processedTrips) => {
-    // Generate months
-    const months = [];
-    const weeks = [];
-    
-    processedTrips.forEach(trip => {
-      if (trip.date) {
-        const monthKey = moment(trip.date).format("YYYY-MM");
-        const monthLabel = moment(trip.date).format("MMMM YYYY");
-        
-        if (!months.some(m => m.key === monthKey)) {
-          months.push({ key: monthKey, label: monthLabel });
-        }
-        
-        // Generate weeks (excluding current week)
-        const tripWeek = moment(trip.date).startOf('week');
-        const currentWeek = moment().startOf('week');
-        
-        if (tripWeek.isBefore(currentWeek)) {
-          const weekKey = tripWeek.format("YYYY-[W]WW");
-          const weekLabel = `Semaine du ${tripWeek.format("DD/MM/YYYY")}`;
-          
-          if (!weeks.some(w => w.key === weekKey)) {
-            weeks.push({ key: weekKey, label: weekLabel });
-          }
-        }
-      }
-    });
-    
-    setAvailableMonths(months);
-    setAvailableWeeks(weeks);
-  };
-
-  const handleFilterChange = (e) => {
-    setFilterType(e.target.value);
-    setSelectedMonth("");
-    setSelectedWeek("");
-    setFilteredTrips(trips);
-  };
-
-  const handleMonthChange = (e) => {
+  const filterTripsByDate = (e) => {
     const value = e.target.value;
-    setSelectedMonth(value);
-    setSelectedWeek("");
+    setSearchDate(value);
     
     if (!value) {
       setFilteredTrips(trips);
+      setShowWeeklyCardTotal(false);
       return;
     }
     
-    const [year, month] = value.split('-');
-    const filtered = trips.filter(trip => 
-      trip.date && 
-      moment(trip.date).year() === parseInt(year) && 
-      moment(trip.date).month() === parseInt(month) - 1
-    );
-    
-    setFilteredTrips(filtered);
-  };
-
-  const handleWeekChange = (e) => {
-    const value = e.target.value;
-    setSelectedWeek(value);
-    setSelectedMonth("");
-    
-    if (!value) {
-      setFilteredTrips(trips);
-      return;
+    if (value === "week") {
+      const startOfWeek = moment().startOf('week');
+      const endOfWeek = moment().endOf('week');
+      
+      const weekTrips = trips.filter(trip => 
+        trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
+      );
+      
+      setFilteredTrips(weekTrips);
+      setShowWeeklyCardTotal(true);
+      calculateWeeklyCardTotal(weekTrips);
+    } else {
+      setFilteredTrips(trips.filter(trip => 
+        trip.date && moment(trip.date).format("YYYY-MM-DD") === value
+      ));
+      setShowWeeklyCardTotal(false);
     }
-    
-    const [year, weekNum] = value.replace('-W', '-').split('-');
-    const weekStart = moment().year(parseInt(year)).week(parseInt(weekNum)).startOf('week');
-    const weekEnd = moment(weekStart).endOf('week');
-    
-    const filtered = trips.filter(trip => 
-      trip.date && moment(trip.date).isBetween(weekStart, weekEnd, null, '[]')
-    );
-    
-    setFilteredTrips(filtered);
   };
 
-  const resetFilters = () => {
-    setFilterType("");
-    setSelectedMonth("");
-    setSelectedWeek("");
-    setFilteredTrips(trips);
+  const calculateWeeklyCardTotal = (weekTrips) => {
+    // Filter trips with payment method "Paiement par carte"
+    const cardPaymentTrips = weekTrips.filter(trip => 
+      trip.paymentMethod === "Paiement par carte"
+    );
+    
+    // Calculate commission for each card payment trip: (amount * 1.5%) + 0.25€
+    const totalCommission = cardPaymentTrips.reduce((total, trip) => {
+      const commission = (trip.fareAmount * 0.015) + 0.25;
+      return total + commission;
+    }, 0);
+    
+    // Set the calculated total
+    setSoldeSemaineCarte(parseFloat(totalCommission.toFixed(2)));
+  };
+
+  const calculateWeeklyCardTotalOnDemand = () => {
+    const startOfWeek = moment().startOf('week');
+    const endOfWeek = moment().endOf('week');
+    
+    const weekTrips = trips.filter(trip => 
+      trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
+    );
+    
+    setSearchDate("week");
+    setFilteredTrips(weekTrips);
+    setShowWeeklyCardTotal(true);
+    calculateWeeklyCardTotal(weekTrips);
+    
+    toast.success("Calcul du solde carte semaine effectué");
   };
 
   const columns = [
     { field: "formattedDate", headerName: "Date et Heure", width: 180 },
-    { field: "userName", headerName: "Nom client", width: 180 },
+    { field: "userName", headerName: "Nom client", width: 200 },
     { field: "userPhone", headerName: "Client Tel", width: 150 },
-    { field: "sourceAddress", headerName: "Départ", width: 200 },
-    { field: "destinationAddress", headerName: "Destination", width: 200 },
+    { field: "sourceAddress", headerName: "Départ", width: 220 },
+    { field: "destinationAddress", headerName: "Destination", width: 220 },
     { 
       field: "fareAmount", 
       headerName: "Montant", 
       width: 120,
       valueFormatter: (params) => `${params.value} €`
     },
-    { field: "paymentMethod", headerName: "Méthode de Paiement", width: 180 },
-    { field: "isPaid", headerName: "Payé", width: 100 }
+    { field: "paymentMethod", headerName: "Méthode de Paiement", width: 180 }
   ];
 
   if (loading) {
@@ -238,7 +201,7 @@ const ConsultCfr = () => {
         {isAdmin && (
           <Box mt={3}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <CardContent>
                     <Typography variant="subtitle1" color="text.secondary">
@@ -250,7 +213,7 @@ const ConsultCfr = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} md={4}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <CardContent>
                     <Typography variant="subtitle1" color="text.secondary">
@@ -258,6 +221,33 @@ const ConsultCfr = () => {
                     </Typography>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
                       {soldeCarte} €
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Card 
+                  variant="outlined" 
+                  sx={{ 
+                    height: '100%', 
+                    bgcolor: showWeeklyCardTotal ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
+                    transition: 'background-color 0.3s',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      bgcolor: 'rgba(25, 118, 210, 0.12)'
+                    }
+                  }}
+                  onClick={calculateWeeklyCardTotalOnDemand}
+                >
+                  <CardContent>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <CreditCardIcon color="primary" />
+                      <Typography variant="subtitle1" color="text.secondary">
+                        Commission Carte Semaine
+                      </Typography>
+                    </Box>
+                    <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
+                      {showWeeklyCardTotal ? `${soldeSemaineCarte} €` : "Cliquer pour calculer"}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -273,65 +263,43 @@ const ConsultCfr = () => {
         </Typography>
         <Divider sx={{ mb: 3 }} />
         
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
           <Box display="flex" gap={2} alignItems="center">
-            <FormControl sx={{ minWidth: 180 }}>
-              <InputLabel id="filter-type-label">Type de filtre</InputLabel>
-              <Select
-                labelId="filter-type-label"
-                value={filterType}
-                label="Type de filtre"
-                onChange={handleFilterChange}
-              >
-                <MenuItem value="">Tous</MenuItem>
-                <MenuItem value="month">Par mois</MenuItem>
-                <MenuItem value="week">Par semaine</MenuItem>
-              </Select>
-            </FormControl>
-
-            {filterType === 'month' && (
-              <FormControl sx={{ minWidth: 180 }}>
-                <InputLabel id="month-select-label">Mois</InputLabel>
-                <Select
-                  labelId="month-select-label"
-                  value={selectedMonth}
-                  label="Mois"
-                  onChange={handleMonthChange}
+            <Button 
+              variant={searchDate === "week" ? "contained" : "outlined"}
+              startIcon={<DateRangeIcon />}
+              onClick={() => {
+                setSearchDate("week");
+                filterTripsByDate({ target: { value: "week" } });
+              }}
+            >
+              Cette Semaine
+            </Button>
+            
+            <Box display="flex" alignItems="center" gap={1}>
+              <input
+                type="date"
+                value={searchDate !== "week" ? searchDate : ""}
+                onChange={filterTripsByDate}
+                style={{ 
+                  padding: '8px', 
+                  borderRadius: '4px', 
+                  border: '1px solid #ccc' 
+                }}
+              />
+              {searchDate && (
+                <Button 
+                  size="small"
+                  onClick={() => {
+                    setSearchDate("");
+                    setFilteredTrips(trips);
+                    setShowWeeklyCardTotal(false);
+                  }}
                 >
-                  <MenuItem value="">Tous les mois</MenuItem>
-                  {availableMonths.map(month => (
-                    <MenuItem key={month.key} value={month.key}>{month.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-
-            {filterType === 'week' && (
-              <FormControl sx={{ minWidth: 180 }}>
-                <InputLabel id="week-select-label">Semaine</InputLabel>
-                <Select
-                  labelId="week-select-label"
-                  value={selectedWeek}
-                  label="Semaine"
-                  onChange={handleWeekChange}
-                >
-                  <MenuItem value="">Toutes les semaines</MenuItem>
-                  {availableWeeks.map(week => (
-                    <MenuItem key={week.key} value={week.key}>{week.label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-
-            {(filterType || selectedMonth || selectedWeek) && (
-              <Button 
-                variant="outlined"
-                size="small"
-                onClick={resetFilters}
-              >
-                Réinitialiser
-              </Button>
-            )}
+                  Réinitialiser
+                </Button>
+              )}
+            </Box>
           </Box>
           
           <Chip 
