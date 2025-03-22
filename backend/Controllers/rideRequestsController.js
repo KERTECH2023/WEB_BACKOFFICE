@@ -1,4 +1,4 @@
-const firestoreModule = require("../servicesfr/config");
+const firestoreModule = require("../services/config");
 const firestore = firestoreModule.firestoreApp.firestore();
 
 /**
