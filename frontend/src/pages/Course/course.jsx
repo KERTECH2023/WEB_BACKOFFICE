@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../components/sidebar/Sidebar";
-import Navbar from "../../components/navbar/Navbar";
+import Sidebar from "../../componentsfr/sidebar/Sidebar";
+import Navbar from "../../componentsfr/navbar/Navbar";
 import axios from "axios";
 
 const Liscourse = () => {
   const [rides, setRides] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [sortOrder, setSortOrder] = useState("desc"); // "desc" pour descendant (plus récent d'abord), "asc" pour ascendant
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const API_URL = "https://api.backofficegc.com/rideRequests/ride-requests";
@@ -69,7 +70,7 @@ const Liscourse = () => {
 
   useEffect(() => {
     fetchRides();
-  }, [filterStatus]);
+  }, [filterStatus, sortOrder]);
 
   const fetchRides = async () => {
     setIsLoading(true);
@@ -84,6 +85,15 @@ const Liscourse = () => {
       if (filterStatus !== "all") {
         ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
       }
+      
+      // Tri par date
+      ridesArray.sort((a, b) => {
+        const timeA = a.time?._seconds || (a.time ? new Date(a.time).getTime() / 1000 : 0);
+        const timeB = b.time?._seconds || (b.time ? new Date(b.time).getTime() / 1000 : 0);
+        
+        return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
+      });
+      
       setRides(ridesArray);
     } catch (error) {
       setError("Erreur lors de la récupération des courses");
@@ -92,37 +102,6 @@ const Liscourse = () => {
       setIsLoading(false);
     }
   };
-
-  const fetchDriverInfo = async (immatriculation) => {
-    try {
-      const response = await axios.get(`https://api.backofficegc.com/rideRequests/driver/${immatriculation}`);
-      return response.data;
-    } catch (error) {
-      console.error("Erreur lors de la récupération du chauffeur :", error);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    const updateRidesWithDriverInfo = async () => {
-      const updatedRides = await Promise.all(
-        rides.map(async (ride) => {
-          if (!ride.driverName && !ride.driverPhone && ride.driverCarImmatriculation) {
-            const driverInfo = await fetchDriverInfo(ride.driverCarImmatriculation);
-            return driverInfo
-              ? { ...ride, driverName: driverInfo.name, driverPhone: driverInfo.phone }
-              : ride;
-          }
-          return ride;
-        })
-      );
-      setRides(updatedRides);
-    };
-
-    if (rides.length > 0) {
-      updateRidesWithDriverInfo();
-    }
-  }, [rides]);
 
   const handleDelete = async (rideId) => {
     if (!rideId) {
@@ -155,17 +134,26 @@ const Liscourse = () => {
       <Sidebar />
       <div style={{ padding: '20px' }}>
         <Navbar />
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
           <select 
             value={filterStatus} 
             onChange={(e) => setFilterStatus(e.target.value)}
             style={styles.filterSelect}
           >
-            <option value="all">Tous</option>
+            <option value="all">Tous les statuts</option>
             <option value="Ended">Terminé</option>
             <option value="Accepted">Accepté</option>
             <option value="Rejected">Rejeté</option>
             <option value="Arrived">Arrivé</option>
+          </select>
+          
+          <select 
+            value={sortOrder} 
+            onChange={(e) => setSortOrder(e.target.value)}
+            style={styles.filterSelect}
+          >
+            <option value="desc">Plus récent d'abord</option>
+            <option value="asc">Plus ancien d'abord</option>
           </select>
         </div>
 
@@ -206,7 +194,11 @@ const Liscourse = () => {
                       {ride.status || ""}
                     </td>
                     <td style={styles.tableCell}>
-                      {ride.time ? new Date(ride.time).toLocaleString() : "N/A"}
+                      {ride.time ? 
+  (ride.time._seconds ? 
+    new Date(ride.time._seconds * 1000).toLocaleString() : 
+    new Date(ride.time).toLocaleString()) : 
+  "N/A"}
                     </td>
                     <td style={styles.tableCell}>
                       <button onClick={() => handleDelete(ride.id)} style={styles.deleteButton}>
