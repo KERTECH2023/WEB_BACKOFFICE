@@ -216,11 +216,10 @@ const ConsultCfr = () => {
       trip.paymentMethod === "Paiement par carte" && !trip.estPaye
     );
     
-    const totalCommission = cardPaymentTrips.reduce((total, trip) => {
-      return total+data.solde -( (trip.fareAmount * 0.015) + (filteredTrips.length*0.25));
-    }, 0);
+    // Nouveau calcul: montant à payer = totaleCarte + solde - (totaleCarte * 0.015) - (cartes non payées * 0.25)
+    const totalMontantAPayer = data.soldeCarte + data.solde - (data.soldeCarte * 0.015) - (cardPaymentTrips.length * 0.25);
     
-    const totalDue = parseFloat(totalCommission.toFixed(2)) ;
+    const totalDue = parseFloat(totalMontantAPayer.toFixed(2));
     
     setSoldeSemaineCarte(totalDue);
     setShowWeeklyCardTotal(true);
@@ -358,7 +357,7 @@ const ConsultCfr = () => {
                     <Box display="flex" alignItems="center" gap={1}>
                       <CreditCardIcon color="primary" />
                       <Typography variant="subtitle1" color="text.secondary">
-                        Commission Semaine
+                        Montant à Payer
                       </Typography>
                     </Box>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
