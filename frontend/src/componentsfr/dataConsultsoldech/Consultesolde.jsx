@@ -224,8 +224,8 @@ const ConsultCfr = () => {
     
     const totalDue = parseFloat(totalMontantAPayer.toFixed(2));
     
-    // Afficher 0 si le montant est négatif, sinon afficher le montant calculé
-    setSoldeSemaineCarte(totalDue < 0 ? 0 : totalDue);
+    // Afficher le montant réel, qu'il soit positif ou négatif
+    setSoldeSemaineCarte(totalDue);
     setShowWeeklyCardTotal(true);
     setFilteredTrips(weekTrips);
     
