@@ -6,6 +6,7 @@ router.get("/solde/:driverId", syncSoldeData.getSoldeById);
 router.get("/soldetotal", syncSoldeData.getTotalSolde);
 router.get("/getDriverFinancialInfo/:driverId", syncSoldeData.getDriverFinancialInfo);
 router.put("/update/:driverId", syncSoldeData.updateSolde);
+router.put("/facturepayer", syncSoldeData.updateTripsAsPaid);
 
 module.exports = router;
 
