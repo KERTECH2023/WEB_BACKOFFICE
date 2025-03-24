@@ -217,7 +217,7 @@ const ConsultCfr = () => {
     );
     
     const totalCommission = cardPaymentTrips.reduce((total, trip) => {
-      return total + (trip.fareAmount * 0.015) + 0.25;
+      return total+data.solde + (trip.fareAmount * 0.015) + (filteredTrips.length*0.25);
     }, 0);
     
     const totalDue = parseFloat(totalCommission.toFixed(2)) + 
