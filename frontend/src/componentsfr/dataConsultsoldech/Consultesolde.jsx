@@ -217,11 +217,10 @@ const ConsultCfr = () => {
     );
     
     const totalCommission = cardPaymentTrips.reduce((total, trip) => {
-      return total+data.solde + (trip.fareAmount * 0.015) + (filteredTrips.length*0.25);
+      return total+data.solde -( (trip.fareAmount * 0.015) + (filteredTrips.length*0.25));
     }, 0);
     
-    const totalDue = parseFloat(totalCommission.toFixed(2)) + 
-                     parseFloat(unpaidTrips.reduce((total, trip) => total + trip.fareAmount, 0).toFixed(2));
+    const totalDue = parseFloat(totalCommission.toFixed(2)) ;
     
     setSoldeSemaineCarte(totalDue);
     setShowWeeklyCardTotal(true);
