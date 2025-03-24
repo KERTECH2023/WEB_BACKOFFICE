@@ -257,10 +257,17 @@ const ConsultCfr = () => {
             { solde: soldeSemaineCarte }
           );
           
-          // Mettre à jour le solde carte à 0
+          // Calculer le montant total des paiements par carte non payés
+          const cardPaymentTrips = filteredTrips.filter(trip => 
+            trip.paymentMethod === "Paiement par carte" && !trip.estPaye && trip.tripId && tripIds.includes(trip.tripId)
+          );
+          
+          const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
+          
+          // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
           await axios.post(
             `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
-            { soldeCarte: 0 }
+            { soldeCarte: data.soldeCarte - totalCardAmount }
           );
         } else {
           // Si le montant est positif ou zéro, mettre les deux soldes à 0
@@ -269,9 +276,17 @@ const ConsultCfr = () => {
             { solde: 0 }
           );
           
+          // Calculer le montant total des paiements par carte non payés
+          const cardPaymentTrips = filteredTrips.filter(trip => 
+            trip.paymentMethod === "Paiement par carte" && !trip.estPaye && trip.tripId && tripIds.includes(trip.tripId)
+          );
+          
+          const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
+          
+          // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
           await axios.post(
             `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
-            { soldeCarte: 0 }
+            { soldeCarte: data.soldeCarte - totalCardAmount }
           );
         }
         
