@@ -314,19 +314,19 @@ const ConsultCfr = () => {
     { field: "formattedDate", headerName: "Date et Heure", width: 180 },
     { field: "userName", headerName: "Nom client", width: 200 },
     { field: "userPhone", headerName: "Client Tel", width: 150 },
-    { field: "sourceAddress", headerName: "Départ", width: 300 },
-    { field: "destinationAddress", headerName: "Destination", width: 300 },
+    { field: "sourceAddress", headerName: "Départ", width: 220 },
+    { field: "destinationAddress", headerName: "Destination", width: 220 },
     { 
       field: "fareAmount", 
       headerName: "Montant", 
       width: 120,
       valueFormatter: (params) => `${params.value} €`
     },
-    { field: "paymentMethod", headerName: "Méthode de Paiement", width: 200 },
+    { field: "paymentMethod", headerName: "Méthode de Paiement", width: 180 },
     { 
       field: "estPaye", 
       headerName: "Payé", 
-      width: 120,
+      width: 100,
       renderCell: (params) => (
         <Chip 
           label={params.value ? "Payé" : "Non payé"} 
@@ -443,7 +443,7 @@ const ConsultCfr = () => {
         )}
       </Paper>
 
-      <Paper elevation={3} sx={{ p: 5, borderRadius: 3, maxWidth: '100%', overflow: 'auto' }}>
+      <Paper elevation={3} sx={{ p: 5, borderRadius: 3 }}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
           Historique des Courses
         </Typography>
@@ -512,25 +512,23 @@ const ConsultCfr = () => {
           </Box>
         </Box>
 
-        <Box sx={{ height: 600, width: '100%', overflowX: 'auto' }}>
-          <div style={{ minWidth: '1400px', height: '100%' }}>
-            <DataGrid
-              rows={filteredTrips}
-              columns={columns}
-              pageSize={10}
-              rowsPerPageOptions={[10, 25, 50]}
-              disableSelectionOnClick
-              disableColumnMenu
-              sx={{
-                boxShadow: 2,
-                border: 1,
-                borderColor: 'divider',
-                '& .MuiDataGrid-cell:hover': {
-                  color: 'primary.main',
-                },
-              }}
-            />
-          </div>
+        <Box sx={{ height: 600, width: '100%' }}>
+          <DataGrid
+            rows={filteredTrips}
+            columns={columns}
+            pageSize={10}
+            rowsPerPageOptions={[10]}
+            disableSelectionOnClick
+            disableColumnMenu
+            sx={{
+              boxShadow: 2,
+              border: 1,
+              borderColor: 'divider',
+              '& .MuiDataGrid-cell:hover': {
+                color: 'primary.main',
+              },
+            }}
+          />
         </Box>
       </Paper>
       <ToastContainer position="bottom-right" />
