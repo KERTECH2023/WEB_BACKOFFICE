@@ -167,8 +167,8 @@ const ConsultCfr = () => {
     setShowWeeklyCardTotal(false);
   };
 
-  // Calculer et marquer les courses comme payées
-  const calculateAndPay = async () => {
+  // Calculer le montant à payer sans effectuer de mise à jour
+  const calculateAmount = async () => {
     let weekTrips = [];
     
     // Déterminer la plage de dates à utiliser
@@ -228,74 +228,70 @@ const ConsultCfr = () => {
     setSoldeSemaineCarte(totalDue);
     setShowWeeklyCardTotal(true);
     setFilteredTrips(weekTrips);
+  };
+
+  // Confirmer le paiement et effectuer les mises à jour
+  const confirmPayment = async () => {
+    const unpaidTrips = filteredTrips.filter(trip => !trip.estPaye);
     
-    // Confirmer et marquer les courses comme payées
-    const confirmPayment = async () => {
-      if (unpaidTrips.length > 0) {
-        const tripIds = unpaidTrips.map(trip => trip.tripId);
+    if (unpaidTrips.length === 0) {
+      toast.info("Aucune course non payée pour cette période");
+      return;
+    }
+    
+    if (window.confirm("Confirmez-vous le paiement de ces courses ?")) {
+      const tripIds = unpaidTrips.map(trip => trip.tripId);
+      
+      try {
+        // Marquer les courses comme payées
+        const responsePayment = await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/Soldefr/facturepayer`,
+          { tripIds }
+        );
         
-        try {
-          // Marquer les courses comme payées
-          const responsePayment = await axios.post(
-            `${process.env.REACT_APP_BASE_URL}/Soldefr/facturepayer`,
-            { tripIds }
+        // Déterminer l'action à effectuer en fonction du montant
+        if (soldeSemaineCarte < 0) {
+          // Si le montant est négatif, mettre à jour le solde avec le montant négatif
+          await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesolde/${id}`,
+            { solde: soldeSemaineCarte }
           );
           
-          // Si le montant est négatif, mettre à jour le solde
-          if (totalDue < 0) {
-            // Mettre à jour le solde avec le montant négatif
-            await axios.post(
-              `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesolde/${id}`,
-              { solde: totalDue }
-            );
-            
-            // Mettre à jour le solde carte à 0
-            await axios.post(
-              `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
-              { soldeCarte: 0 }
-            );
-          } else {
-            // Si le montant est positif ou zéro, mettre les deux soldes à 0
-            await axios.post(
-              `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesolde/${id}`,
-              { solde: 0 }
-            );
-            
-            await axios.post(
-              `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
-              { soldeCarte: 0 }
-            );
-          }
+          // Mettre à jour le solde carte à 0
+          await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
+            { soldeCarte: 0 }
+          );
+        } else {
+          // Si le montant est positif ou zéro, mettre les deux soldes à 0
+          await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesolde/${id}`,
+            { solde: 0 }
+          );
           
-          if (responsePayment.status === 200) {
-            toast.success("Paiement enregistré avec succès");
-            
-            // Mettre à jour l'état local
-            const updatePaymentStatus = tripList => 
-              tripList.map(trip => tripIds.includes(trip.tripId) ? {...trip, estPaye: true} : trip);
-            
-            setTrips(updatePaymentStatus(trips));
-            setFilteredTrips(updatePaymentStatus(filteredTrips));
-            
-            // Rafraîchir les données du chauffeur après mise à jour
-            fetchDriverData();
-          }
-        } catch (error) {
-          console.error("Erreur lors du traitement du paiement:", error);
-          toast.error("Erreur lors du traitement du paiement");
+          await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
+            { soldeCarte: 0 }
+          );
         }
-      } else {
-        toast.info("Aucune course non payée pour cette période");
+        
+        if (responsePayment.status === 200) {
+          toast.success("Paiement enregistré avec succès");
+          
+          // Mettre à jour l'état local
+          const updatePaymentStatus = tripList => 
+            tripList.map(trip => tripIds.includes(trip.tripId) ? {...trip, estPaye: true} : trip);
+          
+          setTrips(updatePaymentStatus(trips));
+          setFilteredTrips(updatePaymentStatus(filteredTrips));
+          
+          // Rafraîchir les données du chauffeur après mise à jour
+          fetchDriverData();
+        }
+      } catch (error) {
+        console.error("Erreur lors du traitement du paiement:", error);
+        toast.error("Erreur lors du traitement du paiement");
       }
-    };
-    
-    // Demander confirmation avant de procéder au paiement
-    if (unpaidTrips.length > 0) {
-      if (window.confirm("Confirmez-vous le paiement de ces courses ?")) {
-        await confirmPayment();
-      }
-    } else {
-      toast.info("Aucune course non payée pour cette période");
     }
   };
 
@@ -396,7 +392,7 @@ const ConsultCfr = () => {
                     cursor: 'pointer',
                     '&:hover': { bgcolor: 'rgba(25, 118, 210, 0.12)' }
                   }}
-                  onClick={calculateAndPay}
+                  onClick={calculateAmount}
                 >
                   <CardContent>
                     <Box display="flex" alignItems="center" gap={1}>
@@ -406,8 +402,22 @@ const ConsultCfr = () => {
                       </Typography>
                     </Box>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
-                      {showWeeklyCardTotal ? `${soldeSemaineCarte} €` : "Calculer et confirmer"}
+                      {showWeeklyCardTotal ? `${soldeSemaineCarte} €` : "Calculer"}
                     </Typography>
+                    {showWeeklyCardTotal && (
+                      <Button 
+                        variant="contained" 
+                        color="primary" 
+                        size="small" 
+                        sx={{ mt: 2 }}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Empêche de déclencher l'onClick de la Card
+                          confirmPayment();
+                        }}
+                      >
+                        Confirmer le paiement
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               </Grid>
