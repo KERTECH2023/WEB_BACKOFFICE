@@ -402,7 +402,9 @@ const ConsultCfr = () => {
                       </Typography>
                     </Box>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
-                      {showWeeklyCardTotal ? `${soldeSemaineCarte} €` : "Calculer"}
+                      {showWeeklyCardTotal 
+                        ? `${soldeSemaineCarte < 0 ? 0 : soldeSemaineCarte} €` 
+                        : "Calculer"}
                     </Typography>
                     {showWeeklyCardTotal && (
                       <Button 
