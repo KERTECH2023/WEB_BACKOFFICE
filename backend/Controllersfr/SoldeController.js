@@ -199,7 +199,41 @@ const getTotalSolde = async (req, res) => {
   }
 };
 
+
+const updateTripsAsPaid = async (req, res) => {
+  try {
+    const { tripIds } = req.body;
+
+    if (!Array.isArray(tripIds) || tripIds.length === 0) {
+      return res.status(400).json({ error: "Liste des IDs de course invalide ou vide" });
+    }
+
+    // Mettre à jour `sipayer` à true pour les trips donnés
+    const updatedTrips = await Facturation.updateMany(
+      { tripId: { $in: tripIds } }, 
+      { $set: { sipayer: true } },
+      { new: true }
+    );
+
+    // Récupérer les trips mis à jour
+    const trips = await Facturation.find({ tripId: { $in: tripIds } });
+
+    res.json({
+      message: "Courses mises à jour avec succès",
+      updatedCount: updatedTrips.modifiedCount,
+      trips
+    });
+
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des courses :", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+
+
+
 module.exports = {
   getSoldeById,
-  getTotalSolde,updateSolde,getDriverFinancialInfo,
+  getTotalSolde,updateSolde,getDriverFinancialInfo,updateTripsAsPaid
 };
