@@ -264,11 +264,17 @@ const ConsultCfr = () => {
           
           const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
           
+          const soldccartetotale=data.soldeCarte - totalCardAmount;
+          if(soldccartetotale >= 0){
           // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
           await axios.post(
             `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
-            { soldeCarte: data.soldeCarte - totalCardAmount }
-          );
+            { soldeCarte: soldccartetotale }
+          );}else{
+            await axios.post(
+              `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
+              { soldeCarte: 0 });
+          }
         } else {
           // Si le montant est positif ou zéro, mettre les deux soldes à 0
           await axios.post(
