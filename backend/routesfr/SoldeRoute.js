@@ -5,9 +5,9 @@ const router = express.Router();
 router.get("/solde/:driverId", syncSoldeData.getSoldeById);
 router.get("/soldetotal", syncSoldeData.getTotalSolde);
 router.get("/getDriverFinancialInfo/:driverId", syncSoldeData.getDriverFinancialInfo);
-router.put("/updatesolde/:driverId", syncSoldeData.updateSolde);
-router.put("/updatesoldecarte/:driverId", syncSoldeData.updateSoldecarte);
-router.put("/facturepayer", syncSoldeData.updateTripsAsPaid);
+router.post("/updatesolde/:driverId", syncSoldeData.updateSolde);
+router.post("/updatesoldecarte/:driverId", syncSoldeData.updateSoldecarte);
+router.post("/facturepayer", syncSoldeData.updateTripsAsPaid);
 
 module.exports = router;
 
