@@ -216,8 +216,11 @@ const ConsultCfr = () => {
       trip.paymentMethod === "Paiement par carte" && !trip.estPaye
     );
     
-    // Nouveau calcul: montant à payer = totaleCarte + solde - (totaleCarte * 0.015) - (cartes non payées * 0.25)
-    const totalMontantAPayer = data.soldeCarte + data.solde - (data.soldeCarte * 0.015) - (cardPaymentTrips.length * 0.25);
+    // Calculer le montant total des courses payées par carte qui sont sélectionnées
+    const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
+    
+    // Nouveau calcul: montant à payer = montant total des courses par carte + solde - (montant total des courses par carte * 0.015) - (cartes non payées * 0.25)
+    const totalMontantAPayer = totalCardAmount + data.solde - (totalCardAmount * 0.015) - (cardPaymentTrips.length * 0.25);
     
     const totalDue = parseFloat(totalMontantAPayer.toFixed(2));
     
