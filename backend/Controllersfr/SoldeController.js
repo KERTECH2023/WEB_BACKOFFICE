@@ -251,7 +251,7 @@ const updateTripsAsPaid = async (req, res) => {
     // Récupérer les trips mis à jour
     const trips = await Facturation.find({ tripId: { $in: tripIds } });
 
-    res.json({
+    resres.status(200).json({
       message: "Courses mises à jour avec succès",
       updatedCount: updatedTrips.modifiedCount,
       trips
