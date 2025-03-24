@@ -443,7 +443,7 @@ const ConsultCfr = () => {
         )}
       </Paper>
 
-      <Paper elevation={3} sx={{ p: 5, borderRadius: 3 }}>
+      <Paper elevation={3} sx={{ p: 5, borderRadius: 3, maxWidth: '100%', overflow: 'auto' }}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
           Historique des Courses
         </Typography>
@@ -512,12 +512,12 @@ const ConsultCfr = () => {
           </Box>
         </Box>
 
-        <Box sx={{ height: 600, width: '100%' }}>
+        <Box sx={{ height: 800, width: '100%' }}>
           <DataGrid
             rows={filteredTrips}
             columns={columns}
-            pageSize={10}
-            rowsPerPageOptions={[10]}
+            pageSize={15}
+            rowsPerPageOptions={[15, 25, 50, 100]}
             disableSelectionOnClick
             disableColumnMenu
             sx={{
