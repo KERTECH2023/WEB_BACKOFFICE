@@ -43,13 +43,13 @@ const updateSolde = async (req, res) => {
 const updateSoldecarte = async (req, res) => {
   try {
     const driverId = req.params.driverId; // ID du chauffeur à mettre à jour
-    const { solde } = req.body; // Nouveau solde depuis le corps de la requête
+    const { soldeCarte } = req.body; // Nouveau solde depuis le corps de la requête
 
     if (!driverId) {
       return res.status(400).json({ error: "ID du chauffeur requis" });
     }
 
-    if (solde === undefined || isNaN(solde)) {
+    if (soldeCarte === undefined || isNaN(soldeCarte)) {
       return res.status(400).json({ error: "Solde valide requis" });
     }
 
@@ -62,12 +62,12 @@ const updateSoldecarte = async (req, res) => {
     }
 
     // Mettre à jour le solde
-    await driverRef.update({ solde: parseFloat(solde) });
+    await driverRef.update({ soldecarte: parseFloat(soldeCarte) });
 
     return res.status(200).json({
       message: "Solde mis à jour avec succès",
       driverId: driverId,
-      soldecarte: parseFloat(solde),
+      soldecarte: parseFloat(soldeCarte),
     });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du solde :", error);
