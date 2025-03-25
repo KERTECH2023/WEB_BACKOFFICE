@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../componentsfr/sidebar/Sidebar";
-import Navbar from "../../componentsfr/navbar/Navbar";
+import Sidebar from "../../components/sidebar/Sidebar";
+import Navbar from "../../components/navbar/Navbar";
 import axios from "axios";
 
 const Liscourse = () => {
