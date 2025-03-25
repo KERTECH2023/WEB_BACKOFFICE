@@ -153,6 +153,7 @@ const getDriverFinancialInfo = async (req, res) => {
         }
 
         const tripData = tripDoc.data();
+        if(tripData.status ===Ended){
         const newTrip = new Facturation({
           tripId,
           driverId,
@@ -168,12 +169,14 @@ const getDriverFinancialInfo = async (req, res) => {
           source: tripData.source || {},
           sourceAddress: tripData.sourceAddress || "N/A",
           status: tripData.status || "N/A",
-          time: tripData.time || "N/A",
+          time: tripData.time ? new Date(tripData.time._seconds * 1000).toISOString() : "N/A",
           userId: tripData.userId || "N/A",
           userName: tripData.userName || "N/A",
           userPhone: tripData.userPhone || "N/A",
           sipayer: false
         });
+      }
+        
 
         await newTrip.save();
         return newTrip;
