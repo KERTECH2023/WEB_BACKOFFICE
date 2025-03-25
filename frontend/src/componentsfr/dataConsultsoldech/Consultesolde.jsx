@@ -138,6 +138,7 @@ const ConsultCfr = () => {
 
     setFilteredTrips(weekTrips);
     setShowWeeklyCardTotal(false);
+    setSoldeSemaineCarteselectione(0);
   };
 
   // Filtre les courses par mois
@@ -159,6 +160,7 @@ const ConsultCfr = () => {
 
     setFilteredTrips(monthTrips);
     setShowWeeklyCardTotal(false);
+    setSoldeSemaineCarteselectione(0);
   };
 
   const resetFilters = () => {
@@ -166,6 +168,7 @@ const ConsultCfr = () => {
     setSelectedWeek("");
     setFilteredTrips(trips);
     setShowWeeklyCardTotal(false);
+    setSoldeSemaineCarteselectione(0);
   };
 
   // Calculer le montant à payer sans effectuer de mise à jour
