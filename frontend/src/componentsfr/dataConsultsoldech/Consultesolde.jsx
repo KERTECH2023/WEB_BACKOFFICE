@@ -289,7 +289,7 @@ const ConsultCfr = () => {
           
           const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
           
-          const soldccartetotale=data.soldeCarte - totalCardAmount;
+                    const soldccartetotale=data.soldeCarte - totalCardAmount;
           if(soldccartetotale >= 0){
           // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
           await axios.post(
