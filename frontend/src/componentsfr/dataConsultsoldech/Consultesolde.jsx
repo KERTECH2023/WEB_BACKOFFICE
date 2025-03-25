@@ -4,8 +4,8 @@ import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { 
-  Button, CircularProgress, Card, CardContent, Typography, Container, 
+import {
+  Button, CircularProgress, Card, CardContent, Typography, Container,
   Box, Chip, Divider, Paper, Grid, Select, MenuItem, FormControl, InputLabel
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -20,6 +20,7 @@ const ConsultCfr = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({ solde: 0, soldeCarte: 0, trips: [] });
   const [soldeSemaineCarte, setSoldeSemaineCarte] = useState(0);
+  const [soldeSemaineCarteselectione, setSoldeSemaineCarteselectione] = useState(0);
   const [trips, setTrips] = useState([]);
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [showWeeklyCardTotal, setShowWeeklyCardTotal] = useState(false);
@@ -50,24 +51,24 @@ const ConsultCfr = () => {
     const [year, month] = selectedMonth.split("-");
     const firstDay = moment(`${year}-${month}-01`);
     const lastDay = moment(firstDay).endOf("month");
-    
+
     let startOfWeek = moment(firstDay).startOf("week");
     if (startOfWeek.date() > 7) startOfWeek.add(1, "week");
-    
+
     const weeks = [];
     let weekNum = 1;
-    
+
     while (startOfWeek.isBefore(lastDay) && weekNum <= 6) {
       const endOfWeek = moment(startOfWeek).endOf("week");
       weeks.push({
         value: `${startOfWeek.format("YYYY-MM-DD")}:${endOfWeek.format("YYYY-MM-DD")}`,
         label: `Semaine ${weekNum} (${startOfWeek.format("DD/MM")} - ${endOfWeek.format("DD/MM")})`
       });
-      
+
       startOfWeek.add(1, "week");
       weekNum++;
     }
-    
+
     setAvailableWeeks(weeks);
   }, [selectedMonth]);
 
@@ -77,11 +78,11 @@ const ConsultCfr = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/Soldefr/getDriverFinancialInfo/${id}`
       );
-      
+
       if (response.status === 200) {
         const responseData = response.data;
         setData(responseData);
-        
+
         // Traitement des données des courses
         const processedTrips = (responseData.trips || []).map((trip, index) => ({
           ...trip,
@@ -96,7 +97,7 @@ const ConsultCfr = () => {
           userPhone: trip.userPhone || "N/A",
           estPaye: trip.sipayer !== undefined ? trip.sipayer : false
         })).sort((a, b) => !a.date ? 1 : !b.date ? -1 : b.date - a.date);
-        
+
         setTrips(processedTrips);
         setFilteredTrips(processedTrips);
       }
@@ -112,15 +113,15 @@ const ConsultCfr = () => {
   const handleWeekChange = (event) => {
     const value = event.target.value;
     setSelectedWeek(value);
-    
+
     if (!value) {
       // Si aucune semaine n'est sélectionnée mais un mois l'est, afficher toutes les courses du mois
       if (selectedMonth) {
         const [year, month] = selectedMonth.split("-");
         const startOfMonth = moment(`${year}-${month}-01`).startOf('month');
         const endOfMonth = moment(startOfMonth).endOf('month');
-        
-        setFilteredTrips(trips.filter(trip => 
+
+        setFilteredTrips(trips.filter(trip =>
           trip.date && moment(trip.date).isBetween(startOfMonth, endOfMonth, null, '[]')
         ));
       } else {
@@ -129,12 +130,12 @@ const ConsultCfr = () => {
       setShowWeeklyCardTotal(false);
       return;
     }
-    
+
     const [startDateStr, endDateStr] = value.split(":");
-    const weekTrips = trips.filter(trip => 
+    const weekTrips = trips.filter(trip =>
       trip.date && moment(trip.date).isBetween(moment(startDateStr), moment(endDateStr), null, '[]')
     );
-    
+
     setFilteredTrips(weekTrips);
     setShowWeeklyCardTotal(false);
   };
@@ -144,18 +145,18 @@ const ConsultCfr = () => {
     const value = event.target.value;
     setSelectedMonth(value);
     setSelectedWeek("");
-    
+
     if (!value) {
       setFilteredTrips(trips);
       setShowWeeklyCardTotal(false);
       return;
     }
-    
+
     const [year, month] = value.split("-");
-    const monthTrips = trips.filter(trip => 
+    const monthTrips = trips.filter(trip =>
       trip.date && moment(trip.date).format("YYYY-MM") === `${year}-${month}`
     );
-    
+
     setFilteredTrips(monthTrips);
     setShowWeeklyCardTotal(false);
   };
@@ -170,25 +171,25 @@ const ConsultCfr = () => {
   // Calculer le montant à payer sans effectuer de mise à jour
   const calculateAmount = async () => {
     let weekTrips = [];
-    
+
     // Déterminer la plage de dates à utiliser
     if (selectedWeek) {
       const [startDateStr, endDateStr] = selectedWeek.split(":");
-      weekTrips = trips.filter(trip => 
+      weekTrips = trips.filter(trip =>
         trip.date && moment(trip.date).isBetween(moment(startDateStr), moment(endDateStr), null, '[]')
       );
     } else if (selectedMonth) {
       // Utiliser la première semaine du mois si le mois est sélectionné mais pas la semaine
       if (availableWeeks.length > 0) {
         const [startDateStr, endDateStr] = availableWeeks[0].value.split(":");
-        weekTrips = trips.filter(trip => 
+        weekTrips = trips.filter(trip =>
           trip.date && moment(trip.date).isBetween(moment(startDateStr), moment(endDateStr), null, '[]')
         );
         setSelectedWeek(availableWeeks[0].value);
       } else {
         // Utiliser tout le mois si pas de semaines disponibles
         const [year, month] = selectedMonth.split("-");
-        weekTrips = trips.filter(trip => 
+        weekTrips = trips.filter(trip =>
           trip.date && moment(trip.date).format("YYYY-MM") === `${year}-${month}`
         );
       }
@@ -197,34 +198,35 @@ const ConsultCfr = () => {
       const now = moment();
       const startOfWeek = moment(now).startOf('week');
       const endOfWeek = moment(now).endOf('week');
-      
-      weekTrips = trips.filter(trip => 
+
+      weekTrips = trips.filter(trip =>
         trip.date && moment(trip.date).isBetween(startOfWeek, endOfWeek, null, '[]')
       );
     }
-    
+
     // Vérifier si toutes les courses sont déjà payées
     const unpaidTrips = weekTrips.filter(trip => !trip.estPaye);
-    
+
     if (unpaidTrips.length === 0 && weekTrips.length > 0) {
       toast.info("Cette semaine est déjà payée");
       return;
     }
-    
+
     // Calculer la commission
-    const cardPaymentTrips = weekTrips.filter(trip => 
+    const cardPaymentTrips = weekTrips.filter(trip =>
       trip.paymentMethod === "Paiement par carte" && !trip.estPaye
     );
-    
+
     // Calculer le montant total des courses payées par carte qui sont sélectionnées
     const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
-    
+
     // Nouveau calcul: montant à payer = montant total des courses par carte + solde - (montant total des courses par carte * 0.015) - (cartes non payées * 0.25)
     const totalMontantAPayer = totalCardAmount + data.solde - (totalCardAmount * 0.015) - (cardPaymentTrips.length * 0.25);
-    
+
     const totalDue = parseFloat(totalMontantAPayer.toFixed(2));
-    
+
     // Afficher le montant réel, qu'il soit positif ou négatif
+    setSoldeSemaineCarteselectione(totalCardAmount);
     setSoldeSemaineCarte(totalDue);
     setShowWeeklyCardTotal(true);
     setFilteredTrips(weekTrips);
@@ -233,22 +235,22 @@ const ConsultCfr = () => {
   // Confirmer le paiement et effectuer les mises à jour
   const confirmPayment = async () => {
     const unpaidTrips = filteredTrips.filter(trip => !trip.estPaye);
-    
+
     if (unpaidTrips.length === 0) {
       toast.info("Aucune course non payée pour cette période");
       return;
     }
-    
+
     if (window.confirm("Confirmez-vous le paiement de ces courses ?")) {
       const tripIds = unpaidTrips.map(trip => trip.tripId);
-      
+
       try {
         // Marquer les courses comme payées
         const responsePayment = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/Soldefr/facturepayer`,
           { tripIds }
         );
-        
+
         // Déterminer l'action à effectuer en fonction du montant
         if (soldeSemaineCarte < 0) {
           // Si le montant est négatif, mettre à jour le solde avec le montant négatif
@@ -256,21 +258,22 @@ const ConsultCfr = () => {
             `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesolde/${id}`,
             { solde: soldeSemaineCarte }
           );
-          
+
           // Calculer le montant total des paiements par carte non payés
-          const cardPaymentTrips = filteredTrips.filter(trip => 
+          const cardPaymentTrips = filteredTrips.filter(trip =>
             trip.paymentMethod === "Paiement par carte" && !trip.estPaye && trip.tripId && tripIds.includes(trip.tripId)
           );
-          
+
           const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
-          
-          const soldccartetotale=data.soldeCarte - totalCardAmount;
-          if(soldccartetotale >= 0){
-          // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
-          await axios.post(
-            `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
-            { soldeCarte: soldccartetotale }
-          );}else{
+
+          const soldccartetotale = data.soldeCarte - totalCardAmount;
+          if (soldccartetotale >= 0) {
+            // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
+            await axios.post(
+              `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
+              { soldeCarte: soldccartetotale }
+            );
+          } else {
             await axios.post(
               `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
               { soldeCarte: 0 });
@@ -281,37 +284,38 @@ const ConsultCfr = () => {
             `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesolde/${id}`,
             { solde: 0 }
           );
-          
+
           // Calculer le montant total des paiements par carte non payés
-          const cardPaymentTrips = filteredTrips.filter(trip => 
+          const cardPaymentTrips = filteredTrips.filter(trip =>
             trip.paymentMethod === "Paiement par carte" && !trip.estPaye && trip.tripId && tripIds.includes(trip.tripId)
           );
-          
+
           const totalCardAmount = cardPaymentTrips.reduce((total, trip) => total + (trip.fareAmount || 0), 0);
-          
-                    const soldccartetotale=data.soldeCarte - totalCardAmount;
-          if(soldccartetotale >= 0){
-          // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
-          await axios.post(
-            `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
-            { soldeCarte: soldccartetotale }
-          );}else{
+
+          const soldccartetotale = data.soldeCarte - totalCardAmount;
+          if (soldccartetotale >= 0) {
+            // Mettre à jour le solde carte en soustrayant le montant total des paiements par carte
+            await axios.post(
+              `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
+              { soldeCarte: soldccartetotale }
+            );
+          } else {
             await axios.post(
               `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
               { soldeCarte: 0 });
           }
         }
-        
+
         if (responsePayment.status === 200) {
           toast.success("Paiement enregistré avec succès");
-          
+
           // Mettre à jour l'état local
-          const updatePaymentStatus = tripList => 
-            tripList.map(trip => tripIds.includes(trip.tripId) ? {...trip, estPaye: true} : trip);
-          
+          const updatePaymentStatus = tripList =>
+            tripList.map(trip => tripIds.includes(trip.tripId) ? { ...trip, estPaye: true } : trip);
+
           setTrips(updatePaymentStatus(trips));
           setFilteredTrips(updatePaymentStatus(filteredTrips));
-          
+
           // Rafraîchir les données du chauffeur après mise à jour
           fetchDriverData();
         }
@@ -328,20 +332,20 @@ const ConsultCfr = () => {
     { field: "userPhone", headerName: "Client Tel", width: 150 },
     { field: "sourceAddress", headerName: "Départ", width: 220 },
     { field: "destinationAddress", headerName: "Destination", width: 220 },
-    { 
-      field: "fareAmount", 
-      headerName: "Montant", 
+    {
+      field: "fareAmount",
+      headerName: "Montant",
       width: 120,
       valueFormatter: (params) => `${params.value} €`
     },
     { field: "paymentMethod", headerName: "Méthode de Paiement", width: 180 },
-    { 
-      field: "estPaye", 
-      headerName: "Payé", 
+    {
+      field: "estPaye",
+      headerName: "Payé",
       width: 100,
       renderCell: (params) => (
-        <Chip 
-          label={params.value ? "Payé" : "Non payé"} 
+        <Chip
+          label={params.value ? "Payé" : "Non payé"}
           color={params.value ? "success" : "error"}
           size="small"
         />
@@ -381,7 +385,7 @@ const ConsultCfr = () => {
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 500, color: 'primary.main' }}>
           Informations du Chauffeur
         </Typography>
-        
+
         {isAdmin && (
           <Box mt={3}>
             <Grid container spacing={3}>
@@ -410,10 +414,22 @@ const ConsultCfr = () => {
                 </Card>
               </Grid>
               <Grid item xs={12} md={4}>
-                <Card 
-                  variant="outlined" 
-                  sx={{ 
-                    height: '100%', 
+                <Card variant="outlined" sx={{ height: '100%' }}>
+                  <CardContent>
+                    <Typography variant="subtitle1" color="text.secondary">
+                      Totale semaine par carte
+                    </Typography>
+                    <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
+                      {soldeSemaineCarteselectione} €
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    height: '100%',
                     bgcolor: showWeeklyCardTotal ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
                     transition: 'background-color 0.3s',
                     cursor: 'pointer',
@@ -429,15 +445,15 @@ const ConsultCfr = () => {
                       </Typography>
                     </Box>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
-                      {showWeeklyCardTotal 
-                        ? `${soldeSemaineCarte < 0 ? 0 : soldeSemaineCarte} €` 
+                      {showWeeklyCardTotal
+                        ? `${soldeSemaineCarte < 0 ? 0 : soldeSemaineCarte} €`
                         : "Calculer"}
                     </Typography>
                     {showWeeklyCardTotal && (
-                      <Button 
-                        variant="contained" 
-                        color="primary" 
-                        size="small" 
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
                         sx={{ mt: 2 }}
                         onClick={(e) => {
                           e.stopPropagation(); // Empêche de déclencher l'onClick de la Card
@@ -460,7 +476,7 @@ const ConsultCfr = () => {
           Historique des Courses
         </Typography>
         <Divider sx={{ mb: 3 }} />
-        
+
         <Box sx={{ mb: 3 }}>
           <Grid container spacing={2} alignItems="center">
             {/* Sélecteur de mois */}
@@ -481,7 +497,7 @@ const ConsultCfr = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             {/* Sélecteur de semaine */}
             <Grid item xs={12} md={4}>
               <FormControl fullWidth variant="outlined" size="small" disabled={!selectedMonth}>
@@ -500,7 +516,7 @@ const ConsultCfr = () => {
                 </Select>
               </FormControl>
             </Grid>
-            
+
             {/* Bouton réinitialiser */}
             <Grid item xs={12} md={4}>
               <Button
@@ -514,12 +530,12 @@ const ConsultCfr = () => {
               </Button>
             </Grid>
           </Grid>
-          
+
           <Box display="flex" justifyContent="flex-end" mt={2}>
-            <Chip 
-              label={`${filteredTrips.length} course(s) trouvée(s)`} 
-              color="primary" 
-              variant="outlined" 
+            <Chip
+              label={`${filteredTrips.length} course(s) trouvée(s)`}
+              color="primary"
+              variant="outlined"
             />
           </Box>
         </Box>
