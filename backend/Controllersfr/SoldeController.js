@@ -153,8 +153,6 @@ const getDriverFinancialInfo = async (req, res) => {
         }
 
         const tripData = tripDoc.data();
-          
-          if( tripData.status === "Ended"){
         const newTrip = new Facturation({
           tripId,
           driverId,
@@ -178,9 +176,7 @@ const getDriverFinancialInfo = async (req, res) => {
         });
 
         await newTrip.save();
-      
         return newTrip;
-      }
       })
     );
 
