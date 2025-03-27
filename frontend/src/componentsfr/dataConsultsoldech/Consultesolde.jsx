@@ -414,7 +414,7 @@ const ConsultCfr = () => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ mb: 4, p: 5, borderRadius: 2 }}>
         <Typography variant="h4" gutterBottom sx={{ fontWeight: 500, color: 'primary.main' }}>
-          Informations du Chauffeur
+          Informations du Chauffeur {data.name} tel {data.phone}
         </Typography>
 
         {isAdmin && (
