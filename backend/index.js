@@ -51,7 +51,7 @@ const {
 
 
 const { synchronizeDatafr } = require("./Controllersfr/ChauffContro");
-
+const historiquepayement = require("./routesfr/paymentHistoryRoutes.js");
 const gpsroutefr = require("./routesfr/gpsRoutes");
 const AuthRoutefr = require("./routesfr/adminRoutes");
 const Agentroutfr = require("./routesfr/AgentRoute");
@@ -155,7 +155,7 @@ app.get("/testAggregation", async (req, res) => {
 
 
 // france
-
+app.use("/historiquepayement", historiquepayement);
 app.use("/whatsapp", whatsup);
 app.use("/gpspostionfr", gpsroutefr);
 app.use("/fr", indexRouterfr);
