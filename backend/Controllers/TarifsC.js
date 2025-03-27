@@ -8,7 +8,24 @@ const moment = require('moment-timezone');
 const firestoreModule = require("../services/config");
 const admin = require("firebase-admin");
 const realtimeDB = firestoreModule.firestoreApp.database();
+// Supprime les données de la table ActiveDrivers toutes les 30 minutes
 
+
+const clearActiveDrivers = () => {
+  const activeDriversRef = realtimeDB.ref("ActiveDrivers");
+
+  setInterval(async () => {
+    try {
+      await activeDriversRef.remove();
+      console.log("Les données de la table ActiveDrivers ont été supprimées.");
+    } catch (error) {
+      console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
+    }
+  }, 3 * 60 * 60 * 1000); // 30 minutes = 30 * 60 * 1000 ms
+};
+
+// Appeler la fonction pour démarrer la suppression automatique
+clearActiveDrivers();
 
 //reveille chauffeur 
 const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
