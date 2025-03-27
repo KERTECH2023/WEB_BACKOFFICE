@@ -308,7 +308,7 @@ function App() {
 
 
 
-          <Route path="historiquepaymentCfr/:id" element={<historiquepaymentCfr />} />
+          <Route path="/historiquepaymentCfr/:id" element={<historiquepaymentCfr />} />
           <Route path="/whatsuploginfr" element={<Whatsupfr />} />
           <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
