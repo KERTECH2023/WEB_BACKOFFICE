@@ -1,4 +1,4 @@
-const PaymentHistory = require("../models/paymentHistoryModel");
+const PaymentHistory = require("../Modelsfr/PaymentHistory");
 
 // Ajouter un paiement dans l'historique
 exports.addPayment = async (req, res) => {
