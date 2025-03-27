@@ -281,6 +281,18 @@ const ConsultCfr = () => {
               `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
               { soldeCarte: 0 });
           }
+
+
+          await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/historiquepayement/payments`,
+            {
+                idFirebaseChauffeur: id,
+                prixAPayer: 0,
+                mois: selectedMonth,
+                semaine: selectedWeek
+            }
+            );
+
         } else {
           // Si le montant est positif ou zéro, mettre les deux soldes à 0
           await axios.post(
@@ -307,6 +319,16 @@ const ConsultCfr = () => {
               `${process.env.REACT_APP_BASE_URL}/Soldefr/updatesoldecarte/${id}`,
               { soldeCarte: 0 });
           }
+
+          await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/historiquepayement/payments`,
+            {
+                idFirebaseChauffeur: id,
+                prixAPayer: soldeSemaineCarte,
+                mois: selectedMonth,
+                semaine: selectedWeek
+            }
+            );
         }
 
         if (responsePayment.status === 200) {
