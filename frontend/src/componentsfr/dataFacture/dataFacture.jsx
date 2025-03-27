@@ -17,13 +17,13 @@ const ConsultActions = ({ row }) => {
         to={`/consultsodeCfr/${row.firebaseUID}`}
         style={{ textDecoration: "none", color: "inherit" }}
       >
-        <div className="viewButton">Faire payer chauffeur</div>
+        <div className="viewButton">Payer</div>
       </Link>
       <Link
         to={`/historiquepaymentCfr/${row.firebaseUID}`}
         style={{ textDecoration: "none", color: "inherit" }}
       >
-        <div className="viewButton">Historique des virements</div>
+        <div className="viewButton">Historique</div>
       </Link>
     </div>
     
