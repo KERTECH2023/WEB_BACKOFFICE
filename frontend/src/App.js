@@ -87,6 +87,7 @@ import Changemotdepassefr from "./pagesfr/UpdmotpasseChauf/UpdmotdepasseChauf";
 import Changemotdepasse from "./pages/UpdmotpasseChauf/UpdmotdepasseChauf";
 import Whatsupfr from "./pagesfr/whatsup/whatsup";
 import DataDetailSoldefr from "./pagesfr/Detailsolde/Detailsolde";
+import historiquepaymentCfr from "./pagesfr/historiquepayement/historiquepayement";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -305,6 +306,9 @@ function App() {
 
 
 
+
+
+          <Route path="historiquepaymentCfr/:id" element={<historiquepaymentCfr />} />
           <Route path="/whatsuploginfr" element={<Whatsupfr />} />
           <Route path="/fr" element={isLoggedIn ? <Homefr /> : <Landingpage />} />
           {/* <Route index element={<Landingpage />} /> */}
