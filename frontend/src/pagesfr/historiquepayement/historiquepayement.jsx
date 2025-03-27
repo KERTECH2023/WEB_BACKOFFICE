@@ -4,7 +4,7 @@ import axios from "axios";
 import Sidebar from "../../componentsfr/sidebar/Sidebar";
 import Navbar from "../../componentsfr/navbar/Navbar";
 
-const PaymentHistory = () => {
+const HistoriquepaymentCfr  = () => {
     const { idFirebaseChauffeur } = useParams(); // Récupération de l'ID chauffeur via l'URL
     const [payments, setPayments] = useState([]);
     const [filteredPayments, setFilteredPayments] = useState([]);
@@ -123,4 +123,4 @@ const PaymentHistory = () => {
     );
 };
 
-export default PaymentHistory;
+export default HistoriquepaymentCfr ;
