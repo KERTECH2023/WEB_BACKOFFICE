@@ -210,8 +210,13 @@ const ConsultCfr = () => {
     // Vérifier si toutes les courses sont déjà payées
     const unpaidTrips = weekTrips.filter(trip => !trip.estPaye);
 
-    if (unpaidTrips.length === 0 && weekTrips.length > 0) {
+    if (unpaidTrips.length === 0 && weekTrips.length > 0 && mois != "" && semaine!="") {
       toast.info("Cette semaine est déjà payée");
+      return;
+    }
+    
+    if (mois == "" && semaine=="") {
+      toast.info("Selectionné mois et semaine");
       return;
     }
 
@@ -243,6 +248,7 @@ const ConsultCfr = () => {
       toast.info("Aucune course non payée pour cette période");
       return;
     }
+    
 
     if (window.confirm("Confirmez-vous le paiement de ces courses ?")) {
       const tripIds = unpaidTrips.map(trip => trip.tripId);
