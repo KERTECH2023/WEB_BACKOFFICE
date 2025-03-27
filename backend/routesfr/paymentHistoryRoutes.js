@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const paymentHistoryController = require("../controllers/paymentHistoryController");
+const paymentHistoryController = require("../Controllersfr/paymentHistoryController");
 
 router.post("/payments", paymentHistoryController.addPayment);
 router.get("/payments", paymentHistoryController.getPaymentsHistory);
