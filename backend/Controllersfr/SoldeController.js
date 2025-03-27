@@ -129,11 +129,13 @@ const getDriverFinancialInfo = async (req, res) => {
 
     const driverData = snapshot.val();
     const solde = driverData.solde || 0;
+    const name    = driverData.name || "";
+    const phone    = driverData.phone || "";
     const soldeCarte = driverData.soldecarte || 0;
     const tripHistoryKeys = Object.keys(driverData.tripHistory || {});
 
     if (tripHistoryKeys.length === 0) {
-      return res.json({ message: "Aucune course trouvée", solde, soldeCarte, trips: [] });
+      return res.json({ message: "Aucune course trouvée", solde,name ,phone, soldeCarte, trips: [] });
     }
 
     // Récupération des courses existantes dans MongoDB
@@ -190,6 +192,8 @@ const getDriverFinancialInfo = async (req, res) => {
     res.json({
       solde,
       soldeCarte,
+      name ,
+      phone,
       trips: allTrips
     });
 
