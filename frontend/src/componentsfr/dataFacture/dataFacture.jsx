@@ -17,9 +17,16 @@ const ConsultActions = ({ row }) => {
         to={`/consultsodeCfr/${row.firebaseUID}`}
         style={{ textDecoration: "none", color: "inherit" }}
       >
-        <div className="viewButton">Consulté</div>
+        <div className="viewButton">Faire payer chauffeur</div>
+      </Link>
+      <Link
+        to={`/historiquepaymentCfr/${row.firebaseUID}`}
+        style={{ textDecoration: "none", color: "inherit" }}
+      >
+        <div className="viewButton">Historique des virements</div>
       </Link>
     </div>
+    
   );
 };
 
