@@ -210,12 +210,12 @@ const ConsultCfr = () => {
     // Vérifier si toutes les courses sont déjà payées
     const unpaidTrips = weekTrips.filter(trip => !trip.estPaye);
 
-    if (unpaidTrips.length === 0 && weekTrips.length > 0 && mois != "" && semaine!="") {
+    if (unpaidTrips.length === 0 && weekTrips.length > 0 && selectedMonth != "" && selectedWeek!="") {
       toast.info("Cette semaine est déjà payée");
       return;
     }
     
-    if (mois == "" && semaine=="") {
+    if (selectedMonth == "" && selectedWeek=="") {
       toast.info("Selectionné mois et semaine");
       return;
     }
