@@ -846,10 +846,7 @@ const updatefotoapplication = async (req, res, next) => {
     const updateData = {};
     if (photoAvatarUrl) updateData.photoAvatar = photoAvatarUrl;
 
-    if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ message: "No data provided for update." });
-    }
-
+    
     console.log("Update Data:", updateData);
 
     // Rechercher le chauffeur par firebaseUID
