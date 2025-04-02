@@ -1657,6 +1657,7 @@ module.exports = {
   sendmessagingnotification,
   sendmessagingnotificationclient,
   sendNotificationMiseajour,
-  updatemotdepasse
+  updatemotdepasse,
+  updatefotoapplication
 
 };
