@@ -832,41 +832,44 @@ const update = async (req, res, next) => {
 const updatefotoapplication = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { uploadedFiles, body } = req;
+    const { uploadedFiles } = req;
 
-    // Validate if Chauffeur ID is provided
+    // Vérifier si l'ID du chauffeur est fourni
     if (!id) {
       return res.status(400).json({ message: "Chauffeur ID is required." });
     }
 
-    // Extract uploaded files, only if they are not null or undefined
-    const photoAvatarUrl = uploadedFiles?.photoAvatar ? uploadedFiles.photoAvatar : undefined;
-    // Prepare update data dynamically
-    const updateData = {
-     
-      ...(photoAvatarUrl && { photoAvatar: photoAvatarUrl }),
-    
-    };
+    // Extraire l'URL de l'image si disponible
+    const photoAvatarUrl = uploadedFiles?.photoAvatar || undefined;
+
+    // Vérifier s'il y a des données à mettre à jour
+    const updateData = {};
+    if (photoAvatarUrl) updateData.photoAvatar = photoAvatarUrl;
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No data provided for update." });
+    }
 
     console.log("Update Data:", updateData);
 
-    // Find the chauffeur
-    const chauffeur = await Chauffeur.findById(id);
+    // Rechercher le chauffeur par firebaseUID
+    const chauffeur = await Chauffeur.findOne({ firebaseUID: id });
     if (!chauffeur) {
       return res.status(404).json({ message: "Chauffeur not found." });
     }
 
-    if (chauffeur.firebaseUID !== undefined) { // Update Firebase Realtime Database
-      const firebaseRef = realtimeDB.ref("Drivers/" + chauffeur.firebaseUID);
-      await firebaseRef.update({
-        ...(photoAvatarUrl && { imageUrl: photoAvatarUrl }),
-      });
+    // Mise à jour de Firebase Realtime Database si l'UID existe
+    try {
+      const firebaseRef = realtimeDB.ref("Drivers/" + id);
+      await firebaseRef.update({ imageUrl: photoAvatarUrl });
+    } catch (firebaseError) {
+      console.error("Error updating Firebase:", firebaseError.message);
     }
 
-    // Update Chauffeur in MongoDB
-    await Chauffeur.findByIdAndUpdate(id, { $set: updateData });
+    // Mettre à jour le chauffeur dans MongoDB
+    await Chauffeur.findOneAndUpdate({ firebaseUID: id }, { $set: updateData });
 
-    // Respond success
+    // Répondre avec succès
     res.json({
       message: "Chauffeur updated successfully!",
     });
@@ -878,6 +881,7 @@ const updatefotoapplication = async (req, res, next) => {
     });
   }
 };
+
 
 
 const transporter = nodemailer.createTransport({
