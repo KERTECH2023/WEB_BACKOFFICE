@@ -69,6 +69,15 @@ router.put(
 );
 
 router.put(
+  "/updatechaufimageapplication/:id",
+  Multer.fields([
+    { name: "photoAvatar", maxCount: 1 },
+  ]),
+  UploadImage,
+  ChauffContro.updatefotoapplication
+);
+
+router.put(
   "/Chauffchangemotdepasse/:id",
   ChauffContro.updatemotdepasse
 );
