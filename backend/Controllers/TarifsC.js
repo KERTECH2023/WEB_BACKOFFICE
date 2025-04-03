@@ -21,7 +21,7 @@ const clearActiveDrivers = () => {
     } catch (error) {
       console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
     }
-  }, 30 * 60 * 1000); // 30 minutes = 30 * 60 * 1000 ms
+  }, 5 * 60 * 60 * 1000); // 30 minutes = 30 * 60 * 1000 ms
 };
 
 // Appeler la fonction pour démarrer la suppression automatique
