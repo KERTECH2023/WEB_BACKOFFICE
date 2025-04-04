@@ -100,7 +100,7 @@ exports.logoutWhatsApp = async (req, res) => {
     try {
         await client.logout();
         isWhatsAppConnected = false;
-        let isClientInitialized = false;
+        isClientInitialized = false;
         whatsappScanQR = null;
         res.json({ success: true, message: "WhatsApp déconnecté avec succès." });
     } catch (error) {
