@@ -8,6 +8,8 @@ puppeteer.use(StealthPlugin());
 
 let whatsappScanQR = null;
 let isWhatsAppConnected = false;
+let isClientInitialized = false;
+
 
 const client = new Client({
     authStrategy: new LocalAuth(),
@@ -29,16 +31,31 @@ client.on('ready', () => {
 client.on('disconnected', (reason) => {
     console.log('❌ Déconnecté de WhatsApp:', reason);
     isWhatsAppConnected = false;
+    isClientInitialized = false;
+    whatsappScanQR = null;
 });
+
 
 // Démarrer WhatsApp Web
 exports.startWhatsApp = async (req, res) => {
     if (isWhatsAppConnected) {
-        return res.json({ success: true, message: "WhatsApp est déjà connecté" });
+        return res.json({ success: true, message: "✅ WhatsApp est déjà connecté." });
     }
-    client.initialize();
-    res.json({ success: true, message: "WhatsApp en cours de démarrage" });
+
+    if (isClientInitialized) {
+        return res.json({ success: true, message: "🕒 WhatsApp est en cours de connexion..." });
+    }
+
+    try {
+        client.initialize();
+        isClientInitialized = true;
+        res.json({ success: true, message: "🚀 WhatsApp en cours de démarrage..." });
+    } catch (err) {
+        console.error("Erreur lors de l'initialisation de WhatsApp:", err);
+        res.status(500).json({ error: "❌ Échec de l'initialisation de WhatsApp." });
+    }
 };
+
 
 // Obtenir le QR Code
 exports.getQRCode = (req, res) => {
