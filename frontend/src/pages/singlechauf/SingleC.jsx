@@ -93,7 +93,9 @@ const SingleC = () => {
     }
   };
 
- 
+  const handleRefuserClick = () => {
+    setShowTextarea(true);
+  };
 
   // Handle sending the rejection reason to the backend
   const handleSendRejection = async () => {
