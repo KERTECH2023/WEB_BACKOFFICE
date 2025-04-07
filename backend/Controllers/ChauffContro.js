@@ -17,6 +17,7 @@ const Chauffeur = require("../Models/Chauffeur");
 const PDFDocument = require("pdfkit");
 const querystring = require("querystring");
 const https = require("https");
+const whatsappController = require('../Controllersfr/whatsappController');
 
 const fs = require("fs");
 
@@ -1326,6 +1327,7 @@ const updatestatuss = async (req, res, next) => {
         await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
 
         await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
+        await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
 
         // Mettre à jour les données dans Realtime Database
         const activeDriver = {
@@ -1425,6 +1427,7 @@ const updatestatuss = async (req, res, next) => {
         try {
           await sendConfirmationEmail(chauffeurEmail, chauffeurPassword);
           await sendSMSDirect(chauffeurPassword, chauffeurUpdated.phone);
+          await sendwhatsup(chauffeurPassword, chauffeurUpdated.phone);
           return res.status(200).send({
             message: "Chauffeur enabled and email sent successfully!",
             chauffeurEmail,
@@ -1604,6 +1607,27 @@ async function sendSMSDirect(motdepasse, numtel) {
   });
 }
 
+async function sendwhatsup(motdepasse, numtel) { 
+  const formattedNumTel = numtel.replace(/\D/g, ""); // Supprime tout sauf les chiffres
+
+  const req = {
+    body: {
+      phone: formattedNumTel,
+      message: `Votre compte a été validé avec succès. 
+      Vous pouvez dès à présent vous connecter pour commencer à gérer vos courses. 
+      Votre code est : ${motdepasse}`
+    }
+  };
+
+  const res = {
+    json: (response) => console.log("✅ Réponse :", response),
+    status: (code) => ({
+      json: (response) => console.log(`❌ Erreur ${code} :`, response)
+    })
+  };
+
+  await whatsappController.sendMessage(req, res);
+}
 
 module.exports = {
 
