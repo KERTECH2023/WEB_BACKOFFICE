@@ -427,7 +427,7 @@ const ConsultCfr = () => {
                       Commission Flash Totale
                     </Typography>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
-                      {data.solde} €
+                    {parseFloat(data.solde).toFixed(2)} €
                     </Typography>
                   </CardContent>
                 </Card>
@@ -439,7 +439,7 @@ const ConsultCfr = () => {
                       Totale par carte
                     </Typography>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
-                      {data.soldeCarte} €
+                    {parseFloat(data.soldeCarte).toFixed(2)} €
                     </Typography>
                   </CardContent>
                 </Card>
