@@ -9,6 +9,7 @@ const Whatsup = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+  const [messageatous, setMessageatous] = useState("");
 
   useEffect(() => {
     checkStatus();
@@ -74,6 +75,20 @@ const Whatsup = () => {
       console.error("Erreur lors de l'envoi du message", error);
     }
   };
+
+  const sendMessageatous = async () => {
+      if (!isConnected) {
+        alert("WhatsApp n'est pas connecté. Veuillez scanner le QR Code.");
+        return;
+      }
+      try {
+        const response = await axios.post(process.env.REACT_APP_BASE_URL + "/whatsapp/sendchafftn", { messageatous });
+        alert(response.data.message);
+        window.location.reload();
+      } catch (error) {
+        console.error("Erreur lors de l'envoi du message", error);
+      }
+    };
 
   return (
 
@@ -188,6 +203,36 @@ const Whatsup = () => {
                   </button>
                 </div>
               </div>
+            )}
+            {isConnected && (
+              <div style={{ marginTop: "20px" }}>
+                <h3 style={{ color: "#333" }}>Envoyer un message à tous les chauffeurs</h3>
+               
+                  <input
+                    type="text"
+                    placeholder="Message"
+                    value={message}
+                    onChange={(e) => setMessageatous(e.target.value)}
+                    style={{
+                      width: "90%",
+                      padding: "10px",
+                      marginBottom: "10px",
+                      borderRadius: "5px",
+                      border: "1px solid #ccc"
+                    }}
+                  />
+                  <button onClick={sendMessageatous} style={{
+                    backgroundColor: "green",
+                    color: "white",
+                    padding: "10px 20px",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    fontSize: "16px"
+                  }}>
+                    Envoyer
+                  </button>
+                </div>
             )}
           </div>
         </div>
