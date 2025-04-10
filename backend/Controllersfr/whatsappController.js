@@ -2,7 +2,8 @@ const qrcode = require('qrcode');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-
+const Chauffeur = require("../Modelsfr/Chauffeur");
+const Chauffeurtn = require("../Models/Chauffeur");
 // Active le mode furtif pour éviter les blocages
 puppeteer.use(StealthPlugin());
 
@@ -83,6 +84,72 @@ exports.sendMessage = async (req, res) => {
     } catch (error) {
         console.error("Erreur lors de l'envoi du message:", error);
         res.status(500).json({ error: "Erreur lors de l'envoi du message." });
+    }
+};
+
+
+exports.sendMessageaTousLesChauffeurfr = async (req, res) => {
+    const { message } = req.body;
+
+    if (!message) {
+        return res.status(400).json({ error: "Le message est requis." });
+    }
+
+    if (!isWhatsAppConnected) {
+        return res.status(403).json({ error: "WhatsApp n'est pas connecté. Veuillez scanner le QR Code." });
+    }
+
+    try {
+        const chauffeurs = await Chauffeur.find();
+
+        if (!chauffeurs || chauffeurs.length === 0) {
+            return res.status(404).json({ error: "Aucun chauffeur trouvé." });
+        }
+
+        // Envoyer le message à chaque chauffeur
+        for (const chauffeur of chauffeurs) {
+            if (chauffeur.phone) {
+                await client.sendMessage(`${chauffeur.phone}@c.us`, message);
+            }
+        }
+
+        res.json({ success: true, message: `Message envoyé à tous les chauffeurs (${chauffeurs.length}).` });
+    } catch (error) {
+        console.error("Erreur lors de l'envoi des messages:", error);
+        res.status(500).json({ error: "Erreur lors de l'envoi des messages." });
+    }
+};
+
+
+exports.sendMessageaTousLesChauffeurtn = async (req, res) => {
+    const { message } = req.body;
+
+    if (!message) {
+        return res.status(400).json({ error: "Le message est requis." });
+    }
+
+    if (!isWhatsAppConnected) {
+        return res.status(403).json({ error: "WhatsApp n'est pas connecté. Veuillez scanner le QR Code." });
+    }
+
+    try {
+        const chauffeurs = await Chauffeurtn.find();
+
+        if (!chauffeurs || chauffeurs.length === 0) {
+            return res.status(404).json({ error: "Aucun chauffeur trouvé." });
+        }
+
+        // Envoyer le message à chaque chauffeur
+        for (const chauffeur of chauffeurs) {
+            if (chauffeur.phone) {
+                await client.sendMessage(`${chauffeur.phone}@c.us`, message);
+            }
+        }
+
+        res.json({ success: true, message: `Message envoyé à tous les chauffeurs (${chauffeurs.length}).` });
+    } catch (error) {
+        console.error("Erreur lors de l'envoi des messages:", error);
+        res.status(500).json({ error: "Erreur lors de l'envoi des messages." });
     }
 };
 
