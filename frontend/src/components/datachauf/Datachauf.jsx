@@ -23,7 +23,8 @@ const Datachauf = () => {
     try {
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/Chauff/affiche");
       if (response.status === 200) {
-        setData(response.data);
+        // Inverser les données avant de les définir
+        setData(response.data.reverse());
       } else {
         toast.error("Failed to fetch data!");
       }
@@ -32,6 +33,7 @@ const Datachauf = () => {
       console.error("Error fetching data:", error);
     }
   };
+  
 
   // Handle search term change
   const handleSearchTerm = (e) => {
