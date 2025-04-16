@@ -6,19 +6,7 @@ const RideRequest = require("../Models/AllRideRequest");
  */
 const getAllRideRequests = async (req, res) => {
   try {
-    const existingRequests = await RideRequest.find({});
-    if (existingRequests.length > 0) {
-      const responseData = {};
-      existingRequests.forEach(request => {
-        const obj = request.toObject();
-        const id = obj._id;
-        delete obj._id;
-        delete obj.__v;
-        responseData[id] = obj;
-      });
-      return res.status(200).json(responseData);
-    }
-
+    // Étape 1 : Récupérer toutes les données de Firestore
     const rideRequestsRef = firestore.collection("AllRideRequests");
     const snapshot = await rideRequestsRef.get();
 
@@ -27,17 +15,24 @@ const getAllRideRequests = async (req, res) => {
     }
 
     const rideRequests = {};
-    const mongoBulkData = [];
+    const updates = [];
 
-    snapshot.forEach(doc => {
+    for (const doc of snapshot.docs) {
       const id = doc.id;
-      const data = doc.data();
+      const firestoreData = doc.data();
+      rideRequests[id] = firestoreData;
 
-      rideRequests[id] = data;
-      mongoBulkData.push({ _id: id, ...data });
-    });
+      // Chercher l'existant dans MongoDB
+      const mongoDoc = await RideRequest.findById(id).lean();
 
-    await RideRequest.insertMany(mongoBulkData);
+      if (!mongoDoc) {
+        // Insert si inexistant
+        await RideRequest.create({ _id: id, ...firestoreData });
+      } else if (mongoDoc.status !== firestoreData.status) {
+        // Update si le status est différent
+        await RideRequest.updateOne({ _id: id }, { status: firestoreData.status });
+      }
+    }
 
     return res.status(200).json(rideRequests);
   } catch (error) {
