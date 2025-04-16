@@ -1,84 +1,34 @@
 const mongoose = require("mongoose");
 
 const rideRequestSchema = new mongoose.Schema({
-  firebaseRiderRequestsID: {
-    type: String,
-  },
-  driverId: {
-    type: String,
-  },
-  driverName: {
-    type: String,
-  },
-  driverPhone: {
-    type: String,
-  },
-  driverPhoto: {
-    type: String,
-  },
-  driverLocationData: {
-    latitude: {
-      type: String,
-    },
-    longitude: {
-      type: String,
-    },
-  },
-  carDetails: {
-    carModel: {
-      type: String,
-    },
-    carNumber: {
-      type: String,
-    },
-  },
-  fareAmount: {
-    type: Number,
-  },
-  healthStatus: {
-    type: String,
-    default: "none",
-  },
-  source: {
-    latitude: {
-      type: Number,
-    },
-    longitude: {
-      type: Number,
-    },
-  },
-  sourceAddress: {
-    type: String,
-  },
+  _id: { type: String, required: true }, // Firestore ID utilisé comme ID MongoDB
   destination: {
-    latitude: {
-      type: Number,
-    },
-    longitude: {
-      type: Number,
-    },
-    destinationAddress: {
-      type: String,
-    },
+    latitude: Number,
+    longitude: Number
   },
-  status: {
-    type: String,
+  destinationAddress: String,
+  driverCarImmatriculation: String,
+  driverCarModelle: String,
+  driverId: String,
+  driverid: String,
+  driverName: String,
+  driverPhone: String,
+  driverToken: String,
+  fareAmount: Number,
+  healthStatus: String,
+  source: {
+    latitude: Number,
+    longitude: Number
   },
+  sourceAddress: String,
+  status: String,
+  userId: String,
+  userName: String,
+  userPhone: String,
   time: {
-    type: Date,
-  },
-  userId: {
-    type: String,
-
-  },
-  userName: {
-    type: String,
-  },
-  userPhone: {
-    type: String,
-  },
+    _seconds: Number,
+    _nanoseconds: Number
+  }
 }, { timestamps: true });
 
-const RideRequest = mongoose.model("RideRequest", rideRequestSchema);
-
-module.exports = RideRequest;
+module.exports = mongoose.model("RideRequest", rideRequestSchema);
