@@ -9,7 +9,7 @@ const Whatsup = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
-  const [messageatous, setMessageatous] = useState("");
+  const [messageatous, setMessageatous] = useState(""); // Correct state variable for "message to all"
 
   useEffect(() => {
     checkStatus();
@@ -17,9 +17,9 @@ const Whatsup = () => {
     const interval = setInterval(() => {
       fetchQRCode();
       checkStatus();
-    }, 2000); // Vérifie toutes les secondes
+    }, 2000); // Checks every 2 seconds
 
-    return () => clearInterval(interval); // Nettoie l'intervalle quand le composant est démonté
+    return () => clearInterval(interval); // Cleans up the interval when the component is unmounted
   }, []);
 
   const checkStatus = async () => {
@@ -32,7 +32,7 @@ const Whatsup = () => {
   };
 
   const fetchQRCode = async () => {
-    if (isConnected) return; // Stoppe la mise à jour si déjà connecté
+    if (isConnected) return; // Stops updating if already connected
 
     try {
       const response = await axios.get(process.env.REACT_APP_BASE_URL + "/whatsapp/qrcode");
@@ -77,21 +77,21 @@ const Whatsup = () => {
   };
 
   const sendMessageatous = async () => {
-      if (!isConnected) {
-        alert("WhatsApp n'est pas connecté. Veuillez scanner le QR Code.");
-        return;
-      }
-      try {
-        const response = await axios.post(process.env.REACT_APP_BASE_URL + "/whatsapp/sendchafftn", { messageatous });
-        alert(response.data.message);
-        window.location.reload();
-      } catch (error) {
-        console.error("Erreur lors de l'envoi du message", error);
-      }
-    };
+    if (!isConnected) {
+      alert("WhatsApp n'est pas connecté. Veuillez scanner le QR Code.");
+      return;
+    }
+    try {
+      // Corrected: Use messageatous state for the payload
+      const response = await axios.post(process.env.REACT_APP_BASE_URL + "/whatsapp/sendchafftn", { message: messageatous });
+      alert(response.data.message);
+      window.location.reload();
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message", error);
+    }
+  };
 
   return (
-
     <div className="new">
       <Sidebar />
       <div className="newContainer">
@@ -117,7 +117,6 @@ const Whatsup = () => {
             </div>
             {!isConnected && !qrCode && (
               <div>
-
                 <button onClick={startWhatsApp} style={{
                   backgroundColor: "#007bff",
                   color: "white",
@@ -139,7 +138,6 @@ const Whatsup = () => {
                   marginBottom: "10px",
                   border: "2px solid #ddd"
                 }} />
-
               </div>
             )}
 
@@ -156,9 +154,6 @@ const Whatsup = () => {
               }}>
                 Déconnecter
               </button>
-
-
-
             )}
             {isConnected && (
               <div style={{ marginTop: "20px" }}>
@@ -207,32 +202,31 @@ const Whatsup = () => {
             {isConnected && (
               <div style={{ marginTop: "20px" }}>
                 <h3 style={{ color: "#333" }}>Envoyer un message à tous les chauffeurs</h3>
-               
-                  <input
-                    type="text"
-                    placeholder="Message"
-                    value={message}
-                    onChange={(e) => setMessageatous(e.target.value)}
-                    style={{
-                      width: "90%",
-                      padding: "10px",
-                      marginBottom: "10px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc"
-                    }}
-                  />
-                  <button onClick={sendMessageatous} style={{
-                    backgroundColor: "green",
-                    color: "white",
-                    padding: "10px 20px",
-                    border: "none",
+                <input
+                  type="text"
+                  placeholder="Message"
+                  value={messageatous} // Corrected: Use messageatous for value
+                  onChange={(e) => setMessageatous(e.target.value)} // Corrected: Use setMessageatous
+                  style={{
+                    width: "90%",
+                    padding: "10px",
+                    marginBottom: "10px",
                     borderRadius: "5px",
-                    cursor: "pointer",
-                    fontSize: "16px"
-                  }}>
-                    Envoyer
-                  </button>
-                </div>
+                    border: "1px solid #ccc"
+                  }}
+                />
+                <button onClick={sendMessageatous} style={{
+                  backgroundColor: "green",
+                  color: "white",
+                  padding: "10px 20px",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}>
+                  Envoyer
+                </button>
+              </div>
             )}
           </div>
         </div>
