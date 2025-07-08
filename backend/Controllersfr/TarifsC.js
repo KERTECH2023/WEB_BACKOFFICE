@@ -10,6 +10,22 @@ const admin = firestoreModule.adminAppfr;
 const realtimeDB = firestoreModule.firestoreApp.database();
 const adminnotification = require("firebase-admin");
 
+const clearActiveDrivers = () => {
+  const activeDriversRef = realtimeDB.ref("ActiveDrivers");
+
+  setInterval(async () => {
+    try {
+      await activeDriversRef.remove();
+      console.log("Les données de la table ActiveDrivers ont été supprimées.");
+    } catch (error) {
+      console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
+    }
+  }, 5 * 60 * 1000); // 30 minutes = 30 * 60 * 1000 ms
+};
+
+// Appeler la fonction pour démarrer la suppression automatique
+clearActiveDrivers();
+
 //reveille chauffeur 
 const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
   try {
