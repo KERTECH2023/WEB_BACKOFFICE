@@ -4,42 +4,34 @@ const RideRequest = require("../Models/AllRideRequest");
 /**
  * Récupérer toutes les demandes de trajet
  */
+const firestoreModule = require("../services/config");
+const firestore = firestoreModule.firestoreApp.firestore();
+const RideRequest = require("../Models/AllRideRequest");
+
+/**
+ * Récupérer toutes les demandes de trajet
+ */
 const getAllRideRequests = async (req, res) => {
   try {
-    // Étape 1 : Récupérer toutes les données de Firestore
-    const rideRequestsRef = firestore.collection("AllRideRequests");
-    const snapshot = await rideRequestsRef.get();
+    // 🔹 Affichage depuis MongoDB directement
+    const rideRequests = await RideRequest.find().lean();
 
-    if (snapshot.empty) {
+    if (!rideRequests || rideRequests.length === 0) {
       return res.status(404).json({ error: "Aucune demande de trajet trouvée" });
     }
 
-    const rideRequests = {};
-    const updates = [];
-
-    for (const doc of snapshot.docs) {
-      const id = doc.id;
-      const firestoreData = doc.data();
-      rideRequests[id] = firestoreData;
-
-      // Chercher l'existant dans MongoDB
-      const mongoDoc = await RideRequest.findById(id).lean();
-
-      if (!mongoDoc) {
-        // Insert si inexistant
-        await RideRequest.create({ _id: id, ...firestoreData });
-      } else if (mongoDoc.status !== firestoreData.status) {
-        // Update si le status est différent
-        await RideRequest.updateOne({ _id: id }, { status: firestoreData.status });
-      }
+    const rideRequestsObj = {};
+    for (const reqItem of rideRequests) {
+      rideRequestsObj[reqItem._id] = reqItem;
     }
 
-    return res.status(200).json(rideRequests);
+    return res.status(200).json(rideRequestsObj);
   } catch (error) {
     console.error("Erreur lors de la récupération des demandes de trajet :", error);
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
+
 
 /**
  * Supprimer une demande de trajet spécifique
@@ -80,3 +72,4 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
