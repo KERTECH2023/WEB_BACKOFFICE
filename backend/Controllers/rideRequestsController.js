@@ -10,13 +10,36 @@ const RideRequest = require("../Models/AllRideRequest");
  */
 const getAllRideRequests = async (req, res) => {
   try {
-    // 🔹 Affichage depuis MongoDB directement
+    // Étape 1 : Synchroniser Firestore → MongoDB
+    const rideRequestsRef = firestore.collection("AllRideRequests");
+    const snapshot = await rideRequestsRef.get();
+
+    if (!snapshot.empty) {
+      for (const doc of snapshot.docs) {
+        const id = doc.id;
+        const firestoreData = doc.data();
+
+        // Chercher l'existant dans MongoDB
+        const mongoDoc = await RideRequest.findById(id).lean();
+
+        if (!mongoDoc) {
+          // Insert si inexistant
+          await RideRequest.create({ _id: id, ...firestoreData });
+        } else if (mongoDoc.status !== firestoreData.status) {
+          // Update si le status est différent
+          await RideRequest.updateOne({ _id: id }, { $set: firestoreData });
+        }
+      }
+    }
+
+    // Étape 2 : Lire directement depuis MongoDB (affichage)
     const rideRequests = await RideRequest.find().lean();
 
     if (!rideRequests || rideRequests.length === 0) {
       return res.status(404).json({ error: "Aucune demande de trajet trouvée" });
     }
 
+    // Transformer en objet clé-valeur (même format que Firestore)
     const rideRequestsObj = {};
     for (const reqItem of rideRequests) {
       rideRequestsObj[reqItem._id] = reqItem;
@@ -28,7 +51,6 @@ const getAllRideRequests = async (req, res) => {
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
-
 
 /**
  * Supprimer une demande de trajet spécifique
@@ -69,5 +91,6 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
