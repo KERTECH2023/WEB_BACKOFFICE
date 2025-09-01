@@ -10,42 +10,37 @@ const RideRequest = require("../Models/AllRideRequest");
  */
 const getAllRideRequests = async (req, res) => {
   try {
-    // Étape 1 : Synchroniser Firestore → MongoDB
+    // --- Étape 1 : Synchroniser Firestore → Mongo ---
     const rideRequestsRef = firestore.collection("AllRideRequests");
     const snapshot = await rideRequestsRef.get();
 
-    if (!snapshot.empty) {
-      for (const doc of snapshot.docs) {
-        const id = doc.id;
-        const firestoreData = doc.data();
+    for (const doc of snapshot.docs) {
+      const id = doc.id;
+      const firestoreData = doc.data();
 
-        // Chercher l'existant dans MongoDB
-        const mongoDoc = await RideRequest.findById(id).lean();
+      // Chercher si existe déjà en MongoDB
+      const mongoDoc = await RideRequest.findById(id).lean();
 
-        if (!mongoDoc) {
-          // Insert si inexistant
-          await RideRequest.create({ _id: id, ...firestoreData });
-        } else if (mongoDoc.status !== firestoreData.status) {
-          // Update si le status est différent
-          await RideRequest.updateOne({ _id: id }, { $set: firestoreData });
-        }
+      if (!mongoDoc) {
+        // Insert si inexistant
+        await RideRequest.create({ _id: id, ...firestoreData });
+      } else if (mongoDoc.status !== firestoreData.status) {
+        // Update si le status est différent
+        await RideRequest.updateOne(
+          { _id: id },
+          { status: firestoreData.status }
+        );
       }
     }
 
-    // Étape 2 : Lire directement depuis MongoDB (affichage)
+    // --- Étape 2 : Retourner les données depuis MongoDB ---
     const rideRequests = await RideRequest.find().lean();
 
     if (!rideRequests || rideRequests.length === 0) {
       return res.status(404).json({ error: "Aucune demande de trajet trouvée" });
     }
 
-    // Transformer en objet clé-valeur (même format que Firestore)
-    const rideRequestsObj = {};
-    for (const reqItem of rideRequests) {
-      rideRequestsObj[reqItem._id] = reqItem;
-    }
-
-    return res.status(200).json(rideRequestsObj);
+    return res.status(200).json(rideRequests);
   } catch (error) {
     console.error("Erreur lors de la récupération des demandes de trajet :", error);
     return res.status(500).json({ error: "Erreur serveur" });
@@ -91,6 +86,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
