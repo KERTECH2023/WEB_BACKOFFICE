@@ -4,9 +4,6 @@ const RideRequest = require("../Models/AllRideRequest");
 /**
  * Récupérer toutes les demandes de trajet
  */
-const firestoreModule = require("../services/config");
-const firestore = firestoreModule.firestoreApp.firestore();
-const RideRequest = require("../Models/AllRideRequest");
 
 /**
  * Récupérer toutes les demandes de trajet
@@ -72,4 +69,5 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
