@@ -10,41 +10,50 @@ const RideRequest = require("../Models/AllRideRequest");
  */
 const getAllRideRequests = async (req, res) => {
   try {
-    // Étape 1 : Synchroniser Firestore → Mongo
+    // --- Étape 1 : Récupérer tous les docs Firestore ---
     const snapshot = await firestore.collection("AllRideRequests").get();
+    const firestoreDocs = snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
+    const firestoreIds = firestoreDocs.map(doc => doc.id);
 
-    if (!snapshot.empty) {
-      await Promise.all(
-        snapshot.docs.map(async (doc) => {
-          const id = doc.id;
-          const firestoreData = doc.data();
+    // --- Étape 2 : Synchroniser Firestore → Mongo ---
+    await Promise.all(
+      firestoreDocs.map(async ({ id, data }) => {
+        const mongoDoc = await RideRequest.findOne({ firestoreId: id }).lean();
 
-          // Vérifie si existe déjà
-          const mongoDoc = await RideRequest.findById(id).lean();
+        if (!mongoDoc) {
+          // 🔹 Nouveau doc
+          await RideRequest.create({ firestoreId: id, ...data });
+        } else {
+          // 🔹 Mise à jour
+          await RideRequest.updateOne({ firestoreId: id }, { $set: data });
+        }
+      })
+    );
 
-          if (!mongoDoc) {
-            // Insérer si inexistant
-            await RideRequest.create({ _id: id, ...firestoreData });
-          } else {
-            // Mettre à jour si différence (pas seulement status)
-            await RideRequest.updateOne(
-              { _id: id },
-              { $set: firestoreData }
-            );
-          }
-        })
-      );
-    }
+    // --- Étape 3 : Gérer les docs Mongo qui n’existent plus dans Firestore ---
+    const mongoDocs = await RideRequest.find().lean();
 
-    // Étape 2 : Retourner les données depuis MongoDB
+    await Promise.all(
+      mongoDocs.map(async (mongoDoc) => {
+        if (!firestoreIds.includes(mongoDoc.firestoreId)) {
+          // 🔹 FirestoreId supprimé dans Firestore → créer une copie avec un nouvel ObjectId
+          const newDoc = { ...mongoDoc };
+          delete newDoc._id; // Supprimer l'ancien _id pour que Mongo en crée un nouveau
+          await RideRequest.create(newDoc);
+        }
+      })
+    );
+
+    // --- Étape 4 : Retourner les données depuis Mongo ---
     const rideRequests = await RideRequest.find().lean();
-
     return res.status(200).json(rideRequests);
+
   } catch (error) {
     console.error("Erreur lors de la récupération des demandes de trajet :", error);
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
+
 
 
 /**
@@ -86,6 +95,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
