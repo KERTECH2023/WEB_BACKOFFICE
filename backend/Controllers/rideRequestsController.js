@@ -76,24 +76,28 @@ const deleteRideRequest = async (req, res) => {
       return res.status(400).json({ error: "ID de la demande requis" });
     }
 
-    // Vérifie si le document existe dans Firestore
+    // 🔹 Référence Firestore
     const rideRequestRef = firestore.collection("AllRideRequests").doc(rideRequestId);
     const doc = await rideRequestRef.get();
 
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Demande de trajet non trouvée dans Firestore" });
+    if (doc.exists) {
+      // Supprimer de Firestore
+      await rideRequestRef.delete();
+    } else {
+      console.warn(`La course ${rideRequestId} n'existe pas dans Firestore`);
     }
 
-    // Supprimer de Firestore
-    await rideRequestRef.delete();
-
-    // Supprimer aussi de MongoDB
-    await RideRequest.deleteOne({ _id: rideRequestId });
+    // 🔹 Supprimer de MongoDB
+    const mongoResult = await RideRequest.deleteOne({ firestoreId: rideRequestId });
+    if (mongoResult.deletedCount === 0) {
+      console.warn(`La course ${rideRequestId} n'existe pas dans MongoDB`);
+    }
 
     return res.status(200).json({
-      message: "Demande de trajet supprimée avec succès dans Firestore et MongoDB",
+      message: "Demande de trajet supprimée avec succès (Firestore et MongoDB si existants)",
       rideRequestId: rideRequestId,
     });
+
   } catch (error) {
     console.error("Erreur lors de la suppression de la demande de trajet :", error);
     return res.status(500).json({ error: "Erreur serveur" });
@@ -104,6 +108,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
