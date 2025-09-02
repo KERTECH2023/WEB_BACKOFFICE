@@ -10,35 +10,34 @@ const RideRequest = require("../Models/AllRideRequest");
  */
 const getAllRideRequests = async (req, res) => {
   try {
-    // --- Étape 1 : Synchroniser Firestore → Mongo ---
-    const rideRequestsRef = firestore.collection("AllRideRequests");
-    const snapshot = await rideRequestsRef.get();
+    // Étape 1 : Synchroniser Firestore → Mongo
+    const snapshot = await firestore.collection("AllRideRequests").get();
 
-    for (const doc of snapshot.docs) {
-      const id = doc.id;
-      const firestoreData = doc.data();
+    if (!snapshot.empty) {
+      await Promise.all(
+        snapshot.docs.map(async (doc) => {
+          const id = doc.id;
+          const firestoreData = doc.data();
 
-      // Chercher si existe déjà en MongoDB
-      const mongoDoc = await RideRequest.findById(id).lean();
+          // Vérifie si existe déjà
+          const mongoDoc = await RideRequest.findById(id).lean();
 
-      if (!mongoDoc) {
-        // Insert si inexistant
-        await RideRequest.create({ _id: id, ...firestoreData });
-      } else if (mongoDoc.status !== firestoreData.status) {
-        // Update si le status est différent
-        await RideRequest.updateOne(
-          { _id: id },
-          { status: firestoreData.status }
-        );
-      }
+          if (!mongoDoc) {
+            // Insérer si inexistant
+            await RideRequest.create({ _id: id, ...firestoreData });
+          } else {
+            // Mettre à jour si différence (pas seulement status)
+            await RideRequest.updateOne(
+              { _id: id },
+              { $set: firestoreData }
+            );
+          }
+        })
+      );
     }
 
-    // --- Étape 2 : Retourner les données depuis MongoDB ---
+    // Étape 2 : Retourner les données depuis MongoDB
     const rideRequests = await RideRequest.find().lean();
-
-    if (!rideRequests || rideRequests.length === 0) {
-      return res.status(404).json({ error: "Aucune demande de trajet trouvée" });
-    }
 
     return res.status(200).json(rideRequests);
   } catch (error) {
@@ -46,6 +45,7 @@ const getAllRideRequests = async (req, res) => {
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
+
 
 /**
  * Supprimer une demande de trajet spécifique
@@ -86,6 +86,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
