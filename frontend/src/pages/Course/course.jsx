@@ -6,7 +6,7 @@ import axios from "axios";
 const Liscourse = () => {
   const [rides, setRides] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
-  const [sortOrder, setSortOrder] = useState("desc"); // "desc" pour descendant (plus récent d'abord), "asc" pour ascendant
+  const [sortOrder, setSortOrder] = useState("desc"); // "desc" = plus récent d'abord
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const API_URL = "https://api.backofficegc.com/rideRequests/ride-requests";
@@ -81,19 +81,26 @@ const Liscourse = () => {
         id,
         ...ride
       }));
-      
+
+      // Filtrer par statut
       if (filterStatus !== "all") {
         ridesArray = ridesArray.filter(ride => ride.status === filterStatus);
       }
-      
-      // Tri par date
+
+      // Tri fiable par date (_seconds + _nanoseconds)
+      const getTime = (ride) => {
+        if (!ride.time) return 0;
+        const seconds = ride.time._seconds || 0;
+        const nanoseconds = ride.time._nanoseconds || 0;
+        return seconds * 1000 + Math.floor(nanoseconds / 1e6); // millisecondes
+      };
+
       ridesArray.sort((a, b) => {
-        const timeA = a.time?._seconds || (a.time ? new Date(a.time).getTime() / 1000 : 0);
-        const timeB = b.time?._seconds || (b.time ? new Date(b.time).getTime() / 1000 : 0);
-        
+        const timeA = getTime(a);
+        const timeB = getTime(b);
         return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
       });
-      
+
       setRides(ridesArray);
     } catch (error) {
       setError("Erreur lors de la récupération des courses");
@@ -108,10 +115,7 @@ const Liscourse = () => {
       alert("ID de course invalide");
       return;
     }
-
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette course ?")) {
-      return;
-    }
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette course ?")) return;
 
     try {
       await axios.delete(`${API_URL}/${rideId}`);
@@ -127,6 +131,12 @@ const Liscourse = () => {
   const formatDriverInfo = (ride) => {
     if (!ride.driverName && !ride.driverPhone) return "Non assigné";
     return `${ride.driverName || "N/A"} (${ride.driverPhone || "N/A"})`;
+  };
+
+  const formatTime = (time) => {
+    if (!time) return "N/A";
+    if (time._seconds) return new Date(time._seconds * 1000).toLocaleString();
+    return new Date(time).toLocaleString();
   };
 
   return (
@@ -146,7 +156,7 @@ const Liscourse = () => {
             <option value="Rejected">Rejeté</option>
             <option value="Arrived">Arrivé</option>
           </select>
-          
+
           <select 
             value={sortOrder} 
             onChange={(e) => setSortOrder(e.target.value)}
@@ -158,7 +168,7 @@ const Liscourse = () => {
         </div>
 
         {error && <div style={styles.errorMessage}>{error}</div>}
-        
+
         <div className="rides">
           {isLoading ? (
             <div style={styles.loading}>Chargement des données...</div>
@@ -193,13 +203,7 @@ const Liscourse = () => {
                     <td style={{...styles.tableCell, ...styles.statusStyles[ride.status]}}>
                       {ride.status || ""}
                     </td>
-                    <td style={styles.tableCell}>
-                      {ride.time ? 
-  (ride.time._seconds ? 
-    new Date(ride.time._seconds * 1000).toLocaleString() : 
-    new Date(ride.time).toLocaleString()) : 
-  "N/A"}
-                    </td>
+                    <td style={styles.tableCell}>{formatTime(ride.time)}</td>
                     <td style={styles.tableCell}>
                       <button onClick={() => handleDelete(ride.id)} style={styles.deleteButton}>
                         Supprimer
