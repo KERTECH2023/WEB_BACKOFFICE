@@ -18,11 +18,11 @@ const getAllRideRequests = async (req, res) => {
     // --- Étape 2 : Synchroniser Firestore → MongoDB ---
     await Promise.all(
       firestoreDocs.map(async ({ id, data }) => {
-        // 🔹 Conversion du champ time
-        if (data.time instanceof admin.firestore.Timestamp) {
+        // 🔹 Conversion sécurisée du champ time
+        if (data.time && typeof data.time === 'object') {
           data.time = {
-            _seconds: data.time.seconds,
-            _nanoseconds: data.time.nanoseconds
+            _seconds: data.time.seconds || data.time._seconds || 0,
+            _nanoseconds: data.time.nanoseconds || data.time._nanoseconds || 0
           };
         } else {
           data.time = { _seconds: 0, _nanoseconds: 0 };
@@ -65,7 +65,6 @@ const getAllRideRequests = async (req, res) => {
   }
 };
 
-
 /**
  * Supprimer une demande de trajet spécifique
  */
@@ -105,6 +104,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
