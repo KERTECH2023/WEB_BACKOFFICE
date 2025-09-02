@@ -15,36 +15,36 @@ const getAllRideRequests = async (req, res) => {
     const firestoreDocs = snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
     const firestoreIds = firestoreDocs.map(doc => doc.id);
 
-    // --- Étape 2 : Synchroniser Firestore → Mongo ---
+    // --- Étape 2 : Synchroniser Firestore → MongoDB ---
     await Promise.all(
       firestoreDocs.map(async ({ id, data }) => {
-        const mongoDoc = await RideRequest.findOne({ firestoreId: id }).lean();
+        const mongoDoc = await RideRequest.findOne({ firestoreId: id, archived: false }).lean();
 
         if (!mongoDoc) {
-          // 🔹 Nouveau doc
+          // 🔹 Créer un nouveau doc
           await RideRequest.create({ firestoreId: id, ...data });
         } else {
-          // 🔹 Mise à jour
-          await RideRequest.updateOne({ firestoreId: id }, { $set: data });
+          // 🔹 Mettre à jour si déjà existant
+          await RideRequest.updateOne({ firestoreId: id, archived: false }, { $set: data });
         }
       })
     );
 
-    // --- Étape 3 : Gérer les docs Mongo qui n’existent plus dans Firestore ---
-    const mongoDocs = await RideRequest.find().lean();
+    // --- Étape 3 : Traiter les docs Mongo absents dans Firestore ---
+    const mongoDocs = await RideRequest.find({ archived: false }).lean();
 
     await Promise.all(
       mongoDocs.map(async (mongoDoc) => {
         if (!firestoreIds.includes(mongoDoc.firestoreId)) {
-          // 🔹 FirestoreId supprimé dans Firestore → créer une copie avec un nouvel ObjectId
-          const newDoc = { ...mongoDoc };
-          delete newDoc._id; // Supprimer l'ancien _id pour que Mongo en crée un nouveau
+          // 🔹 FirestoreId supprimé → créer une nouvelle copie avec nouvel _id
+          const newDoc = { ...mongoDoc, archived: true };
+          delete newDoc._id; // MongoDB va générer un nouvel _id
           await RideRequest.create(newDoc);
         }
       })
     );
 
-    // --- Étape 4 : Retourner les données depuis Mongo ---
+    // --- Étape 4 : Retourner tous les docs depuis MongoDB ---
     const rideRequests = await RideRequest.find().lean();
     return res.status(200).json(rideRequests);
 
@@ -53,7 +53,6 @@ const getAllRideRequests = async (req, res) => {
     return res.status(500).json({ error: "Erreur serveur" });
   }
 };
-
 
 
 /**
@@ -95,6 +94,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
