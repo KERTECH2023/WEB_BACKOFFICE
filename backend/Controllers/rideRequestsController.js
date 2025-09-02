@@ -18,27 +18,38 @@ const getAllRideRequests = async (req, res) => {
     // --- Étape 2 : Synchroniser Firestore → MongoDB ---
     await Promise.all(
       firestoreDocs.map(async ({ id, data }) => {
+        // 🔹 Conversion du champ time
+        if (data.time instanceof admin.firestore.Timestamp) {
+          data.time = {
+            _seconds: data.time.seconds,
+            _nanoseconds: data.time.nanoseconds
+          };
+        } else {
+          data.time = { _seconds: 0, _nanoseconds: 0 };
+        }
+
+        // Vérifier si le doc existe déjà
         const mongoDoc = await RideRequest.findOne({ firestoreId: id, archived: false }).lean();
 
         if (!mongoDoc) {
-          // 🔹 Créer un nouveau doc
+          // Création dans MongoDB
           await RideRequest.create({ firestoreId: id, ...data });
         } else {
-          // 🔹 Mettre à jour si déjà existant
+          // Mise à jour si existant
           await RideRequest.updateOne({ firestoreId: id, archived: false }, { $set: data });
         }
       })
     );
 
-    // --- Étape 3 : Traiter les docs Mongo absents dans Firestore ---
+    // --- Étape 3 : Créer une version historique si FirestoreId supprimé ---
     const mongoDocs = await RideRequest.find({ archived: false }).lean();
 
     await Promise.all(
       mongoDocs.map(async (mongoDoc) => {
         if (!firestoreIds.includes(mongoDoc.firestoreId)) {
-          // 🔹 FirestoreId supprimé → créer une nouvelle copie avec nouvel _id
+          // FirestoreId supprimé → créer une copie avec nouvel _id et archived=true
           const newDoc = { ...mongoDoc, archived: true };
-          delete newDoc._id; // MongoDB va générer un nouvel _id
+          delete newDoc._id; // MongoDB génère un nouvel _id
           await RideRequest.create(newDoc);
         }
       })
@@ -94,6 +105,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
