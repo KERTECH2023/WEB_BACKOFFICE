@@ -57,6 +57,8 @@ const getAllRideRequests = async (req, res) => {
 
     // --- Étape 4 : Retourner tous les docs depuis MongoDB ---
     const rideRequests = await RideRequest.find().lean();
+    await RideRequest.deleteMany({ status: "Cancelled" });
+
     return res.status(200).json(rideRequests);
 
   } catch (error) {
@@ -108,6 +110,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
