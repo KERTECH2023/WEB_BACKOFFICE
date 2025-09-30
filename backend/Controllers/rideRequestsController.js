@@ -14,7 +14,7 @@ const getAllRideRequests = async (req, res) => {
     const snapshot = await firestore.collection("AllRideRequests").get();
     const firestoreDocs = snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
     const firestoreIds = firestoreDocs.map(doc => doc.id);
-
+    await RideRequest.deleteMany({ status: "Cancelled" });
     // --- Étape 2 : Synchroniser Firestore → MongoDB ---
     await Promise.all(
       firestoreDocs.map(async ({ id, data }) => {
@@ -56,7 +56,7 @@ const getAllRideRequests = async (req, res) => {
     );
 
     // --- Étape 4 : Retourner tous les docs depuis MongoDB ---
-    await RideRequest.deleteMany({ status: "Cancelled" });
+    
     const rideRequests = await RideRequest.find().lean();
     
 
@@ -111,6 +111,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
