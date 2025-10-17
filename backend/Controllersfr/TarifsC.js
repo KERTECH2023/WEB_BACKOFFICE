@@ -26,7 +26,7 @@ const clearActiveDrivers = () => {
 // Appeler la fonction pour démarrer la suppression automatique
 clearActiveDrivers();
 
-//reveille chauffeur 
+// reveille chauffeur 
 const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
   try {
     const messages = tokens.map((token) => ({
@@ -68,7 +68,7 @@ const sendmessagingnotification = async () => {
   await sendNotificationToMultipleTokens(tokens, "Flash Driver", "Restez connecté pour obtenir plus de courses et gagner plus d'argent.", data);
 };
 
-// NOUVEAU : Système de rappel de courses 30 minutes avant
+// MODIFIÉ : Système de rappel de courses 30 minutes avant et suppression après envoi
 const checkUpcomingRides = async () => {
   try {
     const notificationsRef = realtimeDB.ref('Notifications');
@@ -94,65 +94,66 @@ const checkUpcomingRides = async () => {
       // Calculer la différence en minutes
       const diffMinutes = rideTime.diff(now, 'minutes');
       
-      // Vérifier si on est exactement 30 minutes avant la course (avec une marge de 1 minute)
-      if (diffMinutes >= 29 && diffMinutes <= 31) {
-        // Vérifier si la notification n'a pas déjà été envoyée
-        if (!notification.reminderSent) {
-          // Envoyer la notification au chauffeur
-          if (notification.driverToken) {
-            try {
-              await adminnotification.messaging().send({
-                token: notification.driverToken,
-                notification: {
-                  title: "Rappel de course",
-                  body: `Vous avez une course prévue dans 30 minutes. Préparez-vous !`
-                },
-                data: {
-                  rideId: notification.rideId || '',
-                  type: 'ride_reminder',
-                  timestamp: notification.timestamp
-                }
-              });
-              console.log(`Notification envoyée au chauffeur pour la course ${notification.rideId}`);
-            } catch (error) {
-              console.error('Erreur envoi notification chauffeur:', error.message);
-            }
-          }
+      // Si la course est dans moins de 30 minutes et n'a pas déjà été traitée
+      if (diffMinutes <= 30 && diffMinutes > -10 && !notification.reminderSent) { // Ajout d'une marge pour éviter de multiples envois
+        console.log(`Traitement de la notification pour la course ${notification.rideId}. Différence: ${diffMinutes} min.`);
 
-          // Envoyer la notification au client
-          if (notification.userToken) {
-            try {
-              await adminnotification.messaging().send({
-                token: notification.userToken,
-                notification: {
-                  title: "Rappel de course",
-                  body: `Votre course commence dans 30 minutes. Soyez prêt !`
-                },
-                data: {
-                  rideId: notification.rideId || '',
-                  type: 'ride_reminder',
-                  timestamp: notification.timestamp,
-                  fareAmount: notification.fareAmount?.toString() || ''
-                }
-              });
-              console.log(`Notification envoyée au client pour la course ${notification.rideId}`);
-            } catch (error) {
-              console.error('Erreur envoi notification client:', error.message);
-            }
+        // Envoyer la notification au chauffeur
+        if (notification.driverToken) {
+          try {
+            await adminnotification.messaging().send({
+              token: notification.driverToken,
+              notification: {
+                title: "Rappel de course",
+                body: `Vous avez une course prévue dans ${Math.max(0, diffMinutes)} minutes. Préparez-vous !`
+              },
+              data: {
+                rideId: notification.rideId || '',
+                type: 'ride_reminder',
+                timestamp: notification.timestamp
+              }
+            });
+            console.log(`Notification envoyée au chauffeur pour la course ${notification.rideId}`);
+          } catch (error) {
+            console.error('Erreur envoi notification chauffeur:', error.message);
           }
-
-          // Marquer la notification comme envoyée
-          await notificationsRef.child(key).update({
-            reminderSent: true,
-            reminderSentAt: moment().tz('Europe/Paris').format()
-          });
         }
+
+        // Envoyer la notification au client
+        if (notification.userToken) {
+          try {
+            await adminnotification.messaging().send({
+              token: notification.userToken,
+              notification: {
+                title: "Rappel de course",
+                body: `Votre course commence dans ${Math.max(0, diffMinutes)} minutes. Soyez prêt !`
+              },
+              data: {
+                rideId: notification.rideId || '',
+                type: 'ride_reminder',
+                timestamp: notification.timestamp,
+                fareAmount: notification.fareAmount?.toString() || ''
+              }
+            });
+            console.log(`Notification envoyée au client pour la course ${notification.rideId}`);
+          } catch (error) {
+            console.error('Erreur envoi notification client:', error.message);
+          }
+        }
+
+        // Marquer la notification comme envoyée et l'horodatage de l'envoi
+        await notificationsRef.child(key).update({
+          reminderSent: true,
+          reminderSentAt: moment().tz('Europe/Paris').format()
+        });
+
       }
       
-      // Optionnel : Supprimer les notifications des courses passées (plus de 2 heures)
-      if (diffMinutes < -120) {
+      // Supprimer les notifications après un certain temps (ex: 10 minutes après l'heure de la course)
+      // Ceci permet d'envoyer la notification et ensuite de nettoyer.
+      if (diffMinutes < -10) { 
         await notificationsRef.child(key).remove();
-        console.log(`Notification expirée supprimée : ${key}`);
+        console.log(`Notification expirée et traitée supprimée : ${key}`);
       }
     }
   } catch (error) {
