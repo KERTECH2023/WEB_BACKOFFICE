@@ -20,7 +20,7 @@ const clearActiveDrivers = () => {
     } catch (error) {
       console.error("Erreur lors de la suppression des données ActiveDrivers :", error.message);
     }
-  }, 5 * 60 * 1000); // 30 minutes = 30 * 60 * 1000 ms
+  }, 5 * 60 * 1000); // 5 minutes
 };
 
 // Appeler la fonction pour démarrer la suppression automatique
@@ -30,12 +30,12 @@ clearActiveDrivers();
 const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) => {
   try {
     const messages = tokens.map((token) => ({
-      token: token, // Token de l'appareil cible
+      token: token,
       notification: {
-        title: title, // Titre de la notification
-        body: body,  // Corps de la notification
+        title: title,
+        body: body,
       },
-      data: data, // Données supplémentaires (optionnel)
+      data: data,
     }));
 
     const responses = await Promise.all(messages.map((message) => adminnotification.messaging().send(message)));
@@ -46,7 +46,6 @@ const sendNotificationToMultipleTokens = async (tokens, title, body, data = {}) 
 };
 
 const sendmessagingnotification = async () => {
- 
   const snapshot = await realtimeDB.ref('Drivers').once('value');
   const drivers = snapshot.val();
 
@@ -55,9 +54,8 @@ const sendmessagingnotification = async () => {
     return;
   }
 
-  // Extraire les tokens des chauffeurs
-    const tokens = Object.values(drivers) 
-    .filter(driver => driver.token  && driver.Status=="Offline") // Filtrer les chauffeurs avec Cstatus: true et un token valide
+  const tokens = Object.values(drivers) 
+    .filter(driver => driver.token && driver.Status == "Offline")
     .map(driver => driver.token);
 
   if (tokens.length === 0) {
@@ -65,25 +63,102 @@ const sendmessagingnotification = async () => {
     return;
   }
 
- 
+  const data = { key1: 'valeur1', key2: 'valeur2' };
 
-  const data = { key1: 'valeur1', key2: 'valeur2' }; // Données personnalisées (optionnel)
-
-  // Appeler la fonction pour envoyer les notifications
   await sendNotificationToMultipleTokens(tokens, "Flash Driver", "Restez connecté pour obtenir plus de courses et gagner plus d'argent.", data);
-
-
 };
 
+// NOUVEAU : Système de rappel de courses 30 minutes avant
+const checkUpcomingRides = async () => {
+  try {
+    const notificationsRef = realtimeDB.ref('Notifications');
+    const snapshot = await notificationsRef.once('value');
+    const notifications = snapshot.val();
 
+    if (!notifications) {
+      console.log('Aucune notification trouvée.');
+      return;
+    }
 
+    const now = moment().tz('Europe/Paris');
+    
+    // Parcourir toutes les notifications
+    for (const [key, notification] of Object.entries(notifications)) {
+      if (!notification.timestamp || !notification.driverToken || !notification.userToken) {
+        continue;
+      }
 
+      // Parser la date de la course
+      const rideTime = moment.tz(notification.timestamp, 'Europe/Paris');
+      
+      // Calculer la différence en minutes
+      const diffMinutes = rideTime.diff(now, 'minutes');
+      
+      // Vérifier si on est exactement 30 minutes avant la course (avec une marge de 1 minute)
+      if (diffMinutes >= 29 && diffMinutes <= 31) {
+        // Vérifier si la notification n'a pas déjà été envoyée
+        if (!notification.reminderSent) {
+          // Envoyer la notification au chauffeur
+          if (notification.driverToken) {
+            try {
+              await adminnotification.messaging().send({
+                token: notification.driverToken,
+                notification: {
+                  title: "Rappel de course",
+                  body: `Vous avez une course prévue dans 30 minutes. Préparez-vous !`
+                },
+                data: {
+                  rideId: notification.rideId || '',
+                  type: 'ride_reminder',
+                  timestamp: notification.timestamp
+                }
+              });
+              console.log(`Notification envoyée au chauffeur pour la course ${notification.rideId}`);
+            } catch (error) {
+              console.error('Erreur envoi notification chauffeur:', error.message);
+            }
+          }
 
+          // Envoyer la notification au client
+          if (notification.userToken) {
+            try {
+              await adminnotification.messaging().send({
+                token: notification.userToken,
+                notification: {
+                  title: "Rappel de course",
+                  body: `Votre course commence dans 30 minutes. Soyez prêt !`
+                },
+                data: {
+                  rideId: notification.rideId || '',
+                  type: 'ride_reminder',
+                  timestamp: notification.timestamp,
+                  fareAmount: notification.fareAmount?.toString() || ''
+                }
+              });
+              console.log(`Notification envoyée au client pour la course ${notification.rideId}`);
+            } catch (error) {
+              console.error('Erreur envoi notification client:', error.message);
+            }
+          }
 
-
-
-
-
+          // Marquer la notification comme envoyée
+          await notificationsRef.child(key).update({
+            reminderSent: true,
+            reminderSentAt: moment().tz('Europe/Paris').format()
+          });
+        }
+      }
+      
+      // Optionnel : Supprimer les notifications des courses passées (plus de 2 heures)
+      if (diffMinutes < -120) {
+        await notificationsRef.child(key).remove();
+        console.log(`Notification expirée supprimée : ${key}`);
+      }
+    }
+  } catch (error) {
+    console.error('Erreur lors de la vérification des courses à venir:', error.message);
+  }
+};
 
 const updateAllChauffeursWithTarif = async (tariffId) => {
   try {
@@ -128,7 +203,7 @@ async function updateTariff(type) {
     const percentage = config.percentage !== undefined ? Number(config.percentage) : 0;
 
     // Vérification des valeurs
-    if (isNaN(baseFare) || isNaN(farePerKm) || isNaN(farePerMinute) || isNaN(FraisDeService)|| isNaN(percentage)) {
+    if (isNaN(baseFare) || isNaN(farePerKm) || isNaN(farePerMinute) || isNaN(FraisDeService) || isNaN(percentage)) {
       console.error(`Valeurs de tarif invalides pour ${type}`);
       return;
     }
@@ -158,26 +233,26 @@ async function updateTariff(type) {
   }
 }
 
-// [Cron schedules remain unchanged]
+// Planification des tâches cron avec timezone Europe/Paris
 cron.schedule('00 21 * * *', () => {
   updateTariff('nocturne');
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
 cron.schedule('00 05 * * *', () => {
   updateTariff('journalier');
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
 cron.schedule('30 07 * * *', () => {
   updateTariff('tempfort');
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
 cron.schedule('00 09 * * *', () => {
@@ -185,7 +260,7 @@ cron.schedule('00 09 * * *', () => {
   sendmessagingnotification();
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
 cron.schedule('00 12 * * *', () => {
@@ -193,14 +268,14 @@ cron.schedule('00 12 * * *', () => {
   sendmessagingnotification();
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
 cron.schedule('00 13 * * *', () => {
   updateTariff('journalier');
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
 cron.schedule('00 17 * * *', () => {
@@ -208,16 +283,28 @@ cron.schedule('00 17 * * *', () => {
   sendmessagingnotification();
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
 cron.schedule('00 18 * * *', () => {
   updateTariff('journalier');
 }, {
   scheduled: true,
-  timezone: "Africa/Tunis"
+  timezone: "Europe/Paris"
 });
 
+// NOUVEAU : Vérifier les courses à venir toutes les minutes
+cron.schedule('* * * * *', () => {
+  checkUpcomingRides();
+}, {
+  scheduled: true,
+  timezone: "Europe/Paris"
+});
+
+// Lancer une vérification au démarrage du serveur
+checkUpcomingRides();
+
+// Exports
 exports.showtarifs = async (req, res) => {
   try {
     const data = await Tarifs.find();
@@ -228,7 +315,7 @@ exports.showtarifs = async (req, res) => {
 };
 
 exports.addTarifAndUpdateChauffeurs = async (req, res) => {
-  const { baseFare, farePerKm, farePerMinute, FraisDeService,percentage } = req.body;
+  const { baseFare, farePerKm, farePerMinute, FraisDeService, percentage } = req.body;
 
   try {
     // Validation des données
@@ -258,7 +345,6 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
       isNaN(farePerMinuteNum) ||
       isNaN(FraisDeServiceNum) ||
       isNaN(percentageNum)
-
     ) {
       return res.status(400).send({
         message: "Les valeurs baseFare, farePerKm, farePerMinute et FraisDeService doivent être des nombres valides.",
@@ -330,7 +416,7 @@ exports.addTarifAndUpdateChauffeurs = async (req, res) => {
 };
 
 exports.updateTarifAndMajoration = async (req, res) => {
-  const { tarifId, baseFare, farePerKm, farePerMinute, FraisDeService,percentage } = req.body;
+  const { tarifId, baseFare, farePerKm, farePerMinute, FraisDeService, percentage } = req.body;
 
   try {
     // Vérifier si les données nécessaires sont fournies
@@ -388,7 +474,7 @@ exports.updateTarifAndMajoration = async (req, res) => {
       farePerKm: farePerKmNum,
       farePerMinute: farePerMinuteNum,
       FraisDeService: FraisDeServiceNum,
-      percentage : percentageNum
+      percentage: percentageNum
     });
 
     // Réponse de succès
