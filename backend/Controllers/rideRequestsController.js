@@ -57,10 +57,10 @@ const getAllRideRequests = async (req, res) => {
 
     // --- Étape 4 : Retourner tous les docs depuis MongoDB ---
     
-    const rideRequests = await RideRequest.find().lean();
+   // const rideRequests = await RideRequest.find().lean();
     
-
-    return res.status(200).json(rideRequests);
+    return res.status(200).json(firestoreDocs);
+  //  return res.status(200).json(rideRequests);
 
   } catch (error) {
     console.error("Erreur lors de la récupération des demandes de trajet :", error);
@@ -111,6 +111,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
