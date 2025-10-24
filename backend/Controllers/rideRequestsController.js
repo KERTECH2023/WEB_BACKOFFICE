@@ -13,25 +13,19 @@ const RideRequest = require("../Models/AllRideRequest");
 
 const getAllRideRequests = async (req, res) => {
   try {
-    // --- Étape 1 : Récupérer tous les docs Firestore ---
-    
-    // Une simple lecture (get()) est la seule opération de DB.
-    const snapshot = await firestore.collection("AllRideRequests").get();
-    
-    // Mappage des documents pour obtenir le format { id: doc.id, data: doc.data() }
-    const firestoreDocs = snapshot.docs.map(doc => ({ 
-      id: doc.id, 
-      data: doc.data() 
-    }));
-    
-    // ❌ Étape 2 et 3 supprimées pour éviter la consommation de requêtes MongoDB et de calculs.
-    // L'objectif est de ne pas "consommer trop".
-    
-    // --- Étape 4 : Retourner les docs directement depuis Firebase ---
-    
-    // Retourne le tableau des documents de Firestore.
-    return res.status(200).json(firestoreDocs);
+    const rideRequestsRef = firestore.collection("AllRideRequests");
+    const snapshot = await rideRequestsRef.get();
 
+    if (snapshot.empty) {
+      return res.status(404).json({ error: "Aucune demande de trajet trouvée" });
+    }
+
+    const rideRequests = {};
+    snapshot.forEach(doc => {
+      rideRequests[doc.id] = doc.data();
+    });
+    
+    return res.status(200).json(rideRequests);
   } catch (error) {
     console.error("Erreur lors de la récupération des demandes de trajet :", error);
     return res.status(500).json({ error: "Erreur serveur" });
@@ -140,6 +134,7 @@ module.exports = {
   getAllRideRequests,
   deleteRideRequest,
 }
+
 
 
 
