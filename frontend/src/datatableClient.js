@@ -49,7 +49,7 @@ export const ClientColumns = [
     {
       field: "phone",
       headerName: "Téléphone",
-      width: 100,
+      width: 230,
     },
     {
       field: "role",
