@@ -35,7 +35,7 @@ const SingleClient = () => {
 
     const fetchRides = async (cnicNo) => {
         try {
-            const response = await axios.get(`https://api.backofficegc.com/Ridefr/ride-requests/${cnicNo}`);
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/Ridefr/ride-requests/${cnicNo}`);
             if (response.status === 200 && response.data.rideRequests) {
                 setRides(response.data.rideRequests);
             }
