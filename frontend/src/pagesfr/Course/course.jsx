@@ -9,7 +9,7 @@ const Liscourse = () => {
   const [sortOrder, setSortOrder] = useState("desc"); // "desc" pour descendant (plus récent d'abord), "asc" pour ascendant
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const API_URL = "https://api.backofficegc.com/rideRequestsfr/ride-requests";
+  const API_URL = `${process.env.REACT_APP_BASE_URL}/rideRequestsfr/ride-requests`;
 
   // Styles intégrés
   const styles = {
