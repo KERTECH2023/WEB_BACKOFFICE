@@ -78,7 +78,7 @@ const Datachauf = () => {
   const getTotalSolde = async () => {
     try {
       const response = await axios.get(
-        "https://api.backofficegc.com/Solde/soldetotal"
+        process.env.REACT_APP_BASE_URL + "/Solde/soldetotal"
       );
       setTotalSolde(response.data?.totalSolde || "N/A");
     } catch (error) {
@@ -90,7 +90,7 @@ const Datachauf = () => {
   const getDriverBalance = async (firebaseUID) => {
     try {
       const response = await axios.get(
-        `https://api.backofficegc.com/Solde/solde/${firebaseUID}`
+        `${process.env.REACT_APP_BASE_URL}/Solde/solde/${firebaseUID}`
       );
       return response.data;
     } catch (error) {
@@ -166,7 +166,7 @@ const updateDriverBalance = async (firebaseUID, addedBalance) => {
     try {
         // Récupérer le solde actuel du chauffeur
         const response = await axios.get(
-            `https://api.backofficegc.com/Solde/solde/${firebaseUID}`
+            `${process.env.REACT_APP_BASE_URL}/Solde/solde/${firebaseUID}`
         );
         const currentBalance = response.data?.solde || 0;
         
@@ -175,7 +175,7 @@ const updateDriverBalance = async (firebaseUID, addedBalance) => {
 
         // Mettre à jour le solde
         await axios.put(
-            `https://api.backofficegc.com/Solde/update/${firebaseUID}`,
+            `${process.env.REACT_APP_BASE_URL}/Solde/update/${firebaseUID}`,
             {
                 solde: newBalance,
             }
